@@ -1,0 +1,1 @@
+export const EVENT_LOG_BUFFER_SIZE = 2048;

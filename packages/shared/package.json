@@ -1,0 +1,37 @@
+{
+  "name": "@mmo/shared",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./assets/*": "./assets/*"
+  },
+  "files": [
+    "dist",
+    "assets"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "generate:navcat": "node --import tsx scripts/generate-navcat.ts",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "devDependencies": {
+    "eslint": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@babylonjs/core": "catalog:",
+    "@colyseus/schema": "catalog:",
+    "navcat": "catalog:",
+    "@mmo/eslint-config": "workspace:*"
+  }
+}

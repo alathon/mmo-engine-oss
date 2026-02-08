@@ -1,0 +1,36 @@
+{
+  "name": "@mmo/shared-servers",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "catalog:",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "pino-pretty": "catalog:",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@colyseus/core": "catalog:",
+    "@mmo/shared": "workspace:*",
+    "jsonwebtoken": "catalog:",
+    "pino": "catalog:"
+  }
+}

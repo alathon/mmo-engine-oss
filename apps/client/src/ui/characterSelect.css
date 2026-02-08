@@ -1,0 +1,226 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;600&display=swap");
+
+:root {
+  --cs-umber: #120e0b;
+  --cs-ashen: #1b1713;
+  --cs-parchment: #f5ecdc;
+  --cs-gold: #f2c27a;
+  --cs-rose: #c0876b;
+  --cs-shadow: rgba(5, 4, 3, 0.7);
+}
+
+#ui {
+  position: fixed;
+  inset: 0;
+  pointer-events: auto;
+  z-index: 200;
+  font-family: "Fraunces", "Cormorant Garamond", "Georgia", serif;
+}
+
+.character-select-screen {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) 1fr;
+  align-items: center;
+  gap: clamp(24px, 4vw, 48px);
+  padding: clamp(24px, 5vw, 64px);
+  pointer-events: none;
+}
+
+.character-select-vignette {
+  position: absolute;
+  inset: -10vmax;
+  background:
+    radial-gradient(circle at 70% 50%, rgba(18, 14, 11, 0.4), rgba(8, 6, 4, 0.92) 75%);
+  animation: cs-vignette-breathe 10s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.character-select-panel {
+  position: relative;
+  pointer-events: auto;
+  padding: clamp(28px, 4vw, 40px);
+  border-radius: 22px;
+  background: linear-gradient(150deg, rgba(34, 26, 19, 0.92), rgba(15, 12, 10, 0.9));
+  border: 1px solid rgba(242, 194, 122, 0.18);
+  box-shadow:
+    0 20px 60px var(--cs-shadow),
+    inset 0 0 0 1px rgba(255, 235, 200, 0.06);
+  z-index: 1;
+  animation: cs-panel-enter 0.8s ease-out;
+}
+
+
+.character-select-crest {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(242, 194, 122, 0.4);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(242, 194, 122, 0.55), transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(192, 135, 107, 0.35), transparent 55%),
+    linear-gradient(140deg, rgba(15, 12, 9, 0.95), rgba(22, 17, 12, 0.95));
+  box-shadow: 0 0 20px rgba(242, 194, 122, 0.3);
+}
+
+.character-select-title {
+  font-size: clamp(28px, 3.6vw, 36px);
+  margin-bottom: 10px;
+  color: var(--cs-parchment);
+  letter-spacing: 0.04em;
+}
+
+.character-select-subtitle {
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: rgba(245, 236, 220, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  margin-bottom: 24px;
+}
+
+.character-select-list {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.character-select-entry {
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 235, 200, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--cs-parchment);
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.character-select-entry::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.character-select-entry:hover {
+  transform: translateY(-1px);
+  border-color: rgba(242, 194, 122, 0.3);
+  box-shadow: 0 12px 24px rgba(6, 4, 2, 0.4);
+}
+
+.character-select-entry:hover::after {
+  opacity: 1;
+}
+
+.character-select-entry.is-selected {
+  border-color: color-mix(in srgb, var(--accent) 70%, #ffffff 30%);
+  box-shadow: 0 18px 36px rgba(10, 8, 6, 0.55);
+  transform: translateY(-2px);
+}
+
+.character-select-name {
+  font-size: 18px;
+  letter-spacing: 0.03em;
+}
+
+.character-select-detail {
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: rgba(245, 236, 220, 0.65);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.character-select-hint {
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-size: 12px;
+  color: rgba(245, 236, 220, 0.5);
+  margin-bottom: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.character-select-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.character-select-enter {
+  flex: 1;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(120deg, #f7d7a1, #f2b873 50%, #e48f5f 100%);
+  color: #1b1208;
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  box-shadow: 0 14px 30px rgba(240, 139, 85, 0.35);
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.character-select-enter:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.character-select-enter:disabled {
+  cursor: default;
+  filter: grayscale(0.2) brightness(0.9);
+  box-shadow: none;
+}
+
+@keyframes cs-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cs-vignette-breathe {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@media (max-width: 1200px) {
+  .character-select-screen {
+    grid-template-columns: minmax(280px, 360px) 1fr;
+  }
+}
+
+@media (max-height: 620px) {
+  .character-select-panel {
+    padding: 22px;
+  }
+  .character-select-list {
+    gap: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .character-select-panel,
+  .character-select-vignette {
+    animation: none;
+  }
+}

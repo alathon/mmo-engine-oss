@@ -1,0 +1,8 @@
+# Build output
+dist/
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+*.log

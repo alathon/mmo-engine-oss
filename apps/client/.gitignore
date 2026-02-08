@@ -1,0 +1,16 @@
+# Build output
+dist/
+
+# TypeScript
+*.tsbuildinfo
+
+# Vite
+*.local
+
+# Environment
+.env.*
+!.env.example
+!.env.local
+
+# Logs
+*.log

@@ -1,0 +1,54 @@
+{
+  "name": "@mmo/server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Colyseus game server for MMO",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "start": "tsx watch src/index.ts",
+    "start:prod": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "generate:navcat": "tsx scripts/generate-navcat.ts",
+    "loadtest": "tsx loadtest/example.ts --room my_room --numClients 2",
+    "test": "vitest run --config vitest.config.ts",
+    "build": "pnpm run clean && tsc",
+    "clean": "rimraf dist",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@colyseus/loadtest": "catalog:",
+    "@colyseus/testing": "catalog:",
+    "@types/express": "catalog:",
+    "@types/jsonwebtoken": "catalog:",
+    "eslint": "catalog:",
+    "pino-pretty": "catalog:",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@babylonjs/core": "catalog:",
+    "@colyseus/core": "catalog:",
+    "@colyseus/monitor": "catalog:",
+    "@colyseus/playground": "catalog:",
+    "@colyseus/schema": "catalog:",
+    "@colyseus/tools": "catalog:",
+    "@colyseus/ws-transport": "catalog:",
+    "@mmo/shared": "workspace:*",
+    "@mmo/shared-servers": "workspace:*",
+    "colyseus": "catalog:",
+    "express": "catalog:",
+    "express-basic-auth": "catalog:",
+    "jsonwebtoken": "catalog:",
+    "navcat": "catalog:",
+    "pino": "catalog:"
+  }
+}

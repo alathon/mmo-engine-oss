@@ -1,0 +1,45 @@
+{
+  "$schema": "./node_modules/turbo/schema.json",
+  "envMode": "strict",
+  "globalDependencies": ["pnpm-lock.yaml", ".env", ".env.*"],
+  "globalEnv": ["NODE_ENV"],
+  "tasks": {
+    "build": {
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"],
+      "dependsOn": ["^build"],
+      "env": ["NODE_ENV"],
+      "outputs": ["dist/**"]
+    },
+    "check-types": {
+      "dependsOn": ["^build", "^check-types"]
+    },
+    "lint": {},
+    "lint:fix": {},
+    "dev": {
+      "dependsOn": ["^build"],
+      "env": [
+        "AUTH_TOKEN_SECRET",
+        "LOG_LEVEL",
+        "MONITOR_PASSWORD",
+        "PLAYER_DISCONNECT_GRACE_MS",
+        "PORT",
+        "SIMULATE_LATENCY"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "env": ["AUTH_TOKEN_SECRET", "NODE_ENV"]
+    },
+    "clean": {
+      "cache": false
+    },
+    "generate:navcat": {
+      "cache": false
+    },
+    "loadtest": {
+      "cache": false
+    }
+  }
+}

@@ -1,0 +1,17 @@
+# Build output
+dist/
+
+# Colyseus specific
+.colyseus-cloud.json
+.devmode.json
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log

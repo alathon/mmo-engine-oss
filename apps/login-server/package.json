@@ -1,0 +1,38 @@
+{
+  "name": "@mmo/login-server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Login server for MMO",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "start": "tsx watch src/index.ts",
+    "start:prod": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "build": "pnpm run clean && tsc",
+    "clean": "rimraf dist",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/cors": "catalog:",
+    "@types/express": "catalog:",
+    "@types/jsonwebtoken": "catalog:",
+    "eslint": "catalog:",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@mmo/shared": "workspace:*",
+    "@mmo/shared-servers": "workspace:*",
+    "cors": "catalog:",
+    "express": "catalog:",
+    "jsonwebtoken": "catalog:"
+  }
+}

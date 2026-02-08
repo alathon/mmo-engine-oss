@@ -1,0 +1,55 @@
+packages:
+  - apps/*
+  - packages/*
+
+catalog:
+  "@babylonjs/core": ^7.54.3
+  "@babylonjs/gui": ^7.54.3
+  "@babylonjs/inspector": ^7.54.3
+  "@colyseus/auth": ^0.17.6
+  "@colyseus/core": ^0.17.33
+  "@colyseus/loadtest": ^0.17.8
+  "@colyseus/monitor": ^0.17.7
+  "@colyseus/playground": ^0.17.10
+  "@colyseus/schema": ^4.0.11
+  "@colyseus/sdk": ^0.17.27
+  "@colyseus/testing": ^0.17.11
+  "@colyseus/tools": ^0.17.18
+  "@colyseus/ws-transport": ^0.17.9
+  "@types/cors": ^2.8.19
+  "@types/express": ^4.17.1
+  "@types/jsonwebtoken": ^9.0.10
+  "@types/node": ^25.2.1
+  "@types/react": ^19.1.12
+  "@types/react-dom": ^19.1.9
+  "@typescript-eslint/eslint-plugin": ^8.26.0
+  "@typescript-eslint/parser": ^8.26.0
+  "@vitejs/plugin-react": ^5.0.2
+  "@vitest/browser-playwright": ^4.0.18
+  "@eslint/js": ^9.39.2
+  babylonjs-editor-tools: ^5.3.0
+  colyseus: ^0.17.8
+  cors: ^2.8.6
+  eslint: ^9.39.2
+  express: ^4.18.2
+  express-basic-auth: ^1.2.1
+  globals: ^15.15.0
+  jsonwebtoken: ^9.0.3
+  navcat: ^0.1.6
+  pino: ^9.14.0
+  pino-pretty: ^13.1.3
+  react: ^19.1.1
+  react-dom: ^19.1.1
+  rimraf: ^5.0.0
+  rollup-plugin-visualizer: ^6.0.5
+  tsx: ^4.21.0
+  turbo: ^2.8.3
+  typescript: ^5.9.3
+  typescript-language-server: ^5.1.3
+  vite: ^7.3.1
+  vitest: ^4.0.18
+
+injectWorkspacePackages: true
+
+syncInjectedDepsAfterScripts:
+  - build

@@ -1,0 +1,26 @@
+{
+  "name": "@mmo/root",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "turbo run build",
+    "type-check": "turbo run type-check",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "test": "turbo run test"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@10.28.2",
+  "devDependencies": {
+    "@mmo/eslint-config": "workspace:*",
+    "@types/node": "catalog:",
+    "babylonjs-editor-tools": "catalog:",
+    "turbo": "catalog:",
+    "typescript": "catalog:",
+    "typescript-language-server": "catalog:"
+  }
+}

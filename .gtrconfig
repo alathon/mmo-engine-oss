@@ -1,0 +1,11 @@
+[copy]
+    include = **/.env.local
+    includeDirs = node_modules
+    excludeDirs = node_modules/.cache
+
+[hooks]
+    postCreate = pnpm install && pnpm build
+
+[defaults]
+    editor = zed
+    ai = codex

@@ -1,0 +1,38 @@
+{
+  "name": "@mmo/client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "check-types": "tsc --noEmit",
+    "build": "vite build",
+    "build:render": "bash ../../scripts/render-build-client.sh",
+    "build:analyze": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "eslint": "catalog:",
+    "rollup-plugin-visualizer": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@babylonjs/core": "catalog:",
+    "@babylonjs/gui": "catalog:",
+    "@babylonjs/inspector": "catalog:",
+    "@colyseus/sdk": "catalog:",
+    "@mmo/shared": "workspace:*",
+    "navcat": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "vite": "catalog:"
+  }
+}

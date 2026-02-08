@@ -1,0 +1,12 @@
+[
+  {
+    "label": "Chrome Debug",
+    "adapter": "JavaScript",
+    "type": "chrome",
+    "request": "launch",
+    "url": "http://localhost:5173",
+    "program": "$ZED_FILE",
+    "webRoot": "${ZED_WORKTREE_ROOT}/apps/client",
+    "skipFiles": ["<node_internals>/**"],
+  },
+]

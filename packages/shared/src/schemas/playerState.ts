@@ -1,0 +1,24 @@
+import { ArraySchema, type } from "@colyseus/schema";
+import { MobState } from "./mobState";
+import { PlayerDebugInfo } from "./playerDebugInfo";
+
+/**
+ * Shared player schema synced to clients.
+ */
+export class PlayerState extends MobState {
+  /** Unique player identifier. */
+  @type("string") playerId = "";
+  /** Session identifier used by Colyseus. */
+  @type("string") sessionId = "";
+  /** Last processed input sequence number. */
+  @type("uint32") lastProcessedSeq = 0;
+  /** Whether the player has disconnected but is still present in the zone. */
+  @type("boolean") isDisconnected = false;
+  /** Server debug metrics for input processing. */
+  @type(PlayerDebugInfo) debug: PlayerDebugInfo = new PlayerDebugInfo();
+
+  /**
+   * Target ids currently in line of sight of this player.
+   */
+  @type(["string"]) visibleTargets = new ArraySchema<string>();
+}
