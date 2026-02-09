@@ -40,7 +40,7 @@ export interface GameConnectionOptions {
  */
 export class ZoneConnectionManager implements ConnectionEventEmitter {
   private client?: ColyseusSDK; // ColyseusSDK<typeof server>;
-  private room?: Room<typeof ZoneState>; // Room<ZoneRoom>
+  private room?: Room<ZoneState>;
   private zoneId?: string;
   private isInitialized = false;
   private lastStatusText = "Disconnected";
@@ -92,6 +92,7 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
         { zoneId: options.zoneId },
         ZoneState,
       );
+
       console.info("ZoneConnectionManager connected to room", {
         sessionId: this.room.sessionId,
       });
@@ -287,7 +288,7 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
       },
     );
 
-    const callbacks = Callbacks.get<ZoneState>(this.room);
+    const callbacks = Callbacks.get(this.room);
 
     callbacks.listen("zoneId", (zoneId) => {
       if (!zoneId || zoneId === this.zoneId) {
