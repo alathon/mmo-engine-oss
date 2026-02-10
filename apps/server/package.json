@@ -1,7 +1,8 @@
 {
   "name": "@mmo/server",
+  "author": "Martin Grünbaum <martin@itsolveonline.net>",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.2",
   "type": "module",
   "description": "Colyseus game server for MMO",
   "main": "dist/index.js",
@@ -20,7 +21,6 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix"
   },
-  "author": "",
   "license": "UNLICENSED",
   "devDependencies": {
     "@colyseus/loadtest": "catalog:",

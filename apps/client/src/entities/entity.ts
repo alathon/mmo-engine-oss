@@ -1,10 +1,10 @@
-import { Scene } from "@babylonjs/core/scene";
-import { Vector3 } from "@babylonjs/core/Maths/math.vector";
-import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
-import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
-import { Color3 } from "@babylonjs/core/Maths/math.color";
-import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { Scene } from '@babylonjs/core/scene';
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
+import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
+import { Color3 } from '@babylonjs/core/Maths/math.color';
+import { Mesh } from '@babylonjs/core/Meshes/mesh';
+import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
 
 /** Buffer added to collision mesh dimensions. */
 const COLLISION_BUFFER = 0.1;
@@ -83,15 +83,9 @@ export class Entity extends TransformNode {
     this.modelMesh.material = this.material;
 
     // Create collision mesh from model mesh bounding box if collision is enabled
-    if (hasCollision) {
-      this.collisionMesh = this.createCollisionMesh(
-        id,
-        modelMeshOffsetY,
-        scene,
-      );
-    } else {
-      this.collisionMesh = undefined;
-    }
+    this.collisionMesh = hasCollision
+      ? this.createCollisionMesh(id, modelMeshOffsetY, scene)
+      : undefined;
   }
 
   /**
@@ -117,11 +111,7 @@ export class Entity extends TransformNode {
     const depth = size.z + COLLISION_BUFFER;
 
     // Create box collision mesh
-    const collisionMesh = MeshBuilder.CreateBox(
-      `${id}_collision`,
-      { width, height, depth },
-      scene,
-    );
+    const collisionMesh = MeshBuilder.CreateBox(`${id}_collision`, { width, height, depth }, scene);
 
     // Parent to this entity and position at same offset as model
     collisionMesh.parent = this;

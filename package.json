@@ -1,7 +1,8 @@
 {
   "name": "@mmo/root",
+  "author": "Martin Grünbaum <martin@itsolveonline.net>",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.2",
   "type": "module",
   "scripts": {
     "build": "turbo run build",

@@ -1,3 +1,3 @@
-export { CombatController } from "./combatController";
-export { CombatPredictionState } from "./combatPredictionState";
-export type { AbilityUseContext } from "./combatController";
+export { CombatController } from './combat-controller';
+export { CombatPredictionState } from './combat-prediction-state';
+export type { AbilityUseContext } from './combat-controller';

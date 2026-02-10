@@ -1,6 +1,6 @@
-import { Vector3 } from "@babylonjs/core/Maths/math.vector";
-import { PLAYER_SPEED } from "@mmo/shared";
-import { lerpAngle } from "../utils/math";
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { PLAYER_SPEED } from '@mmo/shared';
+import { lerpAngle } from '../utils/math';
 
 const ROTATION_LERP_SPEED = 12;
 
@@ -14,10 +14,7 @@ export interface SmoothableEntity {
 /**
  * Applies interpolation and rotation smoothing for an entity.
  */
-export function applyMovementSmoothing(
-  entity: SmoothableEntity,
-  deltaTimeMs: number,
-): void {
+export function applyMovementSmoothing(entity: SmoothableEntity, deltaTimeMs: number): void {
   const diff = entity.getTargetPosition().subtract(entity.position);
   const distance = diff.length();
 
@@ -32,6 +29,6 @@ export function applyMovementSmoothing(
     entity.rotation.y,
     entity.getMovementYaw(),
     deltaTimeMs,
-    ROTATION_LERP_SPEED,
+    ROTATION_LERP_SPEED
   );
 }

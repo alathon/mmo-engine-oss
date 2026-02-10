@@ -1,5 +1,6 @@
 {
   "name": "@mmo/assets",
+  "author": "Martin Grünbaum <martin@itsolveonline.net>",
   "private": true,
   "version": "0.0.2",
   "type": "module",

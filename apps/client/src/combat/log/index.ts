@@ -1,1 +1,1 @@
-export * from "./combatLogTextBuilder";
+export * from './combat-log-text-builder';
