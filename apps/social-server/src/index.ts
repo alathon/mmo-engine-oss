@@ -8,14 +8,14 @@
  *
  * See: https://docs.colyseus.io/server/api/#constructor-options
  */
-import { listen } from "@colyseus/tools";
+import { listen } from '@colyseus/tools';
 
 // Import Colyseus config
-import app from "./appConfig";
+import app from './app-config';
 
 // Create and listen on 2568 (or PORT environment variable.)
 if (!process.env.PORT) {
-  process.env.PORT = "2568";
+  process.env.PORT = '2568';
 }
 
 listen(app);

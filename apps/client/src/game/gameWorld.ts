@@ -13,6 +13,7 @@ import type {
   ZoneDefinition,
   SnapMessage,
   EventLogEntry,
+  AbilityCastInterruptEvent,
   AbilityEffectAppliedEvent,
 } from "@mmo/shared";
 import {
@@ -46,7 +47,7 @@ import type { GroundMesh } from "@babylonjs/core/Meshes/groundMesh";
 import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import { ObjEntity } from "../entities/objEntity";
 import { ObjManager } from "./objManager";
-import { HotbarController } from "../ui/hotbars/hotbarController";
+import { HotbarController } from "../ui/widgets/hotbars/hotbarController";
 import { CombatController } from "../combat";
 import type { AbilityUseContext } from "../combat";
 import { TargetingController } from "../combat/targetingController";
@@ -307,6 +308,7 @@ export class GameWorld {
     this.hotbar = undefined;
     this.combatTextSystem?.dispose();
     this.combatTextSystem = undefined;
+    this.services.performanceViewModel.dispose();
     this.setCameraFollowTarget(undefined);
     this.camera = undefined;
     this.scene = undefined;
@@ -340,6 +342,7 @@ export class GameWorld {
    */
   update(deltaTimeMs: number): void {
     this.combatTextSystem?.beginFrame();
+    this.services.performanceViewModel.tick(deltaTimeMs);
     // Run as many fixedTick()'s as we have time for.
     this.elapsedMs += deltaTimeMs;
     while (this.elapsedMs >= TICK_MS) {
@@ -377,6 +380,10 @@ export class GameWorld {
     this.npcs.forEach((npc) => npc.fixedTick(TICK_MS));
     this.combatController?.fixedTick();
     this.inputRouter?.update();
+    if (this.combatController) {
+      const moveDir = this.services.input.getMovementDirection();
+      this.combatController.setMovementActive(moveDir.lengthSquared() > 0);
+    }
     this.hotbar?.update();
     this.services.hotbarViewModel.tick(Date.now());
     this.localMovement?.fixedTick(TICK_MS);
@@ -670,19 +677,19 @@ export class GameWorld {
       });
       this.hotbar.setSlotAction(2, {
         type: "ability",
-        abilityId: "meteor_circle",
+        abilityId: "fireball",
       });
       this.hotbar.setSlotAction(3, {
         type: "ability",
-        abilityId: "flame_cone",
+        abilityId: "sky_sword",
       });
       this.hotbar.setSlotAction(4, {
         type: "ability",
-        abilityId: "arcane_field",
+        abilityId: "ice_storm",
       });
       this.hotbar.setSlotAction(5, {
         type: "ability",
-        abilityId: "shock_cone",
+        abilityId: "overgrowth",
       });
       this.hotbar.setSlotAction(6, {
         type: "ability",
@@ -1300,6 +1307,14 @@ export class GameWorld {
     }
 
     for (const entry of buffer) {
+      if (
+        entry.category === EventCategory.Combat &&
+        entry.eventType === CombatEventType.AbilityCastInterrupt
+      ) {
+        this.combatController?.handleServerCastInterrupt(
+          entry as AbilityCastInterruptEvent,
+        );
+      }
       const message = buildCombatLogText(entry, this.combatLogContext);
       if (message) {
         this.services.ui.appendBattleMessage(message);

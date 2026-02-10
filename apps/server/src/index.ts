@@ -1,9 +1,9 @@
 import { listen } from "@colyseus/tools";
 
 // Import Colyseus config
-import app from "./appConfig";
+import app from "./app-config";
 import { matchMaker } from "colyseus";
-import { DefaultZoneLoader } from "./world/zones/zoneLoader";
+import { DefaultZoneLoader } from "./world/zones/zone-loader";
 
 const zoneLoader = new DefaultZoneLoader();
 
@@ -14,8 +14,8 @@ const bootServer = async () => {
 
   const server = await listen(app);
   if (process.env.SIMULATE_LATENCY) {
-    const latency = parseInt(process.env.SIMULATE_LATENCY);
-    if (!isNaN(latency) && latency >= 0) {
+    const latency = Number.parseInt(process.env.SIMULATE_LATENCY);
+    if (!Number.isNaN(latency) && latency >= 0) {
       server.simulateLatency(latency);
     }
   }

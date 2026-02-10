@@ -24,12 +24,12 @@ Authoritative, server-side event stream for combat and other discrete actions. T
 ### EventLogBuffer
 - `append(entry: T): number`
   - Assigns `eventId` and stores entry in the ring.
-- `getSince(afterSeq: number): { fromSeq; toSeq; entries } | null`
+- `getSince(afterSeq: number): { fromSeq; toSeq; entries } | undefined`
   - Returns the contiguous range `(afterSeq, latest]`.
-  - Returns `null` if the requested start is older than the buffer can satisfy.
-- `getRange(fromSeq: number, toSeq: number): { fromSeq; toSeq; entries } | null`
+  - Returns `undefined` if the requested start is older than the buffer can satisfy.
+- `getRange(fromSeq: number, toSeq: number): { fromSeq; toSeq; entries } | undefined`
   - Returns a specific contiguous range.
-  - Returns `null` if the full range is no longer available.
+  - Returns `undefined` if the full range is no longer available.
 - `oldestSeq`, `latestSeq`, `length`, `maxSize`
 
 ## Delivery (ZoneRoom)

@@ -4,10 +4,11 @@ import { DomInputManager } from "../input/domInputManager";
 import { GameUI } from "../ui/gameUi";
 import { ZoneConnectionManager } from "../network/zoneConnectionManager";
 import { SocialNetworkManager } from "../network/socialNetworkManager";
-import { ChatManager } from "../ui/chat/chatManager";
-import { ChatViewModel } from "../ui/chat/chatViewModel";
-import { ConnectionStatusViewModel } from "../ui/connectionStatus/connectionStatusViewModel";
-import { HotbarViewModel } from "../ui/hotbars/hotbarViewModel";
+import { ChatManager } from "../ui/widgets/chat/chatManager";
+import { ChatViewModel } from "../ui/widgets/chat/chatViewModel";
+import { ConnectionStatusViewModel } from "../ui/widgets/connectionStatus/connectionStatusViewModel";
+import { HotbarViewModel } from "../ui/widgets/hotbars/hotbarViewModel";
+import { PerformanceViewModel } from "../ui/widgets/performance/performanceViewModel";
 
 export interface IngameServices {
   input: InputManager;
@@ -18,6 +19,7 @@ export interface IngameServices {
   chatViewModel: ChatViewModel;
   connectionStatusViewModel: ConnectionStatusViewModel;
   hotbarViewModel: HotbarViewModel;
+  performanceViewModel: PerformanceViewModel;
 }
 
 export const createIngameServices = (scene: Scene): IngameServices => {
@@ -29,6 +31,7 @@ export const createIngameServices = (scene: Scene): IngameServices => {
   const chatViewModel = new ChatViewModel(chat);
   const connectionStatusViewModel = new ConnectionStatusViewModel(zoneNetwork);
   const hotbarViewModel = new HotbarViewModel();
+  const performanceViewModel = new PerformanceViewModel(scene, zoneNetwork);
 
   return {
     input,
@@ -39,5 +42,6 @@ export const createIngameServices = (scene: Scene): IngameServices => {
     chatViewModel,
     connectionStatusViewModel,
     hotbarViewModel,
+    performanceViewModel,
   };
 };

@@ -3,6 +3,7 @@ import {
   INTERNAL_COOLDOWN_MS,
   type AbilityAck,
   type AbilityCancelRequest,
+  type AbilityCastInterruptEvent,
   type AbilityUseRequest,
   type TargetSpec,
 } from "@mmo/shared";
@@ -27,6 +28,11 @@ export class CombatController {
   private readonly zoneNetwork: ZoneConnectionManager;
   private readonly prediction: CombatPredictionState;
   private lastAck?: AbilityAck;
+  private lastAckCastId?: number;
+  private lastPredictedCancelCastId?: number;
+  private pendingCastRequestId?: string;
+  private pendingCancelRequestId?: string;
+  private movementActive = false;
 
   constructor(source: MobEntity, zoneNetwork: ZoneConnectionManager) {
     this.source = source;
@@ -39,14 +45,39 @@ export class CombatController {
     this.currentTick += 1;
   }
 
+  setMovementActive(isMoving: boolean): void {
+    this.movementActive = isMoving;
+  }
+
   applyAck(ack: AbilityAck): void {
     if (this.prediction.isAckStale(ack)) {
       return;
     }
 
+    const isCanceledRequest = this.pendingCancelRequestId === ack.requestId;
     this.lastAck = ack;
+    if (ack.accepted && typeof ack.castId === "number") {
+      this.lastAckCastId = ack.castId;
+      if (this.pendingCastRequestId === ack.requestId) {
+        this.pendingCastRequestId = undefined;
+      }
+      if (this.pendingCancelRequestId === ack.requestId) {
+        this.lastPredictedCancelCastId = ack.castId;
+        this.pendingCancelRequestId = undefined;
+      }
+    } else if (this.pendingCancelRequestId === ack.requestId) {
+      this.pendingCancelRequestId = undefined;
+    }
+    if (this.pendingCastRequestId === ack.requestId && !ack.accepted) {
+      this.pendingCastRequestId = undefined;
+    }
     this.prediction.recordAck(ack);
     const clientNowMs = Date.now();
+
+    if (ack.accepted && isCanceledRequest) {
+      this.prediction.clearQueuedAbilityIfMatches(ack.requestId);
+      return;
+    }
 
     if (!ack.accepted) {
       this.prediction.clearQueuedAbilityIfMatches(ack.requestId);
@@ -136,23 +167,15 @@ export class CombatController {
     }
 
     const nowMs = Date.now();
-    this.prediction.predictedGcdEndTimeMs = Math.min(
-      this.prediction.predictedGcdEndTimeMs,
-      nowMs,
-    );
-    this.prediction.predictedGcdStartTimeMs = Math.min(
-      this.prediction.predictedGcdStartTimeMs,
-      nowMs,
-    );
-    this.prediction.predictedInternalCooldownEndTimeMs = Math.min(
-      this.prediction.predictedInternalCooldownEndTimeMs,
-      nowMs,
-    );
-    this.prediction.queuedAbilityId = undefined;
-    const lastAbilityId = this.prediction.getLastRequestAbilityId();
-    if (lastAbilityId) {
-      this.prediction.setAbilityCooldown(lastAbilityId, nowMs);
+    const activeCastId = this.source.sync.abilityState.castId;
+    if (activeCastId > 0) {
+      this.lastPredictedCancelCastId = activeCastId;
     }
+    this.pendingCancelRequestId = requestId;
+    const activeAbilityId =
+      this.source.sync.abilityState.castAbilityId ||
+      this.prediction.getLastRequestAbilityId();
+    this.clearPredictionAfterInterrupt(nowMs, activeAbilityId);
 
     const request: AbilityCancelRequest = {
       type: "ability_cancel",
@@ -167,8 +190,42 @@ export class CombatController {
     this.zoneNetwork.sendAbilityCancel(request);
   }
 
+  handleServerCastInterrupt(event: AbilityCastInterruptEvent): void {
+    if (event.actorId !== this.actorId) {
+      return;
+    }
+
+    const currentCastId = this.source.sync.abilityState.castId;
+    const matchesCurrent = currentCastId > 0 && event.castId === currentCastId;
+    const matchesAck =
+      typeof this.lastAckCastId === "number" &&
+      event.castId === this.lastAckCastId;
+
+    if (!matchesCurrent && !matchesAck) {
+      return;
+    }
+    if (!matchesCurrent && this.pendingCastRequestId) {
+      return;
+    }
+
+    if (this.lastPredictedCancelCastId === event.castId) {
+      this.lastPredictedCancelCastId = undefined;
+      return;
+    }
+
+    this.clearPredictionAfterInterrupt(Date.now(), event.abilityId);
+  }
+
   getPredictionState(): CombatPredictionState {
     return this.prediction;
+  }
+
+  getCastingAbilityId(nowMs: number): string | undefined {
+    const abilityState = this.source.sync.abilityState;
+    if (!abilityState.isCasting(nowMs)) {
+      return undefined;
+    }
+    return abilityState.castAbilityId || undefined;
   }
 
   getLastAck(): AbilityAck | undefined {
@@ -184,6 +241,10 @@ export class CombatController {
 
     const target = this.resolveTargetSpec(ability.targetType, context);
     if (!target) {
+      return;
+    }
+
+    if (this.movementActive && ability.castTimeMs > 0) {
       return;
     }
 
@@ -214,6 +275,7 @@ export class CombatController {
       };
 
       this.zoneNetwork.sendAbilityUse(request);
+      this.cancelIfMovingDuringCast(ability);
       return;
     }
 
@@ -240,6 +302,7 @@ export class CombatController {
       };
 
       this.zoneNetwork.sendAbilityUse(request);
+      this.cancelIfMovingDuringCast(ability);
       return;
     }
 
@@ -252,6 +315,9 @@ export class CombatController {
 
     this.prediction.markAbilityRequested(ability, requestId, sequence, nowMs);
     this.prediction.queuedAbilityId = undefined;
+    if (ability.castTimeMs > 0) {
+      this.pendingCastRequestId = requestId;
+    }
 
     const request: AbilityUseRequest = {
       type: "ability_use",
@@ -265,6 +331,37 @@ export class CombatController {
     };
 
     this.zoneNetwork.sendAbilityUse(request);
+    this.cancelIfMovingDuringCast(ability);
+  }
+
+  private cancelIfMovingDuringCast(ability: { castTimeMs: number }): void {
+    if (this.movementActive && ability.castTimeMs > 0) {
+      this.cancelActiveCast("movement");
+    }
+  }
+
+  private clearPredictionAfterInterrupt(
+    nowMs: number,
+    abilityId?: string,
+  ): void {
+    this.prediction.predictedGcdEndTimeMs = Math.min(
+      this.prediction.predictedGcdEndTimeMs,
+      nowMs,
+    );
+    this.prediction.predictedGcdStartTimeMs = Math.min(
+      this.prediction.predictedGcdStartTimeMs,
+      nowMs,
+    );
+    this.prediction.predictedInternalCooldownEndTimeMs = Math.min(
+      this.prediction.predictedInternalCooldownEndTimeMs,
+      nowMs,
+    );
+    this.prediction.queuedAbilityId = undefined;
+    const resolvedAbilityId =
+      abilityId ?? this.prediction.getLastRequestAbilityId();
+    if (resolvedAbilityId) {
+      this.prediction.setAbilityCooldown(resolvedAbilityId, nowMs);
+    }
   }
 
   private resolveTargetSpec(

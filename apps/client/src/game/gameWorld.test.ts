@@ -15,6 +15,7 @@ describe("GameWorld", () => {
       connectionStatusViewModel:
         {} as IngameServices["connectionStatusViewModel"],
       hotbarViewModel: {} as IngameServices["hotbarViewModel"],
+      performanceViewModel: {} as IngameServices["performanceViewModel"],
     };
 
     const session = new ClientSession();

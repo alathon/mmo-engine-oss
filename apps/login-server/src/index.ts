@@ -1,15 +1,15 @@
-import express from "express";
-import jwt from "jsonwebtoken";
-import { randomUUID } from "crypto";
-import { LoginResponse } from "@mmo/shared";
-import { logger } from "@mmo/shared-servers";
-import cors from "cors";
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import { randomUUID } from 'node:crypto';
+import { LoginResponse } from '@mmo/shared';
+import { logger } from '@mmo/shared-servers';
+import cors from 'cors';
 
 const DEFAULT_PORT = 3000;
-const TOKEN_EXPIRY = "7d";
+const TOKEN_EXPIRY = '7d';
 
 const getAuthTokenSecret = (): string => {
-  return process.env.AUTH_TOKEN_SECRET || "dev-secret";
+  return process.env.AUTH_TOKEN_SECRET || 'dev-secret';
 };
 
 const createDisplayName = (playerId: string): string => {
@@ -27,10 +27,7 @@ const createLoginResponse = (): LoginResponse => {
   return { token, playerId, displayName };
 };
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://mmo-client-9e9o.onrender.com",
-];
+const allowedOrigins = ['http://localhost:5173', 'https://mmo-client-9e9o.onrender.com'];
 
 const app = express();
 
@@ -40,12 +37,12 @@ const options: cors.CorsOptions = {
 
 app.use(cors(options));
 app.use(express.json());
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+app.use((request, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     res.sendStatus(204);
     return;
   }
@@ -53,15 +50,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post("/login", (_req, res) => {
+app.post('/login', (_request, res) => {
   const response = createLoginResponse();
   res.json(response);
 });
 
-app.get("/healthz", (_req, res) => {
-  res.send("ok");
+app.get('/healthz', (_request, res) => {
+  res.send('ok');
 });
 
 app.listen(process.env.PORT || DEFAULT_PORT, () => {
-  logger.info("Login server listening");
+  logger.info('Login server listening');
 });

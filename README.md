@@ -34,7 +34,7 @@ social server.
 ## Notes
 - Set `AUTH_TOKEN_SECRET` to keep auth tokens consistent across servers. In dev, it defaults to `dev-secret` if not set.
 
-# Game systems
+# Game systems: Implemented (in part)
 ## Combat (NPCs don't hit back yet)
 - Aggro lists, dealing damage and healing cause aggro. NPCs chase top aggro targets.
 - Combat events go to battle tab. Rich system for describing combat
@@ -99,3 +99,16 @@ state, character selection state and ingame state.
   spawn points for entities.
 - Zones have a 'lifecycle' where-by NPCs/objects can spawn, and
 other things can in theory happen.
+
+# Game systems: Not implemented at all
+## Model animations
+## Persistent player/world data
+## Audio system
+## Moving between zones
+## Character Progression
+### Classes
+### ...
+## Equipment
+## Inventory
+## Trading between players
+## Queests/NPC dialog/whatever that layer will be

@@ -156,6 +156,15 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
     this.room.send("target_change", payload);
   }
 
+  public ping(callback: (latencyMs: number) => void): boolean {
+    if (!this.room) {
+      return false;
+    }
+
+    this.room.ping(callback);
+    return true;
+  }
+
   public onSystemMessage(callback: (message: string) => void): void {
     this.systemMessageCallback = callback;
   }

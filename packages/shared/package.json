@@ -31,7 +31,7 @@
   "dependencies": {
     "@babylonjs/core": "catalog:",
     "@colyseus/schema": "catalog:",
-    "navcat": "catalog:",
-    "@mmo/eslint-config": "workspace:*"
+    "@mmo/eslint-config": "workspace:*",
+    "navcat": "catalog:"
   }
 }

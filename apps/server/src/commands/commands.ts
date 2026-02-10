@@ -75,7 +75,6 @@ export const moveCommand = ({
     predictedY: data.predictedY,
     predictedZ: data.predictedZ,
   });
-  player.nextInputSeq = Math.max(player.nextInputSeq + 1, data.seq + 1);
 };
 
 export const useAbilityCommand = ({

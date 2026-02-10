@@ -39,7 +39,7 @@ export interface MobSpawnPoint extends ZoneSpawnPoint<"mob"> {
   };
 }
 
-export interface ObjSpawnPoint extends ZoneSpawnPoint<"obj"> {
+export interface ObjectSpawnPoint extends ZoneSpawnPoint<"obj"> {
   entityData: {
     shape: "box" | "sphere" | "cylinder";
     size: number;

@@ -1,30 +1,30 @@
-import {
-  applyNavmeshMovementStep,
-  NAVMESH_RECOVERY_DISTANCE,
-  PLAYER_SPEED,
-  ZoneState,
-  ZoneDefinition,
-  NavcatQuery,
-} from "@mmo/shared";
+import { ZoneState, ZoneDefinition, NavcatQuery } from "@mmo/shared";
 import { ServerPlayer } from "../entities/player";
 import { ServerNPC } from "../entities/npc";
 import { ZoneEntryPoint, ZoneSpawnPoint } from "./types";
-import { ZoneLifecycle } from "./zoneLifecycle";
-import { Vector3 } from "@babylonjs/core/Maths/math.vector";
-import {
-  MAX_INPUT_CATCH_UP_TICKS,
-  MAX_INPUT_LAG_TICKS,
-  SERVER_SNAP_DISTANCE,
-} from "../constants/movement";
+import { ZoneLifecycle } from "./zone-lifecycle";
 import { AbilityEngine, CombatEngine } from "../../combat";
-import { LineOfSightTracker } from "./lineOfSightTracker";
+import { LineOfSightTracker } from "./line-of-sight-tracker";
 import { EventLog } from "../../eventLog";
+import { MovementController } from "../../movement/movement-controller";
+import { AiController } from "../../ai/ai-controller";
+import { AbilityIntentSystem } from "../../ai/systems/ability-intent-system";
 
 export class ZoneData {
-  constructor(public readonly zoneId: string) {}
+  constructor(
+    zoneId: string,
+    navmeshQuery: NavcatQuery,
+    definition: ZoneDefinition,
+  ) {
+    this.definition = definition;
+    this.navmeshQuery = navmeshQuery;
+    this.zoneId = zoneId;
+  }
 
+  public readonly zoneId: string;
+  public readonly navmeshQuery: NavcatQuery;
   /** The zone definition data. */
-  public definition!: ZoneDefinition;
+  public readonly definition: ZoneDefinition;
 
   /** The entry points for this zone. */
   public entryPoints: ZoneEntryPoint[] = [];
@@ -34,9 +34,6 @@ export class ZoneData {
 
   /** The object spawn points for this zone. */
   public objSpawnPoints: ZoneSpawnPoint<"obj">[] = [];
-
-  /** The navmesh query for this zone. */
-  public navmeshQuery?: NavcatQuery;
 
   public getSpawnPosition(fromZone?: string): {
     x: number;
@@ -50,7 +47,7 @@ export class ZoneData {
     // Check for entry point from another zone
     if (fromZone) {
       const entryPoint = this.entryPoints.find(
-        (e) => e.fromZoneId === fromZone,
+        (entry) => entry.fromZoneId === fromZone,
       );
       if (entryPoint) {
         spawnX = entryPoint.position.x;
@@ -71,19 +68,17 @@ export class ZoneData {
 
     // Validate and adjust spawn position against navmesh
     const navmesh = this.navmeshQuery;
-    if (navmesh) {
-      if (!navmesh.isPointOnNavmesh(spawnX, spawnZ)) {
-        const nearest = navmesh.findNearestPoint(spawnX, spawnZ, 10.0);
-        if (nearest) {
-          spawnX = nearest.x;
-          spawnZ = nearest.z;
-          spawnY = nearest.y;
-        }
-      } else {
-        const height = navmesh.sampleHeight(spawnX, spawnZ);
-        if (height !== null) {
-          spawnY = height;
-        }
+    if (navmesh.isPointOnNavmesh(spawnX, spawnZ)) {
+      const height = navmesh.sampleHeight(spawnX, spawnZ) ?? undefined;
+      if (height !== undefined) {
+        spawnY = height;
+      }
+    } else {
+      const nearest = navmesh.findNearestPoint(spawnX, spawnZ, 10);
+      if (nearest) {
+        spawnX = nearest.x;
+        spawnZ = nearest.z;
+        spawnY = nearest.y;
       }
     }
 
@@ -101,6 +96,9 @@ export class ServerZone {
   public readonly abilityEngine: AbilityEngine;
   public readonly combatEngine: CombatEngine;
   public readonly eventLog: EventLog;
+  public readonly movementController: MovementController;
+  private readonly aiController: AiController;
+  private readonly abilityIntentSystem: AbilityIntentSystem;
   private readonly lineOfSightTracker: LineOfSightTracker;
 
   constructor(
@@ -110,6 +108,9 @@ export class ServerZone {
     this.zoneLifecycle = new ZoneLifecycle();
     this.zoneLifecycle.initializeFromZone(this);
     this.eventLog = new EventLog();
+    this.movementController = new MovementController(this);
+    this.aiController = new AiController(this);
+    this.abilityIntentSystem = new AbilityIntentSystem();
     this.combatEngine = new CombatEngine(this);
     this.abilityEngine = new AbilityEngine(this);
     this.abilityEngine.addEventListener(this.combatEngine);
@@ -125,150 +126,21 @@ export class ServerZone {
 
   public fixedTick(time: number, tickMs: number): void {
     this.serverTick += 1;
-    const navmesh = this.zoneData.navmeshQuery;
 
     this.abilityEngine.fixedTick(time, this.serverTick);
     this.combatEngine.fixedTick(time);
 
-    // Spawns and other zone lifecycle updates
     this.zoneLifecycle.update(tickMs);
 
-    // NPC ai updates
-    const combatants = [...this.players.values(), ...this.npcs.values()];
-    this.npcs.forEach((npc) => {
-      npc.npcAi.updateMob(navmesh ?? null, tickMs, combatants);
-    });
+    this.aiController.fixedTick(tickMs);
+    this.abilityIntentSystem.update(this, time, this.serverTick);
 
-    // Players
-    // TODO: Move all this movement stuff somewhere more contained / somewhere else.
-    this.players.forEach((serverPlayer) => {
-      if (!navmesh) {
-        return;
-      }
-
-      const pendingBefore = serverPlayer.pendingInputs.length;
-
-      // Accumulate a bounded per-player budget of inputs to process this tick.
-      serverPlayer.inputBudgetTicks = Math.min(
-        serverPlayer.inputBudgetTicks + 1,
-        MAX_INPUT_CATCH_UP_TICKS,
-      );
-      const budgetBefore = serverPlayer.inputBudgetTicks;
-
-      if (serverPlayer.pendingInputs.length === 0) {
-        const debugInfo = serverPlayer.synced.debug;
-        if (debugInfo) {
-          debugInfo.serverTick = this.serverTick;
-          debugInfo.pendingInputs = pendingBefore;
-          debugInfo.processedInputs = 0;
-          debugInfo.droppedInputs = 0;
-          debugInfo.remainingInputs = 0;
-          debugInfo.budgetBefore = budgetBefore;
-          debugInfo.budgetAfter = serverPlayer.inputBudgetTicks;
-        }
-        serverPlayer.synced.serverTimeMs = time;
-        return;
-      }
-
-      if (serverPlayer.clientTickOffset === undefined) {
-        // Map client tick numbers into server tick space using the first input.
-        serverPlayer.clientTickOffset =
-          this.serverTick - serverPlayer.pendingInputs[0].tick;
-      }
-
-      // Drop inputs that are too old to prevent time-banking bursts.
-      const oldestAllowedTick = this.serverTick - MAX_INPUT_LAG_TICKS;
-      const nextPendingInputs: typeof serverPlayer.pendingInputs = [];
-      let inputBudget = serverPlayer.inputBudgetTicks;
-      let droppedStale = 0;
-      let processedInputs = 0;
-
-      for (const input of serverPlayer.pendingInputs) {
-        const mappedTick = input.tick + (serverPlayer.clientTickOffset ?? 0);
-        if (mappedTick < oldestAllowedTick) {
-          droppedStale += 1;
-          continue;
-        }
-
-        if (inputBudget <= 0) {
-          nextPendingInputs.push(input);
-          continue;
-        }
-
-        if (input.seq <= serverPlayer.synced.lastProcessedSeq) {
-          console.log(
-            `Skipping input ${input.seq} for player as lastProcessedSeq is greater: ${serverPlayer.synced.lastProcessedSeq}`,
-          );
-          continue;
-        }
-
-        // TODO: validate that input.directionX and input.directionZ are within [-1; 1]
-        const direction = new Vector3(input.directionX, 0, input.directionZ);
-
-        // TODO: Store speed on playerstate and just use that.
-        const speed = PLAYER_SPEED;
-
-        if (this.zoneData.navmeshQuery) {
-          const deltaSeconds = tickMs / 1000;
-          const result = applyNavmeshMovementStep({
-            currentX: serverPlayer.synced.x,
-            currentZ: serverPlayer.synced.z,
-            directionX: direction.x,
-            directionZ: direction.z,
-            deltaTime: deltaSeconds,
-            speed,
-            navmesh: this.zoneData.navmeshQuery,
-            startNodeRef: serverPlayer.navmeshNodeRef ?? undefined,
-            recoveryDistance: NAVMESH_RECOVERY_DISTANCE,
-          });
-
-          serverPlayer.navmeshNodeRef = result.nodeRef || null;
-          serverPlayer.synced.x = result.x;
-          serverPlayer.synced.y = result.y;
-          serverPlayer.synced.z = result.z;
-        }
-
-        serverPlayer.synced.lastProcessedSeq = input.seq;
-        inputBudget -= 1;
-        processedInputs += 1;
-
-        const dx = serverPlayer.synced.x - input.predictedX;
-        const dy = serverPlayer.synced.y - input.predictedY;
-        const dz = serverPlayer.synced.z - input.predictedZ;
-        const distanceSq = dx * dx + dy * dy + dz * dz;
-        const snapDistanceSq = SERVER_SNAP_DISTANCE * SERVER_SNAP_DISTANCE;
-        if (distanceSq > snapDistanceSq) {
-          serverPlayer.snapLocked = true;
-          serverPlayer.snapTarget = {
-            x: serverPlayer.synced.x,
-            y: serverPlayer.synced.y,
-            z: serverPlayer.synced.z,
-          };
-          serverPlayer.snapPending = {
-            x: serverPlayer.synced.x,
-            y: serverPlayer.synced.y,
-            z: serverPlayer.synced.z,
-            seq: input.seq,
-          };
-          nextPendingInputs.length = 0;
-          inputBudget = 0;
-          break;
-        }
-      }
-      serverPlayer.pendingInputs = nextPendingInputs;
-      serverPlayer.inputBudgetTicks = inputBudget;
-      serverPlayer.synced.serverTimeMs = time;
-      const debugInfo = serverPlayer.synced.debug;
-      if (debugInfo) {
-        debugInfo.serverTick = this.serverTick;
-        debugInfo.pendingInputs = pendingBefore;
-        debugInfo.processedInputs = processedInputs;
-        debugInfo.droppedInputs = droppedStale;
-        debugInfo.remainingInputs = serverPlayer.pendingInputs.length;
-        debugInfo.budgetBefore = budgetBefore;
-        debugInfo.budgetAfter = serverPlayer.inputBudgetTicks;
-      }
-    });
+    this.movementController.fixedTick(
+      time,
+      tickMs,
+      this.serverTick,
+      this.zoneData.navmeshQuery,
+    );
 
     this.lineOfSightTracker.update(this, this.serverTick);
   }

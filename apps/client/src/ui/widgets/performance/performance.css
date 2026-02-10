@@ -1,0 +1,36 @@
+#performance-widget {
+    position: absolute;
+    min-width: 120px;
+    padding: 8px 10px;
+    background: rgba(16, 21, 29, 0.85);
+    border: 1px solid rgba(107, 122, 144, 0.7);
+    border-radius: 6px;
+    color: #e6f1ff;
+    font-family: "JetBrains Mono", Consolas, Menlo, monospace;
+    font-size: 12px;
+    letter-spacing: 0.2px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    cursor: move;
+    user-select: none;
+    touch-action: none;
+    z-index: 120;
+}
+
+#performance-widget .performance-widget__row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: center;
+}
+
+#performance-widget .performance-widget__label {
+    color: #9fb4d8;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+}
+
+#performance-widget .performance-widget__value {
+    justify-self: end;
+    color: #f1f6ff;
+}

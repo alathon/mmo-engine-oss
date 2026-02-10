@@ -18,6 +18,8 @@ export class AbilityState extends Schema {
 
   /** Ability id currently being cast. */
   @type("string") castAbilityId = "";
+  /** Server-assigned cast id for the active cast (0 when idle). */
+  @type("uint32") castId = 0;
 
   /** Server time (ms) of the last hostile ability action involving this entity. */
   @type("float64") lastHostileActionTimeMs = 0;

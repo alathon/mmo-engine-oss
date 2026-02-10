@@ -31,6 +31,7 @@ export type EffectTargetFilter = "all" | "allies" | "enemies";
 export interface AbilityDefinition {
   id: string;
   name: string;
+  iconId?: string;
   abilityTags?: AbilityTag[];
   isOnGcd: boolean;
   castTimeMs: number;
@@ -57,6 +58,7 @@ export const ABILITY_DEFINITIONS = {
   quick_dart: {
     id: "quick_dart",
     name: "Quick Dart",
+    iconId: "quick-dart",
     isOnGcd: false,
     castTimeMs: 0,
     cooldownMs: 12000,
@@ -69,6 +71,7 @@ export const ABILITY_DEFINITIONS = {
   shield_bash: {
     id: "shield_bash",
     name: "Shield Bash",
+    iconId: "shield-bash",
     isOnGcd: true,
     castTimeMs: 0,
     cooldownMs: 2500,
@@ -86,9 +89,10 @@ export const ABILITY_DEFINITIONS = {
     ],
     resourceCosts: [{ type: "stamina", amount: 8 }],
   },
-  meteor_circle: {
-    id: "meteor_circle",
-    name: "Meteor Circle",
+  fireball: {
+    id: "fireball",
+    name: "Fireball",
+    iconId: "fireball",
     isOnGcd: true,
     castTimeMs: 5000,
     cooldownMs: 0,
@@ -98,9 +102,10 @@ export const ABILITY_DEFINITIONS = {
     effects: [{ type: "damage", school: "fire", targetFilter: "enemies" }],
     resourceCosts: [{ type: "mana", amount: 18 }],
   },
-  flame_cone: {
-    id: "flame_cone",
-    name: "Flame Cone",
+  sky_sword: {
+    id: "sky_sword",
+    name: "Sky Sword",
+    iconId: "sky-sword",
     isOnGcd: true,
     castTimeMs: 1500,
     cooldownMs: 0,
@@ -111,9 +116,10 @@ export const ABILITY_DEFINITIONS = {
     effects: [{ type: "damage", school: "fire", targetFilter: "enemies" }],
     resourceCosts: [{ type: "mana", amount: 12 }],
   },
-  arcane_field: {
-    id: "arcane_field",
-    name: "Arcane Field",
+  ice_storm: {
+    id: "ice_storm",
+    name: "Ice Storm",
+    iconId: "ice-storm",
     isOnGcd: true,
     castTimeMs: 1000,
     cooldownMs: 12000,
@@ -123,9 +129,10 @@ export const ABILITY_DEFINITIONS = {
     effects: [{ type: "damage", school: "arcane", targetFilter: "enemies" }],
     resourceCosts: [{ type: "mana", amount: 16 }],
   },
-  shock_cone: {
-    id: "shock_cone",
-    name: "Shock Cone",
+  overgrowth: {
+    id: "overgrowth",
+    name: "Overgrowth",
+    iconId: "overgrowth",
     isOnGcd: true,
     castTimeMs: 900,
     cooldownMs: 7000,

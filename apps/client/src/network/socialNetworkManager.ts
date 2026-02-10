@@ -5,7 +5,7 @@ import {
   ChatMessage,
   toFiniteNumber,
 } from "@mmo/shared";
-import { ChatEventSource } from "../ui/chat/chatEventSource";
+import { ChatEventSource } from "../ui/widgets/chat/chatEventSource";
 
 const SIMULATED_LATENCY_MS = toFiniteNumber(
   import.meta.env.VITE_SIMULATED_LATENCY_MS,

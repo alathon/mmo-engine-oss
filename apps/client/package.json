@@ -29,6 +29,7 @@
     "@babylonjs/gui": "catalog:",
     "@babylonjs/inspector": "catalog:",
     "@colyseus/sdk": "catalog:",
+    "@mmo/assets": "workspace:*",
     "@mmo/shared": "workspace:*",
     "navcat": "catalog:",
     "react": "catalog:",

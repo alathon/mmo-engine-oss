@@ -1,0 +1,15 @@
+{
+  "name": "@mmo/assets",
+  "private": true,
+  "version": "0.0.2",
+  "type": "module",
+  "files": [
+    "icons"
+  ],
+  "license": "UNLICENSED",
+  "scripts": {
+    "assets": "./scripts/fetch-assets.sh",
+    "build": "echo \"@mmo/assets: no build\"",
+    "check-types": "echo \"@mmo/assets: no types\""
+  }
+}

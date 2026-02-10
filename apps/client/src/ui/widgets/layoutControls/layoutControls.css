@@ -1,0 +1,102 @@
+#ui-layout-controls {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 320px;
+    padding: 14px;
+    border-radius: 10px;
+    background: rgba(14, 18, 26, 0.95);
+    border: 1px solid rgba(103, 126, 156, 0.6);
+    color: #e8f0ff;
+    font-family: "JetBrains Mono", Consolas, Menlo, monospace;
+    font-size: 12px;
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.4);
+    z-index: 220;
+}
+
+#ui-layout-controls button,
+#ui-layout-controls select,
+#ui-layout-controls textarea {
+    font-family: inherit;
+    font-size: 12px;
+    color: inherit;
+}
+
+#ui-layout-controls button,
+#ui-layout-controls select {
+    background: rgba(28, 36, 48, 0.95);
+    border: 1px solid rgba(107, 122, 144, 0.7);
+    border-radius: 6px;
+    padding: 6px 8px;
+}
+
+#ui-layout-controls button:hover,
+#ui-layout-controls select:hover {
+    border-color: rgba(152, 175, 208, 0.9);
+}
+
+#ui-layout-controls textarea {
+    width: 100%;
+    resize: vertical;
+    background: rgba(10, 14, 20, 0.95);
+    border: 1px solid rgba(107, 122, 144, 0.7);
+    border-radius: 6px;
+    padding: 6px 8px;
+}
+
+.ui-layout-controls__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ui-layout-controls__title {
+    font-size: 14px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.ui-layout-controls__subtitle {
+    color: #9fb4d8;
+    font-size: 11px;
+}
+
+.ui-layout-controls__close {
+    background: transparent;
+    border: 1px solid rgba(107, 122, 144, 0.6);
+}
+
+.ui-layout-controls__section {
+    margin-top: 12px;
+}
+
+.ui-layout-controls__label {
+    display: block;
+    margin-bottom: 6px;
+    color: #9fb4d8;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.ui-layout-controls__select {
+    width: 100%;
+}
+
+.ui-layout-controls__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.ui-layout-controls__import-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.ui-layout-controls__status {
+    margin-top: 10px;
+    color: #b8d4ff;
+}

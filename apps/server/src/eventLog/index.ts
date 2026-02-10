@@ -1,3 +1,3 @@
-export * from "./eventLogBuffer";
+export * from "./event-log-buffer";
 export * from "./constants";
-export * from "./eventLog";
+export * from "./event-log";

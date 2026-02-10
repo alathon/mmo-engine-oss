@@ -1,6 +1,6 @@
 import { Scene } from "@babylonjs/core/scene";
 import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
-import type { BattleMessagePayload, ChatViewModel } from "./chat/chatViewModel";
+import type { BattleMessagePayload, ChatViewModel } from "./widgets/chat/chatViewModel";
 
 /**
  * Manages the in-game UI layer (name labels, health bars, etc.)

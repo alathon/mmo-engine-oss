@@ -1,5 +1,5 @@
 import type { PlayerState } from "@mmo/shared";
-import { ServerMob } from "./serverMob";
+import { ServerMob } from "./server-mob";
 
 export interface QueuedMoveInput {
   directionX: number;
@@ -17,7 +17,6 @@ export interface QueuedMoveInput {
  */
 export class ServerPlayer extends ServerMob<PlayerState> {
   pendingInputs: QueuedMoveInput[] = [];
-  nextInputSeq = 1;
   /** Accumulated budget of input steps the server may process for this player. */
   inputBudgetTicks = 0;
   /** Offset between client tick numbers and server tick numbers. */

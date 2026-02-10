@@ -48,6 +48,7 @@ export interface AbilityAck {
   serverTick: number;
   castStartTimeMs: number;
   castEndTimeMs: number;
+  castId?: number;
   gcdStartTimeMs?: number;
   gcdEndTimeMs?: number;
   result?: AbilityResult;

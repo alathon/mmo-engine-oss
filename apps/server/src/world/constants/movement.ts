@@ -31,7 +31,7 @@ export const MAX_PENDING_INPUTS = 64;
 /**
  * Distance threshold for snapping a client when predictions diverge.
  */
-export const SERVER_SNAP_DISTANCE = 3.0;
+export const SERVER_SNAP_DISTANCE = 3;
 
 /**
  * Distance threshold for accepting a client snap acknowledgement.
