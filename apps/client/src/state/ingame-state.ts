@@ -1,11 +1,11 @@
-import type { Scene } from '@babylonjs/core/scene';
-import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera';
-import type { ClientState } from './types';
-import { GameWorld } from '../game/game-world';
-import { createIngameServices } from '../services/ingame-services';
-import type { CoreServices } from '../services/core-services';
-import type { ReactUiRoot } from '../ui/react-ui-root';
-import { uiLayoutManager } from '../ui/layout/ui-layout-manager';
+import type { Scene } from "@babylonjs/core/scene";
+import { ArcRotateCamera } from "@babylonjs/core/Cameras/arcRotateCamera";
+import type { ClientState } from "./types";
+import { GameWorld } from "../game/game-world";
+import { createIngameServices } from "../services/ingame-services";
+import type { CoreServices } from "../services/core-services";
+import type { ReactUiRoot } from "../ui/react-ui-root";
+import { uiLayoutManager } from "../ui/layout/ui-layout-manager";
 
 /**
  * In-game state that owns the world simulation.
@@ -20,7 +20,7 @@ export class IngameState implements ClientState {
   constructor(
     private scene: Scene,
     private coreServices: CoreServices,
-    private reactUiRoot: ReactUiRoot
+    private reactUiRoot: ReactUiRoot,
   ) {}
 
   /**
@@ -29,12 +29,12 @@ export class IngameState implements ClientState {
   async enter(): Promise<void> {
     const camera = this.scene.activeCamera;
     if (!camera || !(camera instanceof ArcRotateCamera)) {
-      throw new Error('ArcRotateCamera not found for in-game state');
+      throw new Error("ArcRotateCamera not found for in-game state");
     }
 
     const loginResponse = this.coreServices.session.loginResponse;
     if (!loginResponse) {
-      throw new Error('Login response missing in client session');
+      throw new Error("Login response missing in client session");
     }
 
     uiLayoutManager.initializeStorage(loginResponse.playerId);
@@ -44,6 +44,7 @@ export class IngameState implements ClientState {
       chatViewModel: services.chatViewModel,
       connectionStatusViewModel: services.connectionStatusViewModel,
       hotbarViewModel: services.hotbarViewModel,
+      navmeshTuningViewModel: services.navmeshTuningViewModel,
       performanceViewModel: services.performanceViewModel,
     });
     services.ui.attachChatViewModel(services.chatViewModel);
@@ -55,7 +56,7 @@ export class IngameState implements ClientState {
       camera,
       loginResponse,
     });
-    console.debug('Entering world with character', {
+    console.debug("Entering world with character", {
       characterId: this.coreServices.session.characterId,
     });
   }

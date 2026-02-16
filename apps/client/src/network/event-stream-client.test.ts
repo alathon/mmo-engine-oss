@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { EventCategory, type EventLogEntry, type EventStreamResyncRequest } from '@mmo/shared';
-import { EventStreamClient, type EventStreamTransport } from './event-stream-client';
+import { describe, expect, it } from "vitest";
+import { EventCategory, type EventLogEntry, type EventStreamResyncRequest } from "@mmo/shared";
+import { EventStreamClient, type EventStreamTransport } from "./event-stream-client";
 
 const createEntry = (eventId: number): EventLogEntry => ({
   eventId,
@@ -18,13 +18,13 @@ class FakeTransport implements EventStreamTransport {
   }
 }
 
-describe('EventStreamClient', () => {
-  it('queues events and advances cursor', () => {
+describe("EventStreamClient", () => {
+  it("queues events and advances cursor", () => {
     const transport = new FakeTransport();
     const client = new EventStreamClient(transport);
 
     client.handleBatch({
-      type: 'event_stream_batch',
+      type: "event_stream_batch",
       fromEventId: 10,
       toEventId: 12,
       serverTick: 5,
@@ -39,12 +39,12 @@ describe('EventStreamClient', () => {
     expect(transport.requests).toEqual([]);
   });
 
-  it('requests resync on gaps and keeps cursor', () => {
+  it("requests resync on gaps and keeps cursor", () => {
     const transport = new FakeTransport();
     const client = new EventStreamClient(transport);
 
     client.handleBatch({
-      type: 'event_stream_batch',
+      type: "event_stream_batch",
       fromEventId: 1,
       toEventId: 2,
       serverTick: 1,
@@ -56,7 +56,7 @@ describe('EventStreamClient', () => {
     expect(client.getLastEventId()).toBe(2);
 
     client.handleBatch({
-      type: 'event_stream_batch',
+      type: "event_stream_batch",
       fromEventId: 4,
       toEventId: 4,
       serverTick: 2,
@@ -70,18 +70,18 @@ describe('EventStreamClient', () => {
     expect(client.getLastEventId()).toBe(2);
     expect(transport.requests).toEqual([
       {
-        type: 'event_stream_resync_request',
+        type: "event_stream_resync_request",
         sinceEventId: 2,
       },
     ]);
   });
 
-  it('accepts resync responses even if range starts after cursor', () => {
+  it("accepts resync responses even if range starts after cursor", () => {
     const transport = new FakeTransport();
     const client = new EventStreamClient(transport);
 
     client.handleBatch({
-      type: 'event_stream_batch',
+      type: "event_stream_batch",
       fromEventId: 1,
       toEventId: 3,
       serverTick: 1,
@@ -91,7 +91,7 @@ describe('EventStreamClient', () => {
     client.drainEvents([]);
 
     client.handleResyncResponse({
-      type: 'event_stream_resync_response',
+      type: "event_stream_resync_response",
       fromEventId: 6,
       toEventId: 7,
       serverTick: 2,

@@ -1,9 +1,9 @@
-import { Scene } from '@babylonjs/core/scene';
-import { Color3 } from '@babylonjs/core/Maths/math.color';
-import { ObjState } from '@mmo/shared';
-import { ObjEntity } from '../entities/obj-entity';
-import type { ZoneConnectionManager } from '../network/zone-connection-manager';
-import type { UiLayer } from '../ui/ui-layer';
+import { Scene } from "@babylonjs/core/scene";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { ObjState } from "@mmo/shared";
+import { ObjEntity } from "../entities/obj-entity";
+import type { ZoneConnectionManager } from "../network/zone-connection-manager";
+import type { UiLayer } from "../ui/ui-layer";
 
 /**
  * Maintains client-side object entities synced from the server.
@@ -13,7 +13,7 @@ export class ObjManager {
   private scene?: Scene;
   constructor(
     private zoneNetwork: ZoneConnectionManager,
-    private uiLayer: UiLayer
+    private uiLayer: UiLayer,
   ) {}
 
   bindEvents(scene: Scene): void {
@@ -46,13 +46,13 @@ export class ObjManager {
    * @returns created ObjEntity instance.
    */
   addObject(scene: Scene, objectId: string, object: ObjState): ObjEntity {
-    console.debug('ObjManager add', { objectId });
+    console.debug("ObjManager add", { objectId });
     const entity = new ObjEntity(scene, {
       id: objectId,
       x: object.x,
       y: object.y,
       z: object.z,
-      shape: object.shape as 'box' | 'sphere' | 'cylinder',
+      shape: object.shape as "box" | "sphere" | "cylinder",
       size: object.size,
       isPickable: object.pickable,
       isCollidable: object.collidable,
@@ -75,7 +75,7 @@ export class ObjManager {
     const entity = this.objects.get(objectId);
     if (!entity) return;
 
-    console.debug('ObjManager update', { objectId });
+    console.debug("ObjManager update", { objectId });
     entity.position.x = object.x;
     entity.position.y = object.y;
     entity.position.z = object.z;
@@ -93,7 +93,7 @@ export class ObjManager {
     const entity = this.objects.get(objectId);
     if (!entity) return;
 
-    console.debug('ObjManager remove', { objectId });
+    console.debug("ObjManager remove", { objectId });
     entity.dispose();
     this.objects.delete(objectId);
   }

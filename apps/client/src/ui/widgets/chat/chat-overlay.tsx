@@ -7,16 +7,16 @@ import {
   useSyncExternalStore,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
-} from 'react';
-import type { BattleLine, ChatLine, ChatViewModel } from './chat-view-model';
-import { useWidgetLayout } from '../../layout/use-widget-layout';
+} from "react";
+import type { BattleLine, ChatLine, ChatViewModel } from "./chat-view-model";
+import { useWidgetLayout } from "../../layout/use-widget-layout";
 
-type ChatTab = 'chat' | 'battle';
+type ChatTab = "chat" | "battle";
 
 const useChatSnapshot = (viewModel: ChatViewModel) => {
   const subscribe = useCallback(
     (listener: () => void) => viewModel.subscribe(listener),
-    [viewModel]
+    [viewModel],
   );
   const getSnapshot = useCallback(() => viewModel.getSnapshot(), [viewModel]);
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
@@ -24,8 +24,8 @@ const useChatSnapshot = (viewModel: ChatViewModel) => {
 
 export const ChatOverlay = ({ viewModel }: { viewModel: ChatViewModel }) => {
   const snapshot = useChatSnapshot(viewModel);
-  const { style, dragHandlers } = useWidgetLayout('hud.chat');
-  const [activeTab, setActiveTab] = useState<ChatTab>('chat');
+  const { style, dragHandlers } = useWidgetLayout("hud.chat");
+  const [activeTab, setActiveTab] = useState<ChatTab>("chat");
   const [chatDirty, setChatDirty] = useState(false);
   const [battleDirty, setBattleDirty] = useState(false);
   const lastChatCount = useRef(snapshot.chatMessages.length);
@@ -36,7 +36,7 @@ export const ChatOverlay = ({ viewModel }: { viewModel: ChatViewModel }) => {
 
   useEffect(() => {
     const count = snapshot.chatMessages.length;
-    if (count > lastChatCount.current && activeTab !== 'chat') {
+    if (count > lastChatCount.current && activeTab !== "chat") {
       setChatDirty(true);
     }
     lastChatCount.current = count;
@@ -44,14 +44,14 @@ export const ChatOverlay = ({ viewModel }: { viewModel: ChatViewModel }) => {
 
   useEffect(() => {
     const count = snapshot.battleMessages.length;
-    if (count > lastBattleCount.current && activeTab !== 'battle') {
+    if (count > lastBattleCount.current && activeTab !== "battle") {
       setBattleDirty(true);
     }
     lastBattleCount.current = count;
   }, [activeTab, snapshot.battleMessages.length]);
 
   useEffect(() => {
-    if (activeTab !== 'chat') {
+    if (activeTab !== "chat") {
       return;
     }
     const container = chatMessagesRef.current;
@@ -61,7 +61,7 @@ export const ChatOverlay = ({ viewModel }: { viewModel: ChatViewModel }) => {
   }, [activeTab, snapshot.chatMessages.length]);
 
   useEffect(() => {
-    if (activeTab !== 'battle') {
+    if (activeTab !== "battle") {
       return;
     }
     const container = battleMessagesRef.current;
@@ -86,22 +86,22 @@ export const ChatOverlay = ({ viewModel }: { viewModel: ChatViewModel }) => {
       }
 
       viewModel.sendChatMessage(message);
-      input.value = '';
+      input.value = "";
       if (!preserveFocus) {
         input.blur();
       }
     },
-    [viewModel]
+    [viewModel],
   );
 
   const handleChatKeyDown = useCallback(
     (event: ReactKeyboardEvent<HTMLInputElement>) => {
-      if (event.key === 'Enter' && !event.shiftKey) {
+      if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         sendMessage(false);
       }
     },
-    [sendMessage]
+    [sendMessage],
   );
 
   const handleSendClick = useCallback(() => {
@@ -113,34 +113,34 @@ export const ChatOverlay = ({ viewModel }: { viewModel: ChatViewModel }) => {
   }, []);
 
   const handleChatTabClick = useCallback(() => {
-    setActiveTab('chat');
+    setActiveTab("chat");
     setChatDirty(false);
   }, []);
 
   const handleBattleTabClick = useCallback(() => {
-    setActiveTab('battle');
+    setActiveTab("battle");
     setBattleDirty(false);
   }, []);
 
   useEffect(() => {
     const handleDocumentKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Enter' && document.activeElement !== inputRef.current) {
+      if (event.key === "Enter" && document.activeElement !== inputRef.current) {
         event.preventDefault();
         inputRef.current?.focus();
       }
     };
 
-    document.addEventListener('keydown', handleDocumentKeyDown);
+    document.addEventListener("keydown", handleDocumentKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleDocumentKeyDown);
+      document.removeEventListener("keydown", handleDocumentKeyDown);
     };
   }, []);
 
-  const chatTabClass = `chat-tab${activeTab === 'chat' ? ' active' : ''}${
-    chatDirty && activeTab !== 'chat' ? ' unread' : ''
+  const chatTabClass = `chat-tab${activeTab === "chat" ? " active" : ""}${
+    chatDirty && activeTab !== "chat" ? " unread" : ""
   }`;
-  const battleTabClass = `chat-tab${activeTab === 'battle' ? ' active' : ''}${
-    battleDirty && activeTab !== 'battle' ? ' unread' : ''
+  const battleTabClass = `chat-tab${activeTab === "battle" ? " active" : ""}${
+    battleDirty && activeTab !== "battle" ? " unread" : ""
   }`;
 
   return (
@@ -169,7 +169,7 @@ export const ChatOverlay = ({ viewModel }: { viewModel: ChatViewModel }) => {
         id="chat-messages"
         className="chat-messages"
         ref={chatMessagesRef}
-        style={{ display: activeTab === 'chat' ? 'block' : 'none' }}
+        style={{ display: activeTab === "chat" ? "block" : "none" }}
       >
         {snapshot.chatMessages.map((message) => renderChatMessage(message))}
       </div>
@@ -177,7 +177,7 @@ export const ChatOverlay = ({ viewModel }: { viewModel: ChatViewModel }) => {
         id="battle-messages"
         className="chat-messages"
         ref={battleMessagesRef}
-        style={{ display: activeTab === 'battle' ? 'block' : 'none' }}
+        style={{ display: activeTab === "battle" ? "block" : "none" }}
       >
         {snapshot.battleMessages.map((message) => renderBattleMessage(message))}
       </div>
@@ -205,7 +205,7 @@ export const ChatOverlay = ({ viewModel }: { viewModel: ChatViewModel }) => {
 };
 
 const renderChatMessage = (message: ChatLine) => {
-  if (message.kind === 'system') {
+  if (message.kind === "system") {
     return (
       <div key={message.id} className="message system">
         {message.message}
@@ -221,7 +221,7 @@ const renderChatMessage = (message: ChatLine) => {
 };
 
 const renderBattleMessage = (message: BattleLine) => {
-  if (typeof message.payload === 'string') {
+  if (typeof message.payload === "string") {
     return (
       <div key={message.id} className="message battle">
         {message.payload}

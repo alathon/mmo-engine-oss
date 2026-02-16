@@ -8,9 +8,7 @@ import { NavMesh } from "navcat";
  *
  * @returns navmesh query instance when navmesh data is available.
  */
-export async function loadNavmeshFromAssets(
-  definition: ZoneDefinition,
-): Promise<NavcatQuery> {
+export async function loadNavmeshFromAssets(definition: ZoneDefinition): Promise<NavcatQuery> {
   const navmeshId = definition.sceneData.navmeshFilePath;
   if (!navmeshId) {
     throw new Error(`No navmesh file path set for zone ${definition.id}`);
@@ -18,7 +16,7 @@ export async function loadNavmeshFromAssets(
 
   const navmeshPath = path.resolve(
     process.cwd(),
-    "../../packages/shared/assets/zones",
+    "../../packages/assets/zones",
     `${definition.id}.navcat.json`,
   );
 

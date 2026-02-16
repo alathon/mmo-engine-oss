@@ -1,7 +1,7 @@
-import type { LoginResponse } from '@mmo/shared';
-import type { ClientState } from './types';
-import type { FullscreenUiController } from '../ui/fullscreen-ui-controller';
-import * as loginClient from '../network/login-client';
+import type { LoginResponse } from "@mmo/shared";
+import type { ClientState } from "./types";
+import type { FullscreenUiController } from "../ui/fullscreen-ui-controller";
+import * as loginClient from "../network/login-client";
 
 /**
  * Login screen state.
@@ -25,7 +25,7 @@ export class LoginState implements ClientState {
    */
   constructor(
     private uiController: FullscreenUiController,
-    private onLoginSuccess: (response: LoginResponse) => void
+    private onLoginSuccess: (response: LoginResponse) => void,
   ) {}
 
   /**
@@ -46,9 +46,9 @@ export class LoginState implements ClientState {
   }
 
   private mountUi(): void {
-    const uiRoot = document.querySelector<HTMLElement>('#ui');
+    const uiRoot = document.querySelector<HTMLElement>("#ui");
     if (!uiRoot) {
-      console.error('UI root not found');
+      console.error("UI root not found");
       return;
     }
 
@@ -56,53 +56,53 @@ export class LoginState implements ClientState {
     this.ensureStylesheet();
     this.clearRoot();
 
-    const container = document.createElement('div');
-    container.className = 'login-screen';
+    const container = document.createElement("div");
+    container.className = "login-screen";
 
-    const vignette = document.createElement('div');
-    vignette.className = 'login-vignette';
+    const vignette = document.createElement("div");
+    vignette.className = "login-vignette";
 
-    const fog = document.createElement('div');
-    fog.className = 'login-fog';
+    const fog = document.createElement("div");
+    fog.className = "login-fog";
 
-    const shards = document.createElement('div');
-    shards.className = 'login-shards';
+    const shards = document.createElement("div");
+    shards.className = "login-shards";
     for (let index = 0; index < 3; index += 1) {
-      const shard = document.createElement('span');
+      const shard = document.createElement("span");
       shard.className = `login-shard shard-${index + 1}`;
       shards.append(shard);
     }
 
-    const card = document.createElement('div');
-    card.className = 'login-card';
-    card.setAttribute('role', 'dialog');
-    card.setAttribute('aria-modal', 'true');
+    const card = document.createElement("div");
+    card.className = "login-card";
+    card.setAttribute("role", "dialog");
+    card.setAttribute("aria-modal", "true");
 
-    const sigil = document.createElement('div');
-    sigil.className = 'login-sigil';
-    sigil.setAttribute('aria-hidden', 'true');
+    const sigil = document.createElement("div");
+    sigil.className = "login-sigil";
+    sigil.setAttribute("aria-hidden", "true");
 
-    const title = document.createElement('h1');
-    title.className = 'login-title';
-    title.id = 'login-title';
-    title.textContent = 'Welcome';
+    const title = document.createElement("h1");
+    title.className = "login-title";
+    title.id = "login-title";
+    title.textContent = "Welcome";
 
-    const subtitle = document.createElement('p');
-    subtitle.className = 'login-subtitle';
-    subtitle.textContent = 'Enter the realm';
+    const subtitle = document.createElement("p");
+    subtitle.className = "login-subtitle";
+    subtitle.textContent = "Enter the realm";
 
-    const note = document.createElement('p');
-    note.className = 'login-note';
-    note.textContent = 'Your sigil is recognized by the gate.';
+    const note = document.createElement("p");
+    note.className = "login-note";
+    note.textContent = "Your sigil is recognized by the gate.";
 
-    const button = document.createElement('button');
-    button.className = 'login-button';
-    button.type = 'button';
-    button.textContent = 'Enter Realm';
+    const button = document.createElement("button");
+    button.className = "login-button";
+    button.type = "button";
+    button.textContent = "Enter Realm";
 
-    const status = document.createElement('p');
-    status.className = 'login-status';
-    status.textContent = '';
+    const status = document.createElement("p");
+    status.className = "login-status";
+    status.textContent = "";
 
     card.append(sigil);
     card.append(title);
@@ -119,7 +119,7 @@ export class LoginState implements ClientState {
     this.loginClickHandler = () => {
       void this.handleLogin();
     };
-    button.addEventListener('click', this.loginClickHandler);
+    button.addEventListener("click", this.loginClickHandler);
 
     uiRoot.append(container);
 
@@ -130,7 +130,7 @@ export class LoginState implements ClientState {
 
   private unmountUi(): void {
     if (this.loginButton && this.loginClickHandler) {
-      this.loginButton.removeEventListener('click', this.loginClickHandler);
+      this.loginButton.removeEventListener("click", this.loginClickHandler);
     }
 
     if (this.uiContainer?.parentElement) {
@@ -156,10 +156,10 @@ export class LoginState implements ClientState {
       return;
     }
 
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = new URL('../ui/login.css', import.meta.url).toString();
-    link.dataset.uiStyle = 'login';
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = new URL("../ui/login.css", import.meta.url).toString();
+    link.dataset.uiStyle = "login";
     document.head.append(link);
     this.stylesheet = link;
   }
@@ -173,17 +173,17 @@ export class LoginState implements ClientState {
     }
   }
 
-  private setStatus(message: string, tone: 'neutral' | 'success' | 'error' = 'neutral'): void {
+  private setStatus(message: string, tone: "neutral" | "success" | "error" = "neutral"): void {
     if (!this.statusText) {
       return;
     }
     this.statusText.textContent = message;
-    this.statusText.classList.remove('is-success', 'is-error');
-    if (tone === 'success') {
-      this.statusText.classList.add('is-success');
+    this.statusText.classList.remove("is-success", "is-error");
+    if (tone === "success") {
+      this.statusText.classList.add("is-success");
     }
-    if (tone === 'error') {
-      this.statusText.classList.add('is-error');
+    if (tone === "error") {
+      this.statusText.classList.add("is-error");
     }
   }
 
@@ -195,22 +195,22 @@ export class LoginState implements ClientState {
     this.isLoggingIn = true;
     if (this.loginButton) {
       this.loginButton.disabled = true;
-      this.loginButton.textContent = 'Opening gate...';
+      this.loginButton.textContent = "Opening gate...";
     }
-    this.setStatus('Contacting the gatekeeper...', 'neutral');
+    this.setStatus("Contacting the gatekeeper...", "neutral");
 
     try {
       this.loginResponse = await loginClient.login();
-      this.setStatus('Gate opens. Welcome.', 'success');
+      this.setStatus("Gate opens. Welcome.", "success");
       if (this.isActive) {
         this.onLoginSuccess(this.loginResponse);
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown login error';
-      this.setStatus(`Entry denied: ${message}`, 'error');
+      const message = error instanceof Error ? error.message : "Unknown login error";
+      this.setStatus(`Entry denied: ${message}`, "error");
       if (this.loginButton) {
         this.loginButton.disabled = false;
-        this.loginButton.textContent = 'Enter Realm';
+        this.loginButton.textContent = "Enter Realm";
       }
       this.isLoggingIn = false;
     }

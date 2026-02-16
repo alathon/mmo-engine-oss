@@ -1,11 +1,11 @@
 // Shared Colyseus schemas
 // These schemas are used by both server and client for state synchronization
 
-export { MobState } from "./mobState.js";
-export { NPCState } from "./npcState.js";
-export { ObjState } from "./objState.js";
-export { PlayerDebugInfo } from "./playerDebugInfo.js";
-export { PlayerState } from "./playerState.js";
-export { ZoneState } from "./zoneState.js";
-export { AbilityState } from "./abilityState.js";
-export { CombatState, AggroEntry } from "./combatState.js";
+export { MobState } from "./mob-state.js";
+export { NPCState } from "./npc-state.js";
+export { ObjState } from "./obj-state.js";
+export { PlayerDebugInfo } from "./player-debug-info.js";
+export { PlayerState } from "./player-state.js";
+export { ZoneState } from "./zone-state.js";
+export { AbilityState } from "./ability-state.js";
+export { CombatState, AggroEntry } from "./combat-state.js";

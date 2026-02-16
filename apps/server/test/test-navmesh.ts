@@ -13,7 +13,7 @@ export const createTestNavmeshQuery = (): NavcatQuery => {
   }
   const navmeshPath = path.resolve(
     currentDir,
-    "../../../packages/shared/assets/zones/startingPlains.navcat.json",
+    "../../../packages/assets/zones/startingPlains.navcat.json",
   );
   const json = readFileSync(navmeshPath, "utf8");
   const data = JSON.parse(json) as NavMesh;

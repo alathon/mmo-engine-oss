@@ -1,4 +1,4 @@
-import type { UiViewport } from './ui-layout-types';
+import type { UiViewport } from "./ui-layout-types";
 
 /**
  * Reads the current browser viewport size.

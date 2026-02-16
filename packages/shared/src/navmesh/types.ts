@@ -11,7 +11,7 @@ export interface NavVertex {
  * Polygon flags for terrain type classification.
  */
 export const NAV_POLYGON_FLAGS = {
-  WALKABLE: 1 << 0,
+  WALKABLE: Math.trunc(1),
   WATER: 1 << 1,
   STAIRS: 1 << 2,
   SLOPE: 1 << 3,

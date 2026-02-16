@@ -1,12 +1,12 @@
-import { describe, expect, it } from 'vitest';
-import { Scene } from '@babylonjs/core/scene';
-import { NullEngine } from '@babylonjs/core/Engines/nullEngine';
-import { KeyboardEventTypes, type KeyboardInfo } from '@babylonjs/core/Events/keyboardEvents';
-import { PointerEventTypes, type PointerInfo } from '@babylonjs/core/Events/pointerEvents';
-import { DomInputManager } from './dom-input-manager';
+import { describe, expect, it } from "vitest";
+import { Scene } from "@babylonjs/core/scene";
+import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
+import { KeyboardEventTypes, type KeyboardInfo } from "@babylonjs/core/Events/keyboardEvents";
+import { PointerEventTypes, type PointerInfo } from "@babylonjs/core/Events/pointerEvents";
+import { DomInputManager } from "./dom-input-manager";
 
 const notifyKey = (scene: Scene, type: KeyboardEventTypes, key: string) => {
-  const eventType = type === KeyboardEventTypes.KEYUP ? 'keyup' : 'keydown';
+  const eventType = type === KeyboardEventTypes.KEYUP ? "keyup" : "keydown";
   const event = new KeyboardEvent(eventType, { key });
   const info = { type: type as number, event } as KeyboardInfo;
   scene.onKeyboardObservable.notifyObservers(info);
@@ -21,13 +21,13 @@ const notifyPointer = (
     clientY?: number;
     x?: number;
     y?: number;
-  }
+  },
 ) => {
-  let eventType = 'pointerdown';
+  let eventType = "pointerdown";
   if (type === PointerEventTypes.POINTERUP) {
-    eventType = 'pointerup';
+    eventType = "pointerup";
   } else if (type === PointerEventTypes.POINTERMOVE) {
-    eventType = 'pointermove';
+    eventType = "pointermove";
   }
   const event = new PointerEvent(eventType, {
     button,
@@ -40,23 +40,23 @@ const notifyPointer = (
   scene.onPointerObservable.notifyObservers(info);
 };
 
-describe('DomInputManager', () => {
-  it('tracks keyboard and mouse input', () => {
+describe("DomInputManager", () => {
+  it("tracks keyboard and mouse input", () => {
     const engine = new NullEngine();
     const scene = new Scene(engine);
-    const inputEl = document.createElement('input');
-    inputEl.id = 'chat-input';
+    const inputEl = document.createElement("input");
+    inputEl.id = "chat-input";
     document.body.append(inputEl);
 
     const manager = new DomInputManager();
     manager.initialize(scene);
 
-    notifyKey(scene, KeyboardEventTypes.KEYDOWN, 'w');
+    notifyKey(scene, KeyboardEventTypes.KEYDOWN, "w");
     let direction = manager.getMovementDirection();
     expect(direction.z).toBe(1);
     expect(direction.x).toBe(0);
 
-    notifyKey(scene, KeyboardEventTypes.KEYUP, 'w');
+    notifyKey(scene, KeyboardEventTypes.KEYUP, "w");
     direction = manager.getMovementDirection();
     expect(direction.length()).toBe(0);
 
@@ -72,11 +72,11 @@ describe('DomInputManager', () => {
     inputEl.remove();
   });
 
-  it('queues click on pointer up when within drag threshold', () => {
+  it("queues click on pointer up when within drag threshold", () => {
     const engine = new NullEngine();
     const scene = new Scene(engine);
-    const inputEl = document.createElement('input');
-    inputEl.id = 'chat-input';
+    const inputEl = document.createElement("input");
+    inputEl.id = "chat-input";
     document.body.append(inputEl);
 
     const manager = new DomInputManager();
@@ -101,11 +101,11 @@ describe('DomInputManager', () => {
     inputEl.remove();
   });
 
-  it('skips click on pointer up when drag exceeds threshold', () => {
+  it("skips click on pointer up when drag exceeds threshold", () => {
     const engine = new NullEngine();
     const scene = new Scene(engine);
-    const inputEl = document.createElement('input');
-    inputEl.id = 'chat-input';
+    const inputEl = document.createElement("input");
+    inputEl.id = "chat-input";
     document.body.append(inputEl);
 
     const manager = new DomInputManager();
@@ -129,11 +129,11 @@ describe('DomInputManager', () => {
     inputEl.remove();
   });
 
-  it('emits drag start/move/end when movement exceeds threshold', () => {
+  it("emits drag start/move/end when movement exceeds threshold", () => {
     const engine = new NullEngine();
     const scene = new Scene(engine);
-    const inputEl = document.createElement('input');
-    inputEl.id = 'chat-input';
+    const inputEl = document.createElement("input");
+    inputEl.id = "chat-input";
     document.body.append(inputEl);
 
     const manager = new DomInputManager();
@@ -157,7 +157,7 @@ describe('DomInputManager', () => {
     });
 
     const drags = manager.consumeAllPointerDrags();
-    expect(drags.map((drag) => drag.phase)).toEqual(['start', 'move', 'end']);
+    expect(drags.map((drag) => drag.phase)).toEqual(["start", "move", "end"]);
     expect(manager.consumePointerClick(0)).toBeUndefined();
 
     manager.dispose();
@@ -166,23 +166,24 @@ describe('DomInputManager', () => {
     inputEl.remove();
   });
 
-  it('blocks movement while chat input is focused', () => {
+  it("blocks movement while chat input is focused", () => {
     const engine = new NullEngine();
     const scene = new Scene(engine);
-    const inputEl = document.createElement('input');
-    inputEl.id = 'chat-input';
+    const inputEl = document.createElement("input");
+    inputEl.id = "chat-input";
+    inputEl.dataset.uiInput = "true";
     document.body.append(inputEl);
 
     const manager = new DomInputManager();
     manager.initialize(scene);
 
-    notifyKey(scene, KeyboardEventTypes.KEYDOWN, 'w');
-    inputEl.dispatchEvent(new FocusEvent('focus'));
+    notifyKey(scene, KeyboardEventTypes.KEYDOWN, "w");
+    inputEl.focus();
 
     expect(manager.isChatInputFocused()).toBe(true);
     expect(manager.getMovementDirection().length()).toBe(0);
 
-    inputEl.dispatchEvent(new FocusEvent('blur'));
+    inputEl.blur();
     expect(manager.isChatInputFocused()).toBe(false);
 
     manager.dispose();

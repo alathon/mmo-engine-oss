@@ -7,12 +7,7 @@ import type {
   MobState,
   TargetResult,
 } from "@mmo/shared";
-import {
-  areAllies,
-  areEnemies,
-  rollAbilityUseCheck,
-  type AbilityEffect,
-} from "@mmo/shared";
+import { areAllies, areEnemies, rollAbilityUseCheck, type AbilityEffect } from "@mmo/shared";
 import { createRng } from "./prng";
 
 const HIT_CHANCE = 0.75;
@@ -29,10 +24,7 @@ interface EffectCalculation {
   healing?: number;
 }
 
-type EffectCalculator = (
-  source: MobState,
-  target: MobState,
-) => EffectCalculation;
+type EffectCalculator = (source: MobState, target: MobState) => EffectCalculation;
 
 const NO_EFFECT: EffectCalculator = () => ({});
 
@@ -63,10 +55,7 @@ const rollOutcome = (rng: () => number): TargetResult["outcome"] => {
   return "hit";
 };
 
-const applyOutcomeMultipliers = (
-  outcome: TargetResult["outcome"],
-  damage: number,
-): number => {
+const applyOutcomeMultipliers = (outcome: TargetResult["outcome"], damage: number): number => {
   if (damage <= 0) {
     return 0;
   }
@@ -97,9 +86,7 @@ const applyHealingMultiplier = (isCrit: boolean, healing: number): number => {
   return Math.max(0, Math.round(healing));
 };
 
-const resolveEffectTargetFilter = (
-  effect: AbilityEffect,
-): EffectTargetFilter => {
+const resolveEffectTargetFilter = (effect: AbilityEffect): EffectTargetFilter => {
   return effect.targetFilter;
 };
 
@@ -128,10 +115,8 @@ export const resolveAbilityOutcome = (
 ): AbilityResult => {
   const rng = createRng(rngSeed);
   const useCheck = rollAbilityUseCheck(ability);
-  const useFailed =
-    useCheck.result === "failure" || useCheck.result === "crit_failure";
-  const effectCalculators =
-    ABILITY_EFFECT_CALCULATORS[ability.id as AbilityId] ?? [];
+  const useFailed = useCheck.result === "failure" || useCheck.result === "crit_failure";
+  const effectCalculators = ABILITY_EFFECT_CALCULATORS[ability.id as AbilityId] ?? [];
   const effects: EffectResult[] = [];
 
   for (const [index, effect] of ability.effects.entries()) {

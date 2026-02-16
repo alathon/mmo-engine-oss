@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest';
-import { ConnectionStatusViewModel } from './connection-status-view-model';
+import { describe, expect, it } from "vitest";
+import { ConnectionStatusViewModel } from "./connection-status-view-model";
 import type {
   ConnectionEventEmitter,
   ConnectionStatus,
-} from '../../../network/connection-event-emitter';
+} from "../../../network/connection-event-emitter";
 
 class FakeConnectionEmitter implements ConnectionEventEmitter {
   private handlers: ((text: string, connected: boolean) => void)[] = [];
@@ -29,22 +29,22 @@ class FakeConnectionEmitter implements ConnectionEventEmitter {
   }
 }
 
-describe('ConnectionStatusViewModel', () => {
-  it('tracks the latest status', () => {
+describe("ConnectionStatusViewModel", () => {
+  it("tracks the latest status", () => {
     const connection = new FakeConnectionEmitter({
-      text: 'Disconnected',
+      text: "Disconnected",
       connected: false,
     });
     const viewModel = new ConnectionStatusViewModel(connection);
 
     expect(viewModel.getSnapshot()).toEqual({
-      text: 'Disconnected',
+      text: "Disconnected",
       connected: false,
     });
 
-    connection.emitStatus('Connected', true);
+    connection.emitStatus("Connected", true);
     expect(viewModel.getSnapshot()).toEqual({
-      text: 'Connected',
+      text: "Connected",
       connected: true,
     });
   });

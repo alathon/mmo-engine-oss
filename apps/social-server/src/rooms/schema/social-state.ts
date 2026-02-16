@@ -1,4 +1,4 @@
-import { Schema } from '@colyseus/schema';
+import { Schema } from "@colyseus/schema";
 
 /**
  * Server-only social room state.

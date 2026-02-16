@@ -1,5 +1,5 @@
 import type { AbilityDefinition } from "./abilities";
-import type { DirectionMode, TargetSpec, Vector3 } from "./targetingTypes";
+import type { DirectionMode, TargetSpec, Vector3 } from "./targeting-types";
 
 export interface TargetCandidate {
   id: string;
@@ -35,19 +35,18 @@ export function resolveTargetsForAbility(
   let primaryTargetId: string | undefined;
 
   switch (ability.targetType) {
-    case "self":
+    case "self": {
       targetPosition = { x: actor.x, y: actor.y, z: actor.z };
       primaryTargetId = actor.id;
       break;
+    }
     case "enemy":
     case "ally": {
       const targetId = target.targetEntityId;
       if (!targetId) {
         return null;
       }
-      const targetCandidate = candidates.find(
-        (candidate) => candidate.id === targetId,
-      );
+      const targetCandidate = candidates.find((candidate) => candidate.id === targetId);
       if (!targetCandidate) {
         return null;
       }
@@ -66,8 +65,9 @@ export function resolveTargetsForAbility(
       targetPosition = target.targetPoint;
       break;
     }
-    default:
+    default: {
       return null;
+    }
   }
 
   const shape = ability.aoeShape;
@@ -75,10 +75,7 @@ export function resolveTargetsForAbility(
     if (ability.targetType === "self" && primaryTargetId) {
       return { possibleTargetIds: [primaryTargetId], targetPosition };
     }
-    if (
-      (ability.targetType === "enemy" || ability.targetType === "ally") &&
-      primaryTargetId
-    ) {
+    if ((ability.targetType === "enemy" || ability.targetType === "ally") && primaryTargetId) {
       return { possibleTargetIds: [primaryTargetId], targetPosition };
     }
     return { possibleTargetIds: [], targetPosition };
@@ -90,30 +87,19 @@ export function resolveTargetsForAbility(
 
   if (shape.type === "circle") {
     const center =
-      ability.targetType === "self"
-        ? { x: actor.x, y: actor.y, z: actor.z }
-        : targetPosition;
+      ability.targetType === "self" ? { x: actor.x, y: actor.y, z: actor.z } : targetPosition;
     const targetIds = collectTargetsInCircle(candidates, center, shape.radius);
-    if (ability.targetType === "self") {
-      if (!targetIds.includes(actor.id)) {
-        targetIds.push(actor.id);
-        targetIds.sort();
-      }
+    if (ability.targetType === "self" && !targetIds.includes(actor.id)) {
+      targetIds.push(actor.id);
+      targetIds.sort();
     }
     return { possibleTargetIds: targetIds, targetPosition };
   }
 
   if (shape.type === "cone") {
     const origin =
-      ability.targetType === "ground"
-        ? targetPosition
-        : { x: actor.x, y: actor.y, z: actor.z };
-    const directionYaw = resolveDirectionYaw(
-      ability,
-      actor,
-      target,
-      targetPosition,
-    );
+      ability.targetType === "ground" ? targetPosition : { x: actor.x, y: actor.y, z: actor.z };
+    const directionYaw = resolveDirectionYaw(ability, actor, target, targetPosition);
     if (directionYaw === null) {
       return null;
     }
@@ -129,15 +115,8 @@ export function resolveTargetsForAbility(
 
   if (shape.type === "line") {
     const origin =
-      ability.targetType === "ground"
-        ? targetPosition
-        : { x: actor.x, y: actor.y, z: actor.z };
-    const directionYaw = resolveDirectionYaw(
-      ability,
-      actor,
-      target,
-      targetPosition,
-    );
+      ability.targetType === "ground" ? targetPosition : { x: actor.x, y: actor.y, z: actor.z };
+    const directionYaw = resolveDirectionYaw(ability, actor, target, targetPosition);
     if (directionYaw === null) {
       return null;
     }
@@ -162,8 +141,9 @@ function resolveDirectionYaw(
 ): number | null {
   const directionMode = resolveDirectionMode(ability);
   switch (directionMode) {
-    case "facing":
+    case "facing": {
       return actor.facingYaw;
+    }
     case "target": {
       if (!targetPosition) {
         return null;
@@ -174,11 +154,7 @@ function resolveDirectionYaw(
     }
     case "cursor": {
       if (target.direction) {
-        return yawFromVector(
-          target.direction.x,
-          target.direction.z,
-          actor.facingYaw,
-        );
+        return yawFromVector(target.direction.x, target.direction.z, actor.facingYaw);
       }
       if (target.targetPoint) {
         const dx = target.targetPoint.x - actor.x;
@@ -187,8 +163,9 @@ function resolveDirectionYaw(
       }
       return null;
     }
-    default:
+    default: {
       return actor.facingYaw;
+    }
   }
 }
 

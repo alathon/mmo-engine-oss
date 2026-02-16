@@ -59,11 +59,7 @@ export class AiDecisionSystem {
     brain.chasePathIndex = 0;
   }
 
-  private chooseNextMove(
-    brain: NpcBrainState,
-    config: NpcAiConfig,
-    nowMs: number,
-  ): void {
+  private chooseNextMove(brain: NpcBrainState, config: NpcAiConfig, nowMs: number): void {
     const idleRange = config.maxIdleMs - config.minIdleMs;
     const idleMs = config.minIdleMs + Math.random() * idleRange;
     brain.targetYaw = Math.random() * Math.PI * 2;

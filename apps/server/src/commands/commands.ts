@@ -7,10 +7,7 @@ import {
 } from "@mmo/shared";
 import { ServerPlayer } from "../world/entities/player";
 import { ServerZone } from "../world/zones/zone";
-import {
-  MAX_PENDING_INPUTS,
-  SERVER_SNAP_ACCEPT_DISTANCE,
-} from "../world/constants/movement";
+import { MAX_PENDING_INPUTS, SERVER_SNAP_ACCEPT_DISTANCE } from "../world/constants/movement";
 
 export type ClientCommand =
   | MoveMessage
@@ -30,10 +27,7 @@ export interface ClientCommandContext<T extends ClientCommand> {
  *
  * @param context - input context for a move command.
  */
-export const moveCommand = ({
-  data,
-  player,
-}: ClientCommandContext<MoveMessage>): void => {
+export const moveCommand = ({ data, player }: ClientCommandContext<MoveMessage>): void => {
   if (player.snapLocked) {
     const target = player.snapTarget;
     if (!target) {
@@ -49,10 +43,7 @@ export const moveCommand = ({
       player.snapTarget = undefined;
       player.pendingInputs.length = 0;
       player.inputBudgetTicks = 0;
-      player.synced.lastProcessedSeq = Math.max(
-        player.synced.lastProcessedSeq,
-        data.seq,
-      );
+      player.synced.lastProcessedSeq = Math.max(player.synced.lastProcessedSeq, data.seq);
     }
     return;
   }
@@ -68,6 +59,7 @@ export const moveCommand = ({
   player.pendingInputs.push({
     directionX: data.directionX,
     directionZ: data.directionZ,
+    jumpPressed: data.jumpPressed,
     seq: data.seq,
     tick: data.tick,
     isSprinting: data.isSprinting,

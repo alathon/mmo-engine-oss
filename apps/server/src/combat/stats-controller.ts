@@ -11,11 +11,7 @@ const PRIMARY_STATS: (keyof CombatStats)[] = [
   "constitution",
 ];
 
-const SECONDARY_STATS: (keyof CombatStats)[] = [
-  "maxHp",
-  "maxMana",
-  "maxStamina",
-];
+const SECONDARY_STATS: (keyof CombatStats)[] = ["maxHp", "maxMana", "maxStamina"];
 
 const applyModifiers = (
   base: CombatStats,
@@ -32,32 +28,26 @@ const applyModifiers = (
       continue;
     }
     switch (modifier.mode) {
-    case "add": {
-      add.set(
-        modifier.stat,
-        (add.get(modifier.stat) ?? 0) + modifier.value,
-      );
-    
-    break;
-    }
-    case "mul": {
-      mul.set(
-        modifier.stat,
-        (mul.get(modifier.stat) ?? 1) * modifier.value,
-      );
-    
-    break;
-    }
-    case "override": {
-      override.set(modifier.stat, modifier.value);
-    
-    break;
-    }
-    // No default
+      case "add": {
+        add.set(modifier.stat, (add.get(modifier.stat) ?? 0) + modifier.value);
+
+        break;
+      }
+      case "mul": {
+        mul.set(modifier.stat, (mul.get(modifier.stat) ?? 1) * modifier.value);
+
+        break;
+      }
+      case "override": {
+        override.set(modifier.stat, modifier.value);
+
+        break;
+      }
+      // No default
     }
   }
 
-  for (const stat of (Object.keys(result) as (keyof CombatStats)[])) {
+  for (const stat of Object.keys(result) as (keyof CombatStats)[]) {
     if (!allowed.has(stat)) {
       continue;
     }
@@ -132,9 +122,7 @@ export class StatsController {
       maxStamina: this.target.maxStamina,
     };
 
-    const modifiers = this.sources.flatMap((source) =>
-      source.getStatModifiers(),
-    );
+    const modifiers = this.sources.flatMap((source) => source.getStatModifiers());
 
     const primaryAllowed = new Set(PRIMARY_STATS);
     const secondaryAllowed = new Set(SECONDARY_STATS);
@@ -158,10 +146,7 @@ export class StatsController {
     this.target.maxHp = clampStat(this.derivedStats.maxHp);
     this.target.maxMana = clampStat(this.derivedStats.maxMana);
     this.target.maxStamina = clampStat(this.derivedStats.maxStamina);
-    this.target.currentHp = Math.min(
-      this.target.currentHp,
-      this.target.maxHp,
-    );
+    this.target.currentHp = Math.min(this.target.currentHp, this.target.maxHp);
     this.target.mana = Math.min(this.target.mana, this.target.maxMana);
     this.target.stamina = Math.min(this.target.stamina, this.target.maxStamina);
   }

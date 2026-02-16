@@ -8,17 +8,14 @@ import { ServerNPC } from "../src/world/entities/npc";
 import { ServerPlayer } from "../src/world/entities/player";
 import { ServerZone, ZoneData } from "../src/world/zones/zone";
 import { createTestNavmeshQuery } from "./test-navmesh";
+import { createTestCollisionWorld } from "./test-collision-world";
 
 const createZone = (): ServerZone => {
   const definition = {
     id: "ai-test-zone",
     name: "AI Test Zone",
     sceneData: {
-      width: 1,
-      height: 1,
-      ground: {
-        color: { r: 0, g: 0, b: 0 },
-      },
+      glbFilePath: "test.glb",
       terrainObjects: [],
       navmeshFilePath: "test.navmesh",
     },
@@ -27,17 +24,13 @@ const createZone = (): ServerZone => {
     "ai-test-zone",
     createTestNavmeshQuery(),
     definition,
+    createTestCollisionWorld("ai-test-zone"),
   );
 
   return new ServerZone(zoneData, new ZoneState());
 };
 
-const createPlayer = (
-  zone: ServerZone,
-  id: string,
-  x = 0,
-  z = 0,
-): ServerPlayer => {
+const createPlayer = (zone: ServerZone, id: string, x = 0, z = 0): ServerPlayer => {
   const state = new PlayerState();
   state.id = id;
   state.playerId = id;
@@ -76,24 +69,15 @@ describe("AI systems", () => {
     npc.brainState.elapsedTimeMs = 1000;
     npc.brainState.nextDecisionAtMs = 0;
 
-    const randomSpy = vi
-      .spyOn(Math, "random")
-      .mockReturnValueOnce(0.5)
-      .mockReturnValueOnce(0.25);
+    const randomSpy = vi.spyOn(Math, "random").mockReturnValueOnce(0.5).mockReturnValueOnce(0.25);
 
     system.update(zone);
 
     expect(npc.behaviorIntent.mode).toBe("wander");
     expect(npc.brainState.targetYaw).toBeCloseTo(Math.PI * 0.5, 6);
-    expect(npc.brainState.movingUntilMs).toBe(
-      1000 + npc.aiConfig.moveDurationMs,
-    );
-    const idleMs =
-      npc.aiConfig.minIdleMs +
-      0.5 * (npc.aiConfig.maxIdleMs - npc.aiConfig.minIdleMs);
-    expect(npc.brainState.nextDecisionAtMs).toBe(
-      npc.brainState.movingUntilMs + idleMs,
-    );
+    expect(npc.brainState.movingUntilMs).toBe(1000 + npc.aiConfig.moveDurationMs);
+    const idleMs = npc.aiConfig.minIdleMs + 0.5 * (npc.aiConfig.maxIdleMs - npc.aiConfig.minIdleMs);
+    expect(npc.brainState.nextDecisionAtMs).toBe(npc.brainState.movingUntilMs + idleMs);
 
     randomSpy.mockRestore();
   });
@@ -132,11 +116,7 @@ describe("AI systems", () => {
     const navmesh = {
       findSmoothPath: () => ({
         success: true,
-        path: [
-          { position: [0, 0, 0] },
-          { position: [5, 0, 0] },
-          { position: [10, 0, 0] },
-        ],
+        path: [{ position: [0, 0, 0] }, { position: [5, 0, 0] }, { position: [10, 0, 0] }],
       }),
     } as unknown as NavcatQuery;
 
@@ -233,7 +213,13 @@ describe("AI systems", () => {
     npc.steeringIntent.directionZ = 0;
     npc.steeringIntent.facingYaw = 0;
 
-    zone.movementController.fixedTick(1000, 50, 2, zone.zoneData.navmeshQuery);
+    zone.movementController.fixedTick(
+      1000,
+      50,
+      2,
+      zone.zoneData.navmeshQuery,
+      zone.zoneData.collisionWorld,
+    );
 
     expect(npc.activeCast).toBeUndefined();
   });

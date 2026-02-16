@@ -42,10 +42,7 @@ export class CombatEngine implements AbilityEventListener {
         continue;
       }
 
-      if (
-        effect.targetFilter === "enemies" &&
-        effectResult.targets.length > 0
-      ) {
+      if (effect.targetFilter === "enemies" && effectResult.targets.length > 0) {
         const hostileTargets: ServerMob<MobState>[] = [];
         for (const targetResult of effectResult.targets) {
           const target = this.getCombatantById(targetResult.targetId);
@@ -55,11 +52,7 @@ export class CombatEngine implements AbilityEventListener {
         }
 
         if (hostileTargets.length > 0) {
-          this.recordHostileAction(
-            event.actor,
-            hostileTargets,
-            event.resolvedAtMs,
-          );
+          this.recordHostileAction(event.actor, hostileTargets, event.resolvedAtMs);
         }
       }
 
@@ -184,10 +177,7 @@ export class CombatEngine implements AbilityEventListener {
     return ids;
   }
 
-  private applyDamageAggro(
-    actor: ServerMob<MobState>,
-    targets: TargetResult[],
-  ): void {
+  private applyDamageAggro(actor: ServerMob<MobState>, targets: TargetResult[]): void {
     for (const targetResult of targets) {
       const damage = targetResult.damage ?? 0;
       if (damage <= 0) {
@@ -201,10 +191,7 @@ export class CombatEngine implements AbilityEventListener {
     }
   }
 
-  private applyHealingAggro(
-    actor: ServerMob<MobState>,
-    targets: TargetResult[],
-  ): void {
+  private applyHealingAggro(actor: ServerMob<MobState>, targets: TargetResult[]): void {
     for (const targetResult of targets) {
       const healing = targetResult.healing ?? 0;
       if (healing <= 0) {
@@ -217,11 +204,7 @@ export class CombatEngine implements AbilityEventListener {
       if (!areAllies(actor.synced, target.synced)) {
         continue;
       }
-      this.addAggroToEnemiesInCombatWith(
-        target.id,
-        actor.id,
-        healing * HEALING_AGGRO_MULTIPLIER,
-      );
+      this.addAggroToEnemiesInCombatWith(target.id, actor.id, healing * HEALING_AGGRO_MULTIPLIER);
     }
   }
 
@@ -263,20 +246,12 @@ export class CombatEngine implements AbilityEventListener {
         if (!areAllies(actor.synced, target.synced)) {
           continue;
         }
-        this.addAggroToEnemiesInCombatWith(
-          target.id,
-          actor.id,
-          STATUS_AGGRO_AMOUNT,
-        );
+        this.addAggroToEnemiesInCombatWith(target.id, actor.id, STATUS_AGGRO_AMOUNT);
       }
     }
   }
 
-  private addAggroToEnemiesInCombatWith(
-    allyId: string,
-    sourceId: string,
-    amount: number,
-  ): void {
+  private addAggroToEnemiesInCombatWith(allyId: string, sourceId: string, amount: number): void {
     if (amount <= 0) {
       return;
     }

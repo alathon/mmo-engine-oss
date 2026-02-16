@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from "vitest";
 import {
   ABILITY_DEFINITIONS,
   type AbilityAck,
@@ -7,31 +7,31 @@ import {
   AbilityState,
   NPCState,
   PlayerState,
-} from '@mmo/shared';
-import { CombatController } from './combat-controller';
-import { ZoneConnectionManager } from '../network/zone-connection-manager';
-import { AbilityEngine } from '../../../server/src/combat/ability-engine';
-import { CombatEngine } from '../../../server/src/combat/combat-engine';
-import { ServerPlayer } from '../../../server/src/world/entities/player';
-import { ServerNPC } from '../../../server/src/world/entities/npc';
-import type { ServerZone } from '../../../server/src/world/zones/zone';
-import type { MobEntity } from '../entities/mob-entity';
+} from "@mmo/shared";
+import { CombatController } from "./combat-controller";
+import { ZoneConnectionManager } from "../network/zone-connection-manager";
+import { AbilityEngine } from "../../../server/src/combat/ability-engine";
+import { CombatEngine } from "../../../server/src/combat/combat-engine";
+import { ServerPlayer } from "../../../server/src/world/entities/player";
+import { ServerNPC } from "../../../server/src/world/entities/npc";
+import type { ServerZone } from "../../../server/src/world/zones/zone";
+import type { MobEntity } from "../entities/mob-entity";
 
-describe('Combat integration', () => {
-  it('bridges client requests through the server timeline', () => {
+describe("Combat integration", () => {
+  it("bridges client requests through the server timeline", () => {
     vi.useFakeTimers();
 
     const abilityMap = ABILITY_DEFINITIONS as Record<string, AbilityDefinition>;
-    const longCastId = 'test_long_cast';
+    const longCastId = "test_long_cast";
     abilityMap[longCastId] = {
       id: longCastId,
-      name: 'Test Long Cast',
+      name: "Test Long Cast",
       isOnGcd: true,
       castTimeMs: 3000,
       cooldownMs: 0,
       range: 10,
-      targetType: 'enemy',
-      aoeShape: 'single',
+      targetType: "enemy",
+      aoeShape: "single",
       effects: [],
     };
 
@@ -42,9 +42,13 @@ describe('Combat integration', () => {
     const zone = {
       players: new Map<string, ServerPlayer>(),
       npcs: new Map<string, ServerNPC>(),
+      movementController: {
+        // eslint-disable-next-line unicorn/consistent-function-scoping
+        onMobMovement: () => () => {},
+      },
       zoneData: {
         navmeshQuery: undefined,
-        zoneId: 'test-zone',
+        zoneId: "test-zone",
       },
       eventLog: {
         append: () => 0,
@@ -53,33 +57,41 @@ describe('Combat integration', () => {
     } as unknown as ServerZone;
     const combatEngine = new CombatEngine(zone);
     const engine = new AbilityEngine(zone);
+    (
+      engine as unknown as {
+        hasLineOfSight: (
+          actor: ServerPlayer | ServerNPC,
+          targetPosition: { x: number; y: number; z: number },
+        ) => boolean;
+      }
+    ).hasLineOfSight = () => true;
     engine.addEventListener(combatEngine);
 
     const playerState = new PlayerState();
-    playerState.id = 'player-1';
-    playerState.playerId = 'player-1';
-    playerState.name = 'player-1';
+    playerState.id = "player-1";
+    playerState.playerId = "player-1";
+    playerState.name = "player-1";
     playerState.x = 0;
     playerState.z = 0;
     const player = new ServerPlayer(playerState);
     zone.players.set(player.id, player);
 
     const npcState = new NPCState();
-    npcState.id = 'npc-1';
-    npcState.name = 'npc-1';
+    npcState.id = "npc-1";
+    npcState.name = "npc-1";
     npcState.x = 1;
     npcState.z = 0;
     const npc = new ServerNPC(npcState);
     zone.npcs.set(npc.id, npc);
 
     const clientSource = {
-      getId: () => 'player-1',
+      getId: () => "player-1",
       getPosition: () => ({ x: 0, y: 0, z: 0 }),
       sync: {
         abilityState: new AbilityState({
           castStartTimeMs: 0,
           castEndTimeMs: 0,
-          castAbilityId: '',
+          castAbilityId: "",
         }),
       },
     } as unknown as MobEntity;
@@ -126,7 +138,7 @@ describe('Combat integration', () => {
 
     try {
       controller.fixedTick();
-      controller.tryUseAbility(longCastId, { targetEntityId: 'npc-1' });
+      controller.tryUseAbility(longCastId, { targetEntityId: "npc-1" });
 
       expect(acks).toHaveLength(1);
       expect(acks[0].result?.abilityId).toBe(longCastId);
@@ -136,10 +148,10 @@ describe('Combat integration', () => {
       serverTick = 2;
       vi.setSystemTime(nowMs);
       controller.fixedTick();
-      controller.tryUseAbility('shield_bash', { targetEntityId: 'npc-1' });
+      controller.tryUseAbility("shield_bash", { targetEntityId: "npc-1" });
 
       expect(acks).toHaveLength(1);
-      expect(player.bufferedRequest?.request.abilityId).toBe('shield_bash');
+      expect(player.bufferedRequest?.request.abilityId).toBe("shield_bash");
 
       nowMs = 4000;
       serverTick = 3;
@@ -148,7 +160,7 @@ describe('Combat integration', () => {
       syncAbilityState();
 
       expect(acks).toHaveLength(2);
-      expect(acks[1].result?.abilityId).toBe('shield_bash');
+      expect(acks[1].result?.abilityId).toBe("shield_bash");
 
       nowMs = 4100;
       serverTick = 4;
@@ -160,7 +172,7 @@ describe('Combat integration', () => {
       serverTick = 5;
       vi.setSystemTime(nowMs);
       controller.fixedTick();
-      controller.tryUseAbility(longCastId, { targetEntityId: 'npc-1' });
+      controller.tryUseAbility(longCastId, { targetEntityId: "npc-1" });
 
       expect(acks).toHaveLength(2);
       expect(player.bufferedRequest?.request.abilityId).toBe(longCastId);

@@ -1,12 +1,12 @@
-import { Scene } from '@babylonjs/core/scene';
-import { Color3 } from '@babylonjs/core/Maths/math.color';
-import { TextBlock } from '@babylonjs/gui/2D/controls/textBlock';
-import { Control } from '@babylonjs/gui/2D/controls/control';
-import { MobEntity } from './mob-entity';
-import { PlayerState } from '@mmo/shared';
-import type { UiLayer } from '../ui/ui-layer';
-import type { NavmeshMoveDebug } from '../movement/movement-types';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Scene } from "@babylonjs/core/scene";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
+import { Control } from "@babylonjs/gui/2D/controls/control";
+import { MobEntity } from "./mob-entity";
+import { PlayerState } from "@mmo/shared";
+import type { UiLayer } from "../ui/ui-layer";
+import type { NavmeshMoveDebug } from "../movement/movement-types";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 
 /**
  * Player character entity.
@@ -40,7 +40,7 @@ export class PlayerEntity extends MobEntity {
     this.setInterpolationEnabled(!isLocal);
     this.disconnectedLabel = this.createDisconnectedLabel(this.sync.isDisconnected);
     if (isLocal) {
-      console.debug('Local player entity created', {
+      console.debug("Local player entity created", {
         playerId: sync.playerId,
         x: sync.x,
         z: sync.z,
@@ -139,21 +139,21 @@ export class PlayerEntity extends MobEntity {
     return new Color3(
       Math.max(0, Math.min(1, r)),
       Math.max(0, Math.min(1, g)),
-      Math.max(0, Math.min(1, b))
+      Math.max(0, Math.min(1, b)),
     );
   }
 
   private createDisconnectedLabel(isDisconnected = false): TextBlock {
     const label = new TextBlock(`disconnect_${this.sync.playerId}`);
-    label.text = 'X';
-    label.color = '#ff3b30';
+    label.text = "X";
+    label.color = "#ff3b30";
     label.fontSize = 16;
-    label.fontFamily = 'Segoe UI, system-ui, sans-serif';
-    label.fontWeight = '700';
+    label.fontFamily = "Segoe UI, system-ui, sans-serif";
+    label.fontWeight = "700";
     label.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
     label.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
     label.outlineWidth = 4;
-    label.outlineColor = 'black';
+    label.outlineColor = "black";
     label.isVisible = isDisconnected;
 
     this.uiLayer.addControl(label);

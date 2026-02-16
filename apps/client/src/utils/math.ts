@@ -1,4 +1,4 @@
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 
 /**
  * Interpolates between two angles, taking the shortest path.
@@ -13,7 +13,7 @@ export const lerpAngle = (
   current: number,
   target: number,
   deltaTimeMs: number,
-  speed: number
+  speed: number,
 ): number => {
   const twoPi = Math.PI * 2;
   const normalizedCurrent = ((current % twoPi) + twoPi) % twoPi;
@@ -46,7 +46,7 @@ export const positionsEqual = (
   x2: number,
   y2: number,
   z2: number,
-  within: number
+  within: number,
 ): boolean => {
   return Math.abs(x1 - x2) <= within && Math.abs(y1 - y2) <= within && Math.abs(z1 - z2) <= within;
 };

@@ -12,8 +12,7 @@ const CHASE_REPATH_DISTANCE = 0.5;
 const CHASE_REPATH_DISTANCE_SQ = CHASE_REPATH_DISTANCE * CHASE_REPATH_DISTANCE;
 const CHASE_REPATH_COOLDOWN_MS = 100;
 const CHASE_WAYPOINT_REACHED = 0.15;
-const CHASE_WAYPOINT_REACHED_SQ =
-  CHASE_WAYPOINT_REACHED * CHASE_WAYPOINT_REACHED;
+const CHASE_WAYPOINT_REACHED_SQ = CHASE_WAYPOINT_REACHED * CHASE_WAYPOINT_REACHED;
 
 export class AiSteeringSystem {
   update(zone: ServerZone, navmesh: NavcatQuery): void {
@@ -90,10 +89,7 @@ export class AiSteeringSystem {
     steering.facingYaw = Math.atan2(dirX, dirZ);
   }
 
-  private getChaseWaypoint(
-    npc: ServerNPC,
-    navmesh: NavcatQuery,
-  ): SmoothPathPoint | undefined {
+  private getChaseWaypoint(npc: ServerNPC, navmesh: NavcatQuery): SmoothPathPoint | undefined {
     const selection = npc.targetSelection;
     const brain = npc.brainState;
     if (!selection.targetId) {
@@ -112,15 +108,9 @@ export class AiSteeringSystem {
         (targetZ - brain.chaseTargetZ) * (targetZ - brain.chaseTargetZ) >
         CHASE_REPATH_DISTANCE_SQ;
     const nowMs = brain.elapsedTimeMs;
-    const cooldownElapsed =
-      nowMs - brain.lastRepathAtMs >= CHASE_REPATH_COOLDOWN_MS;
+    const cooldownElapsed = nowMs - brain.lastRepathAtMs >= CHASE_REPATH_COOLDOWN_MS;
 
-    if (
-      !hasTarget ||
-      targetChanged ||
-      needsPath ||
-      (targetMoved && cooldownElapsed)
-    ) {
+    if (!hasTarget || targetChanged || needsPath || (targetMoved && cooldownElapsed)) {
       this.recomputeChasePath(npc, navmesh, {
         targetId,
         targetX,

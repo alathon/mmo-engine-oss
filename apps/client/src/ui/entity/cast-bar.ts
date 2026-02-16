@@ -1,7 +1,7 @@
-import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
-import { Rectangle } from '@babylonjs/gui/2D/controls/rectangle';
-import { Control } from '@babylonjs/gui/2D/controls/control';
-import type { UiLayer } from '../ui-layer';
+import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
+import { Rectangle } from "@babylonjs/gui/2D/controls/rectangle";
+import { Control } from "@babylonjs/gui/2D/controls/control";
+import type { UiLayer } from "../ui-layer";
 
 const DEFAULT_WIDTH = 70;
 const DEFAULT_HEIGHT = 6;
@@ -39,9 +39,9 @@ export class CastBar {
     this.background.width = `${width}px`;
     this.background.height = `${height}px`;
     this.background.cornerRadius = 2;
-    this.background.color = 'black';
+    this.background.color = "black";
     this.background.thickness = 1;
-    this.background.background = '#1f1f1f';
+    this.background.background = "#1f1f1f";
     this.background.isVisible = false;
 
     this.uiLayer.addControl(this.background);
@@ -49,12 +49,12 @@ export class CastBar {
     this.background.linkOffsetY = linkOffsetY;
 
     this.fill = new Rectangle(`castBarFill_${options.id}`);
-    this.fill.height = '100%';
+    this.fill.height = "100%";
     this.fill.cornerRadius = 1;
-    this.fill.color = 'transparent';
+    this.fill.color = "transparent";
     this.fill.thickness = 0;
     this.fill.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-    this.fill.background = '#48a0ff';
+    this.fill.background = "#48a0ff";
 
     this.background.addControl(this.fill);
   }

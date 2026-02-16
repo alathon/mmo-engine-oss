@@ -1,8 +1,8 @@
-import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
-import { Rectangle } from '@babylonjs/gui/2D/controls/rectangle';
-import { TextBlock } from '@babylonjs/gui/2D/controls/textBlock';
-import { Control } from '@babylonjs/gui/2D/controls/control';
-import type { UiLayer } from '../ui-layer';
+import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
+import { Rectangle } from "@babylonjs/gui/2D/controls/rectangle";
+import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
+import { Control } from "@babylonjs/gui/2D/controls/control";
+import type { UiLayer } from "../ui-layer";
 
 // Default speech bubble settings
 const DEFAULT_MAX_WIDTH = 150;
@@ -46,14 +46,14 @@ export class SpeechBubble {
     this.container = new Rectangle(`speechBubble_${options.id}`);
     this.container.width = `${maxWidth}px`;
     this.container.adaptHeightToChildren = true;
-    this.container.paddingTop = '6px';
-    this.container.paddingBottom = '6px';
-    this.container.paddingLeft = '10px';
-    this.container.paddingRight = '10px';
+    this.container.paddingTop = "6px";
+    this.container.paddingBottom = "6px";
+    this.container.paddingLeft = "10px";
+    this.container.paddingRight = "10px";
     this.container.cornerRadius = 8;
-    this.container.color = '#444444';
+    this.container.color = "#444444";
     this.container.thickness = 1;
-    this.container.background = 'rgba(255, 255, 255, 0.95)';
+    this.container.background = "rgba(255, 255, 255, 0.95)";
     this.container.isVisible = false;
 
     this.uiLayer.addControl(this.container);
@@ -62,10 +62,10 @@ export class SpeechBubble {
 
     // Text inside the bubble
     this.textBlock = new TextBlock(`speechText_${options.id}`);
-    this.textBlock.text = '';
-    this.textBlock.color = '#222222';
+    this.textBlock.text = "";
+    this.textBlock.color = "#222222";
     this.textBlock.fontSize = 12;
-    this.textBlock.fontFamily = 'Segoe UI, system-ui, sans-serif';
+    this.textBlock.fontFamily = "Segoe UI, system-ui, sans-serif";
     this.textBlock.textWrapping = true;
     this.textBlock.resizeToFit = true;
     this.textBlock.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;

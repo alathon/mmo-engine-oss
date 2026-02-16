@@ -1,1 +1,1 @@
-export { default } from '@mmo/eslint-config';
+export { default } from "@mmo/eslint-config";

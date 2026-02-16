@@ -5,8 +5,8 @@ import {
   useState,
   useSyncExternalStore,
   type ChangeEvent,
-} from 'react';
-import { uiLayoutManager, type UiLayoutImportMode } from '../../layout/ui-layout-manager';
+} from "react";
+import { uiLayoutManager, type UiLayoutImportMode } from "../../layout/ui-layout-manager";
 
 const useLayoutSnapshot = () => {
   const subscribe = useCallback((listener: () => void) => uiLayoutManager.subscribe(listener), []);
@@ -15,7 +15,7 @@ const useLayoutSnapshot = () => {
 };
 
 const isUiInputFocused = (): boolean => {
-  if (typeof document === 'undefined') {
+  if (typeof document === "undefined") {
     return false;
   }
 
@@ -24,7 +24,7 @@ const isUiInputFocused = (): boolean => {
     return false;
   }
 
-  return !!active.closest('[data-ui-input]');
+  return !!active.closest("[data-ui-input]");
 };
 
 /**
@@ -34,8 +34,8 @@ export const UiLayoutControlsOverlay = () => {
   const snapshot = useLayoutSnapshot();
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<string | undefined>();
-  const [importText, setImportText] = useState('');
-  const [importMode, setImportMode] = useState<UiLayoutImportMode>('replace');
+  const [importText, setImportText] = useState("");
+  const [importMode, setImportMode] = useState<UiLayoutImportMode>("replace");
   const uiLocked = snapshot.uiLocked;
 
   useEffect(() => {
@@ -50,28 +50,28 @@ export const UiLayoutControlsOverlay = () => {
         return;
       }
 
-      if (key === 'l') {
+      if (key === "l") {
         event.preventDefault();
         setOpen((prev) => !prev);
         return;
       }
 
-      if (key === 'u') {
+      if (key === "u") {
         event.preventDefault();
         const locked = uiLayoutManager.toggleUiLocked();
-        setStatus(locked ? 'UI locked.' : 'UI unlocked.');
+        setStatus(locked ? "UI locked." : "UI unlocked.");
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
   const layoutOptions = useMemo(
     () => snapshot.layouts.map((layout) => ({ id: layout.id, name: layout.name })),
-    [snapshot.layouts]
+    [snapshot.layouts],
   );
 
   const handleActiveLayoutChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
@@ -81,39 +81,39 @@ export const UiLayoutControlsOverlay = () => {
 
   const handleSave = useCallback(() => {
     const result = uiLayoutManager.saveToStorage();
-    setStatus(result.ok ? 'Layouts saved.' : (result.error ?? 'Save failed.'));
+    setStatus(result.ok ? "Layouts saved." : (result.error ?? "Save failed."));
   }, []);
 
   const handleToggleLock = useCallback(() => {
     const locked = uiLayoutManager.toggleUiLocked();
-    setStatus(locked ? 'UI locked.' : 'UI unlocked.');
+    setStatus(locked ? "UI locked." : "UI unlocked.");
   }, []);
 
   const handleReset = useCallback(() => {
     uiLayoutManager.resetToDefaultLayout();
-    setStatus('Reset to default (remember to save).');
+    setStatus("Reset to default (remember to save).");
   }, []);
 
   const handleExport = useCallback(() => {
     const json = uiLayoutManager.exportStore();
-    const blob = new Blob([json], { type: 'application/json' });
+    const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = `mmo-ui-layouts-${Date.now()}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    setStatus('Exported layouts.');
+    setStatus("Exported layouts.");
   }, []);
 
   const handleImport = useCallback(() => {
     const result = uiLayoutManager.importFromJson(importText, importMode);
     if (!result.ok) {
-      setStatus(result.error ?? 'Import failed.');
+      setStatus(result.error ?? "Import failed.");
       return;
     }
 
-    setStatus('Layouts imported.');
+    setStatus("Layouts imported.");
   }, [importMode, importText]);
 
   const handleClose = useCallback(() => {
@@ -160,7 +160,7 @@ export const UiLayoutControlsOverlay = () => {
           Save Layout
         </button>
         <button type="button" onClick={handleToggleLock}>
-          {uiLocked ? 'Unlock UI' : 'Lock UI'}
+          {uiLocked ? "Unlock UI" : "Lock UI"}
         </button>
         <button type="button" onClick={handleReset}>
           Reset to Default

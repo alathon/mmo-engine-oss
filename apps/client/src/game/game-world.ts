@@ -1,21 +1,22 @@
-import type { Scene } from '@babylonjs/core/scene';
-import type { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera';
-import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
-import { Color3 } from '@babylonjs/core/Maths/math.color';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
-import { Mesh } from '@babylonjs/core/Meshes/mesh';
-import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
+import type { Scene } from "@babylonjs/core/scene";
+import type { ArcRotateCamera } from "@babylonjs/core/Cameras/arcRotateCamera";
+import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import type {
   LoginResponse,
   NPCState,
   PlayerState,
+  NavmeshGenerationSettings,
   ZoneDefinition,
   SnapMessage,
   EventLogEntry,
   AbilityCastInterruptEvent,
   AbilityEffectAppliedEvent,
-} from '@mmo/shared';
+} from "@mmo/shared";
 import {
   ABILITY_DEFINITIONS,
   CombatEventType,
@@ -23,46 +24,83 @@ import {
   NavcatQuery,
   TICK_MS,
   type AbilityDefinition,
-} from '@mmo/shared';
+} from "@mmo/shared";
+
+import * as GlbZoneLoader from "../zone/glb-zone-loader";
 
 // Side-effect import required for collision detection
-import '@babylonjs/core/Collisions/collisionCoordinator';
+import "@babylonjs/core/Collisions/collisionCoordinator";
 
-import type { UiLayer } from '../ui/ui-layer';
-import { PlayerEntity } from '../entities/player-entity';
-import { NpcEntity } from '../entities/npc-entity';
-import { MobEntity } from '../entities/mob-entity';
-import { LocalPlayerMovementHandler } from '../movement/local-player-movement-handler';
-import { DebugManager } from './debug-manager';
+import type { UiLayer } from "../ui/ui-layer";
+import { PlayerEntity } from "../entities/player-entity";
+import { NpcEntity } from "../entities/npc-entity";
+import { MobEntity } from "../entities/mob-entity";
+import { LocalPlayerMovementHandler } from "../movement/local-player-movement-handler";
+import { DebugManager } from "./debug-manager";
 import type {
   CombatDebugData,
   NavmeshInspectData,
   NavmeshProbeData,
   PlayerInputDebugData,
-} from './debug-manager';
-import { getNavcatAssetUrl, getZoneDefinition } from '../zone/asset-loaders';
-import { loadNavmeshFromUrl } from '../zone/navmesh-loader';
-import { createNavMeshHelper, DebugObject } from '../zone/navcat-debug';
-import type { GroundMesh } from '@babylonjs/core/Meshes/groundMesh';
-import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
-import { ObjEntity } from '../entities/obj-entity';
-import { ObjManager } from './obj-manager';
-import { HotbarController } from '../ui/widgets/hotbars/hotbar-controller';
-import { CombatController } from '../combat';
-import type { AbilityUseContext } from '../combat';
-import { TargetingController } from '../combat/targeting-controller';
-import { GroundTargetingController } from '../combat/ground-targeting-controller';
-import { InputRouter } from '../input/input-router';
-import { UiInputHandler } from '../ui/ui-input-handler';
-import { buildCombatLogText, createCombatLogTextContext } from '../combat/log';
-import { CombatTextSystem } from '../combat/combat-text-system';
+} from "./debug-manager";
+import { getNavcatAssetUrl, getZoneDefinition } from "../zone/asset-loaders";
+import { loadNavmeshFromUrl } from "../zone/navmesh-loader";
+import { createNavMeshHelper, DebugObject } from "../zone/navcat-debug";
+import {
+  DEFAULT_NAVMESH_GENERATION_SETTINGS,
+  generateNavmeshFromMeshes,
+  type NavmeshGenerationSummary,
+} from "../zone/navmesh-generation";
+import type { GroundMesh } from "@babylonjs/core/Meshes/groundMesh";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
+import { ObjManager } from "./obj-manager";
+import { HotbarController } from "../ui/widgets/hotbars/hotbar-controller";
+import { CombatController } from "../combat";
+import type { AbilityUseContext } from "../combat";
+import { TargetingController } from "../combat/targeting-controller";
+import { GroundTargetingController } from "../combat/ground-targeting-controller";
+import { InputRouter } from "../input/input-router";
+import { UiInputHandler } from "../ui/ui-input-handler";
+import { buildCombatLogText, createCombatLogTextContext } from "../combat/log";
+import { CombatTextSystem } from "../combat/combat-text-system";
+import { CameraFovController } from "./camera-fov-controller";
+import { CameraAngleController } from "./camera-angle-controller";
+import { Control } from "@babylonjs/gui/2D/controls/control";
+import { Line } from "@babylonjs/gui/2D/controls/line";
+import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 
 const RECONCILE_NUDGE_DISTANCE = 0.25;
-import type { ClientSession } from '../state/client-session';
-import type { IngameServices } from '../services/ingame-services';
+import type { ClientSession } from "../state/client-session";
+import type { IngameServices } from "../services/ingame-services";
 
 const NAVMESH_PROBE_MAX_DISTANCE = 8;
 const NAVMESH_INSPECT_MAX_DISTANCE = 12;
+const WORLD_ORIENTATION_HUD_AXIS_LENGTH = 34;
+const WORLD_ORIENTATION_HUD_RIGHT_OFFSET = 86;
+const WORLD_ORIENTATION_HUD_TOP_OFFSET = 86;
+const WORLD_ORIENTATION_HUD_LABEL_OFFSET = 12;
+
+interface CameraSnapshot {
+  alpha: number;
+  beta: number;
+  radius: number;
+  fov: number;
+  lowerAlphaLimit: number | null;
+  upperAlphaLimit: number | null;
+  lowerBetaLimit: number | null;
+  upperBetaLimit: number | null;
+  lowerRadiusLimit: number | null;
+  upperRadiusLimit: number | null;
+  minZ: number;
+  maxZ: number;
+}
+
+interface WorldOrientationHud {
+  axisX: Line;
+  axisY: Line;
+  axisZ: Line;
+  labels: TextBlock[];
+}
 
 export interface GameWorldOptions {
   scene: Scene;
@@ -76,11 +114,12 @@ export interface GameWorldOptions {
 export class GameWorld {
   constructor(
     private services: IngameServices,
-    private session: ClientSession
+    private session: ClientSession,
   ) {}
 
   private scene?: Scene;
   public camera?: ArcRotateCamera;
+  private cameraSnapshot?: CameraSnapshot;
   private players = new Map<string, PlayerEntity>();
   private npcs = new Map<string, NpcEntity>();
   private localPlayer?: PlayerEntity;
@@ -89,7 +128,7 @@ export class GameWorld {
   private readonly combatLogContext = createCombatLogTextContext(
     this.resolveEntityName.bind(this),
     this.resolveAbilityName.bind(this),
-    this.getLocalPlayerId.bind(this)
+    this.getLocalPlayerId.bind(this),
   );
   private combatTextSystem?: CombatTextSystem;
   private localMovement?: LocalPlayerMovementHandler;
@@ -98,17 +137,24 @@ export class GameWorld {
   private debugManager?: DebugManager;
   private uiLayer?: UiLayer;
   private groundMesh?: GroundMesh;
+  private zoneNavmeshSourceMeshes: Mesh[] = [];
+  private zoneGroundTargetMeshIds = new Set<number>();
   private hotbar?: HotbarController;
   private combatController?: CombatController;
   private targetingController?: TargetingController;
   private groundTargetingController?: GroundTargetingController;
+  private cameraFovController?: CameraFovController;
+  private cameraAngleController?: CameraAngleController;
   private inputRouter?: InputRouter;
   private uiInputHandler?: UiInputHandler;
   private pendingReconcileNudge?: { x: number; z: number };
   private navmeshDebug?: DebugObject;
   private serverShadow?: Mesh;
   private serverPositionVisualEnabled = false;
+  private ignoreServerSnaps = false;
   private zoneDefinition?: ZoneDefinition;
+  private worldOrientationHud?: WorldOrientationHud;
+  private readonly worldOrientationViewAxis = new Vector3();
 
   private getLocalPlayerId(): string | undefined {
     return this.localPlayerId;
@@ -133,6 +179,10 @@ export class GameWorld {
    */
   getGroundMesh(): GroundMesh | undefined {
     return this.groundMesh;
+  }
+
+  getGroundTargetMeshIds(): ReadonlySet<number> {
+    return this.zoneGroundTargetMeshIds;
   }
 
   /**
@@ -191,7 +241,7 @@ export class GameWorld {
     this.uiLayer = this.services.ui.texture;
 
     if (!this.uiLayer) {
-      throw new Error('UI layer not initialized');
+      throw new Error("UI layer not initialized");
     }
     this.combatTextSystem = new CombatTextSystem(this.uiLayer);
     this.objManager = new ObjManager(this.services.zoneNetwork, this.uiLayer);
@@ -199,6 +249,10 @@ export class GameWorld {
     this.inputRouter = new InputRouter(this.services.input);
     this.uiInputHandler = new UiInputHandler();
     this.inputRouter.registerHandler(this.uiInputHandler);
+    this.cameraFovController = new CameraFovController(this.camera);
+    this.inputRouter.registerHandler(this.cameraFovController);
+    this.cameraAngleController = new CameraAngleController(this.camera);
+    this.inputRouter.registerHandler(this.cameraAngleController);
     this.groundTargetingController = new GroundTargetingController(this);
     this.inputRouter.registerHandler(this.groundTargetingController);
     this.targetingController = new TargetingController(this, this.services.zoneNetwork);
@@ -210,6 +264,7 @@ export class GameWorld {
     this.debugManager.setReconcileNudgeHandler(() => {
       this.queueReconcileNudge();
     });
+    this.createWorldOrientationHud();
     this.objManager.bindEvents(this.scene);
     this.services.chat.onChatMessage((playerId, _playerName, message) => {
       this.showSpeechBubble(playerId, message);
@@ -229,14 +284,14 @@ export class GameWorld {
       this.services.zoneNetwork.initialize({
         token: options.loginResponse.token,
         playerId: options.loginResponse.playerId,
-        zoneId: 'startingPlains',
+        zoneId: "startingPlains",
       }),
       this.services.socialNetwork.initialize({
         token: options.loginResponse.token,
       }),
     ]);
 
-    this.services.chat.addSystemMessage('Connected to social server');
+    this.services.chat.addSystemMessage("Connected to social server");
     this.services.zoneNetwork.onSystemMessage((message) => {
       this.services.chat.addSystemMessage(message);
     });
@@ -254,18 +309,21 @@ export class GameWorld {
     });
 
     if (!zoneId) {
-      this.services.chat.addSystemMessage('Failed to resolve zone assignment.');
+      this.services.chat.addSystemMessage("Failed to resolve zone assignment.");
       return;
     }
 
-    console.debug('Zone assignment confirmed', { zoneId });
+    console.debug("Zone assignment confirmed", { zoneId });
 
-    if (!this.loadZone(zoneId)) {
-      this.services.chat.addSystemMessage(`Zone not found: ${zoneId}`);
+    const ok = await this.loadZone(zoneId);
+    if (!ok) {
+      this.services.chat.addSystemMessage(`Zone failed to load: ${zoneId}`);
       return;
     }
 
-    console.debug('Zone loaded', { zoneId });
+    this.configureCameraForWorld();
+
+    console.debug("Zone loaded", { zoneId });
     await this.initializeNavmesh();
     this.createServerShadow();
   }
@@ -274,6 +332,7 @@ export class GameWorld {
    * Disposes the world state.
    */
   dispose(): void {
+    this.disposeWorldOrientationHud();
     for (const player of this.players.values()) player.dispose();
     this.players.clear();
     for (const npc of this.npcs.values()) npc.dispose();
@@ -294,11 +353,19 @@ export class GameWorld {
     this.groundTargetingController = undefined;
     this.targetingController?.clearTarget();
     this.targetingController = undefined;
+    this.cameraFovController = undefined;
+    this.cameraAngleController = undefined;
     this.navmeshQuery = undefined;
     this.zoneDefinition = undefined;
     this.groundMesh = undefined;
+    this.zoneNavmeshSourceMeshes = [];
+    this.zoneGroundTargetMeshIds.clear();
+    this.services.navmeshTuningViewModel.setGenerator(undefined);
+    this.services.navmeshTuningViewModel.setIgnoreServerSnapsHandler(undefined);
+    this.ignoreServerSnaps = false;
     this.localPlayer = undefined;
     this.localPlayerId = undefined;
+    this.localMovement?.dispose();
     this.localMovement = undefined;
     this.combatController = undefined;
     this.hotbar?.dispose();
@@ -306,6 +373,7 @@ export class GameWorld {
     this.combatTextSystem?.dispose();
     this.combatTextSystem = undefined;
     this.services.performanceViewModel.dispose();
+    this.restoreCameraSnapshot();
     this.setCameraFollowTarget(undefined);
     this.camera = undefined;
     this.scene = undefined;
@@ -324,7 +392,6 @@ export class GameWorld {
    */
   clearNavmesh(): void {
     this.navmeshQuery = undefined;
-    this.localMovement?.setNavmesh(undefined);
     for (const player of this.players.values()) player.resetNavmeshNodeRef();
     for (const npc of this.npcs.values()) npc.resetNavmeshNodeRef();
     this.updateNavmeshProbeProvider();
@@ -338,27 +405,97 @@ export class GameWorld {
    * @param deltaTimeMs - elapsed time in milliseconds.
    */
   update(deltaTimeMs: number): void {
-    this.combatTextSystem?.beginFrame();
-    this.services.performanceViewModel.tick(deltaTimeMs);
     // Run as many fixedTick()'s as we have time for.
     this.elapsedMs += deltaTimeMs;
     while (this.elapsedMs >= TICK_MS) {
       this.elapsedMs -= TICK_MS;
       this.fixedTick();
     }
+    const fixedTickAlpha = this.elapsedMs / TICK_MS;
+
+    this.combatTextSystem?.beginFrame();
+    this.services.performanceViewModel.tick(deltaTimeMs);
+    this.services.hotbarViewModel.tick(this.services.clock.nowMs());
 
     this.inputRouter?.updateFrame();
 
     // Then run updates for entities.
     for (const p of this.players.values()) {
-      p.update(deltaTimeMs);
+      p.update(deltaTimeMs, fixedTickAlpha);
     }
 
     for (const npc of this.npcs.values()) {
-      npc.update(deltaTimeMs);
+      npc.update(deltaTimeMs, fixedTickAlpha);
     }
 
+    this.updateWorldOrientationHud();
     this.combatTextSystem?.update(deltaTimeMs);
+  }
+
+  private configureCameraForWorld(): void {
+    if (!this.camera) {
+      return;
+    }
+
+    if (!this.cameraSnapshot) {
+      this.cameraSnapshot = {
+        alpha: this.camera.alpha,
+        beta: this.camera.beta,
+        radius: this.camera.radius,
+        fov: this.camera.fov,
+        lowerAlphaLimit: this.camera.lowerAlphaLimit,
+        upperAlphaLimit: this.camera.upperAlphaLimit,
+        lowerBetaLimit: this.camera.lowerBetaLimit,
+        upperBetaLimit: this.camera.upperBetaLimit,
+        lowerRadiusLimit: this.camera.lowerRadiusLimit,
+        upperRadiusLimit: this.camera.upperRadiusLimit,
+        minZ: this.camera.minZ,
+        maxZ: this.camera.maxZ,
+      };
+    }
+
+    const zoneWidth = 100; // TODO: this.zoneDefinition?.sceneData.width ?? 100;
+    const zoneHeight = 15; // TODO: this.zoneDefinition?.sceneData.height ?? 100;
+    const zoneSize = Math.max(zoneWidth, zoneHeight);
+
+    const alpha = -Math.PI / 2;
+    const beta = Math.PI / 3;
+    const targetRadius = Math.max(30, zoneSize * 0.35);
+
+    this.camera.alpha = alpha;
+    this.camera.beta = beta;
+    this.camera.radius = targetRadius;
+    this.camera.fov = Math.PI / 4;
+    this.camera.lowerAlphaLimit = null;
+    this.camera.upperAlphaLimit = null;
+    this.camera.lowerBetaLimit = 0.1;
+    this.camera.upperBetaLimit = Math.PI - 0.1;
+    this.camera.lowerRadiusLimit = Math.max(20, targetRadius * 0.6);
+    this.camera.upperRadiusLimit = targetRadius * 1.6;
+    this.camera.minZ = 0.1;
+    this.camera.maxZ = Math.max(1000, zoneSize * 6);
+  }
+
+  private restoreCameraSnapshot(): void {
+    const camera = this.camera;
+    const snapshot = this.cameraSnapshot;
+    if (!camera || !snapshot) {
+      return;
+    }
+
+    camera.alpha = snapshot.alpha;
+    camera.beta = snapshot.beta;
+    camera.radius = snapshot.radius;
+    camera.fov = snapshot.fov;
+    camera.lowerAlphaLimit = snapshot.lowerAlphaLimit;
+    camera.upperAlphaLimit = snapshot.upperAlphaLimit;
+    camera.lowerBetaLimit = snapshot.lowerBetaLimit;
+    camera.upperBetaLimit = snapshot.upperBetaLimit;
+    camera.lowerRadiusLimit = snapshot.lowerRadiusLimit;
+    camera.upperRadiusLimit = snapshot.upperRadiusLimit;
+    camera.minZ = snapshot.minZ;
+    camera.maxZ = snapshot.maxZ;
+    this.cameraSnapshot = undefined;
   }
 
   private setCameraFollowTarget(target?: TransformNode): void {
@@ -382,7 +519,6 @@ export class GameWorld {
       this.combatController.setMovementActive(moveDir.lengthSquared() > 0);
     }
     this.hotbar?.update();
-    this.services.hotbarViewModel.tick(Date.now());
     this.localMovement?.fixedTick(TICK_MS);
     this.flushCombatLog();
   }
@@ -390,7 +526,7 @@ export class GameWorld {
   private async initializeNavmesh(): Promise<void> {
     const zoneId = this.zoneDefinition?.id;
     if (!zoneId) {
-      console.debug('No zoneId configured for current zone');
+      console.debug("No zoneId configured for current zone");
       return;
     }
 
@@ -400,20 +536,19 @@ export class GameWorld {
       return;
     }
 
-    console.debug('Loading navmesh asset', { zoneId, navmeshUrl });
+    console.debug("Loading navmesh asset", { zoneId, navmeshUrl });
 
     try {
       const navmesh = await loadNavmeshFromUrl(navmeshUrl);
       const query = new NavcatQuery(navmesh);
       this.navmeshQuery = query;
-      this.localMovement?.setNavmesh(query);
-      console.debug('Navmesh loaded for zone', { zoneId });
+      console.debug("Navmesh loaded for zone", { zoneId });
 
       if (this.scene) {
         this.navmeshDebug = createNavMeshHelper(navmesh, this.scene);
         this.debugManager?.setNavmeshDebug(this.navmeshDebug);
         this.navmeshDebug.node.setEnabled(false);
-        console.debug('Navmesh debug visualization created', {
+        console.debug("Navmesh debug visualization created", {
           node: this.navmeshDebug.node,
           children: this.navmeshDebug.node.getChildren(),
           position: this.navmeshDebug.node.position,
@@ -422,8 +557,37 @@ export class GameWorld {
       this.updateNavmeshProbeProvider();
       this.updateNavmeshInspectProvider();
     } catch (error) {
-      console.error('Failed to load navmesh', error);
+      console.error("Failed to load navmesh", error);
     }
+  }
+
+  private async regenerateNavmeshPreview(
+    settings: NavmeshGenerationSettings,
+  ): Promise<NavmeshGenerationSummary> {
+    if (!this.scene) {
+      throw new Error("Scene is not ready for navmesh generation.");
+    }
+
+    const sourceMeshes = this.zoneNavmeshSourceMeshes.filter((mesh) => !mesh.isDisposed());
+    if (sourceMeshes.length === 0) {
+      throw new Error("GLB source meshes are not ready for navmesh generation.");
+    }
+
+    const { navMesh, summary } = generateNavmeshFromMeshes(sourceMeshes, settings);
+
+    const query = new NavcatQuery(navMesh);
+    this.navmeshQuery = query;
+
+    const wasDebugVisible = this.navmeshDebug?.node.isEnabled() ?? false;
+    this.navmeshDebug?.dispose();
+    this.navmeshDebug = createNavMeshHelper(navMesh, this.scene);
+    this.debugManager?.setNavmeshDebug(this.navmeshDebug);
+    this.navmeshDebug.node.setEnabled(wasDebugVisible);
+
+    this.updateNavmeshProbeProvider();
+    this.updateNavmeshInspectProvider();
+
+    return summary;
   }
 
   private createServerShadow(): void {
@@ -432,17 +596,17 @@ export class GameWorld {
     }
 
     this.serverShadow = MeshBuilder.CreateSphere(
-      'server_shadow',
+      "server_shadow",
       {
         diameter: 0.6,
         segments: 12,
       },
-      this.scene
+      this.scene,
     );
     this.serverShadow.isPickable = false;
     this.serverShadow.renderingGroupId = 2;
 
-    const material = new StandardMaterial('server_shadow_mat', this.scene);
+    const material = new StandardMaterial("server_shadow_mat", this.scene);
     material.diffuseColor = new Color3(0.9, 0.2, 0.2);
     material.emissiveColor = new Color3(0.4, 0.05, 0.05);
     material.alpha = 0.7;
@@ -451,7 +615,7 @@ export class GameWorld {
     this.serverShadow.setEnabled(false);
   }
 
-  private loadZone(zoneId: string): boolean {
+  private async loadZone(zoneId: string): Promise<boolean> {
     if (!this.scene) {
       return false;
     }
@@ -463,115 +627,20 @@ export class GameWorld {
 
     this.zoneDefinition = zoneDefinition;
 
-    console.log('Creating ground, grid lines, terrain objects');
-    const ground = this.createGround();
-    this.createGridLines(ground);
-    this.createTerrainObjects(zoneDefinition);
-    console.log(`Zone "${zoneDefinition.name}" loaded into scene`);
+    const navmeshDefaults =
+      zoneDefinition.sceneData.navmeshGeneration ?? DEFAULT_NAVMESH_GENERATION_SETTINGS;
+    this.services.navmeshTuningViewModel.setDefaults(navmeshDefaults);
+    this.services.navmeshTuningViewModel.setGenerator(this.regenerateNavmeshPreview.bind(this));
+    this.services.navmeshTuningViewModel.setIgnoreServerSnapsHandler((enabled) => {
+      this.ignoreServerSnaps = enabled;
+      this.localMovement?.setIgnoreServerSnaps(enabled);
+    });
+
+    this.zoneNavmeshSourceMeshes = await GlbZoneLoader.load(this.scene, this.zoneDefinition);
+    this.zoneGroundTargetMeshIds = new Set(
+      this.zoneNavmeshSourceMeshes.map((mesh) => mesh.uniqueId),
+    );
     return true;
-  }
-
-  private createTerrainObjects(zoneDefinition: ZoneDefinition): void {
-    if (!this.scene || !this.camera || !this.uiLayer) {
-      return;
-    }
-
-    for (const objDef of zoneDefinition.sceneData.terrainObjects) {
-      new ObjEntity(this.scene, {
-        id: objDef.id,
-        x: objDef.x,
-        z: objDef.z,
-        y: objDef.y ?? 0,
-        shape: objDef.shape,
-        size: objDef.size,
-        color: new Color3(objDef.color.r, objDef.color.g, objDef.color.b),
-        label: objDef.label,
-        uiLayer: this.uiLayer,
-      });
-    }
-  }
-
-  private createGround(): GroundMesh {
-    if (!this.scene) {
-      throw new Error('Scene not initialized');
-    }
-
-    const groundColor = this.zoneDefinition?.sceneData.ground.color;
-    const ground = MeshBuilder.CreateGround(
-      'ground',
-      {
-        width: this.zoneDefinition?.sceneData.width,
-        height: this.zoneDefinition?.sceneData.height,
-      },
-      this.scene
-    );
-    ground.isPickable = true;
-
-    const groundMaterial = new StandardMaterial('groundMaterial', this.scene);
-    groundMaterial.diffuseColor = new Color3(
-      groundColor?.r ?? 0,
-      groundColor?.g ?? 0,
-      groundColor?.b ?? 0
-    );
-    groundMaterial.specularColor = new Color3(0.05, 0.05, 0.1);
-    ground.material = groundMaterial;
-    this.groundMesh = ground;
-
-    return ground;
-  }
-
-  private createGridLines(ground: GroundMesh): void {
-    const gridSize = this.zoneDefinition?.sceneData.ground.gridSize;
-    if (!gridSize || gridSize <= 0) {
-      return;
-    }
-
-    const halfHeight = (this.zoneDefinition?.sceneData.height ?? 0) / 2;
-    const halfWidth = (this.zoneDefinition?.sceneData.width ?? 0) / 2;
-
-    const gridColorDef = this.zoneDefinition?.sceneData.ground.gridColor ?? {
-      r: 0.25,
-      g: 0.25,
-      b: 0.35,
-    };
-    const lineColor = new Color3(gridColorDef.r, gridColorDef.g, gridColorDef.b);
-
-    if (!this.scene) {
-      return;
-    }
-
-    const lineMaterial = new StandardMaterial('lineMaterial', this.scene);
-    lineMaterial.diffuseColor = lineColor;
-    lineMaterial.emissiveColor = lineColor;
-
-    const grid = new TransformNode('grid', this.scene);
-    grid.parent = ground;
-
-    for (let i = -halfHeight; i <= halfHeight; i += gridSize) {
-      const lineX = MeshBuilder.CreateLines(
-        `gridX_${i}`,
-        {
-          points: [new Vector3(-halfWidth, 0.01, i), new Vector3(halfWidth, 0.01, i)],
-        },
-        this.scene
-      );
-      lineX.parent = grid;
-      lineX.material = lineMaterial;
-      lineX.color = lineColor;
-    }
-
-    for (let i = -halfWidth; i <= halfWidth; i += gridSize) {
-      const lineZ = MeshBuilder.CreateLines(
-        `gridZ_${i}`,
-        {
-          points: [new Vector3(i, 0.01, -halfHeight), new Vector3(i, 0.01, halfHeight)],
-        },
-        this.scene
-      );
-      lineZ.parent = grid;
-      lineZ.material = lineMaterial;
-      lineZ.color = lineColor;
-    }
   }
 
   private createLighting(): void {
@@ -580,9 +649,9 @@ export class GameWorld {
     }
 
     const hemisphericLight = new HemisphericLight(
-      'hemisphericLight',
+      "hemisphericLight",
       new Vector3(0, 1, 0),
-      this.scene
+      this.scene,
     );
     hemisphericLight.intensity = 0.8;
     hemisphericLight.groundColor = new Color3(0.2, 0.2, 0.3);
@@ -624,7 +693,7 @@ export class GameWorld {
       return;
     }
 
-    console.debug('Player added', { playerId });
+    console.debug("Player added", { playerId });
     const isLocal = playerId === this.localPlayerId;
     const uiLayer = this.uiLayer;
     if (!uiLayer) {
@@ -645,51 +714,51 @@ export class GameWorld {
         entity,
         this.services.input,
         this.services.zoneNetwork,
-        this.navmeshQuery,
         () => {
           this.handleMovementStart();
-        }
+        },
       );
       this.localMovement.setCamera(this.camera);
+      this.localMovement.setIgnoreServerSnaps(this.ignoreServerSnaps);
       this.hotbar = new HotbarController(this.services.input, 8);
       this.hotbar.setSlotAction(0, {
-        type: 'ability',
-        abilityId: 'quick_dart',
+        type: "ability",
+        abilityId: "quick_dart",
       });
       this.hotbar.setSlotAction(1, {
-        type: 'ability',
-        abilityId: 'shield_bash',
+        type: "ability",
+        abilityId: "shield_bash",
       });
       this.hotbar.setSlotAction(2, {
-        type: 'ability',
-        abilityId: 'fireball',
+        type: "ability",
+        abilityId: "fireball",
       });
       this.hotbar.setSlotAction(3, {
-        type: 'ability',
-        abilityId: 'sky_sword',
+        type: "ability",
+        abilityId: "sky_sword",
       });
       this.hotbar.setSlotAction(4, {
-        type: 'ability',
-        abilityId: 'ice_storm',
+        type: "ability",
+        abilityId: "ice_storm",
       });
       this.hotbar.setSlotAction(5, {
-        type: 'ability',
-        abilityId: 'overgrowth',
+        type: "ability",
+        abilityId: "overgrowth",
       });
       this.hotbar.setSlotAction(6, {
-        type: 'ability',
-        abilityId: 'cleave_line',
+        type: "ability",
+        abilityId: "cleave_line",
       });
       this.hotbar.setSlotAction(7, {
-        type: 'ability',
-        abilityId: 'radiant_pulse',
+        type: "ability",
+        abilityId: "radiant_pulse",
       });
 
       this.combatController = new CombatController(entity, this.services.zoneNetwork);
       this.services.hotbarViewModel.bind(this.hotbar, this.combatController);
       this.groundTargetingController?.setCombatController(this.combatController);
       this.hotbar.onSlotActivated((_slot, action) => {
-        if (action.type !== 'ability') {
+        if (action.type !== "ability") {
           return;
         }
         const ability = ABILITY_DEFINITIONS[
@@ -711,13 +780,13 @@ export class GameWorld {
           }
         }
 
-        if (ability.targetType === 'ground' || ability.directionMode === 'cursor') {
+        if (ability.targetType === "ground" || ability.directionMode === "cursor") {
           const combatController = this.combatController;
           if (!combatController) {
             return;
           }
           const nowMs = Date.now();
-          if (!combatController.getPredictionState().canBufferAbility(ability, nowMs)) {
+          if (!combatController.canBufferAbility(ability.id, nowMs)) {
             return;
           }
           groundTargeting?.beginTargeting(ability.id);
@@ -725,7 +794,7 @@ export class GameWorld {
         }
 
         const context = this.buildAutoTargetContext(ability);
-        if (context === undefined && ability.targetType !== 'self') {
+        if (context === undefined && ability.targetType !== "self") {
           return;
         }
         this.combatController?.tryUseAbility(action.abilityId, context);
@@ -758,10 +827,12 @@ export class GameWorld {
     if (entity.isLocal) {
       const nudge = this.pendingReconcileNudge;
       this.pendingReconcileNudge = undefined;
-      const override = nudge
-        ? { x: player.x + nudge.x, y: player.y, z: player.z + nudge.z }
-        : undefined;
-      this.localMovement?.reconcileFromServerState(player, override);
+      if (!this.ignoreServerSnaps) {
+        const override = nudge
+          ? { x: player.x + nudge.x, y: player.y, z: player.z + nudge.z }
+          : undefined;
+        this.localMovement?.reconcileFromServerState(player, override);
+      }
       if (this.session.characterName && this.session.characterName !== entity.getName()) {
         entity.setName(this.session.characterName);
       }
@@ -785,15 +856,15 @@ export class GameWorld {
       return;
     }
 
-    this.combatController.cancelActiveCast('movement');
+    this.combatController.cancelActiveCast("movement");
   }
 
   private buildAutoTargetContext(ability: AbilityDefinition): AbilityUseContext | undefined {
-    if (ability.targetType === 'ground') {
+    if (ability.targetType === "ground") {
       return;
     }
 
-    if (ability.targetType === 'self') {
+    if (ability.targetType === "self") {
       return;
     }
 
@@ -829,7 +900,7 @@ export class GameWorld {
       x: Math.cos(angle) * RECONCILE_NUDGE_DISTANCE,
       z: Math.sin(angle) * RECONCILE_NUDGE_DISTANCE,
     };
-    console.debug('Queued reconcile nudge', this.pendingReconcileNudge);
+    console.debug("Queued reconcile nudge", this.pendingReconcileNudge);
   }
 
   private handlePlayerRemoved(playerId: string): void {
@@ -838,12 +909,13 @@ export class GameWorld {
       return;
     }
 
-    console.debug('Player removed', { playerId });
+    console.debug("Player removed", { playerId });
     this.targetingController?.clearTargetIfMatches(playerId);
     entity.dispose();
     this.players.delete(playerId);
     if (entity.isLocal) {
       this.localPlayer = undefined;
+      this.localMovement?.dispose();
       this.localMovement = undefined;
       this.combatController = undefined;
       this.setCameraFollowTarget(undefined);
@@ -895,7 +967,7 @@ export class GameWorld {
       return;
     }
 
-    console.debug('Npc removed', { npcId });
+    console.debug("Npc removed", { npcId });
     this.targetingController?.clearTargetIfMatches(npcId);
     entity.dispose();
     this.npcs.delete(npcId);
@@ -903,6 +975,10 @@ export class GameWorld {
 
   private handlePlayerSnap(snap: SnapMessage): void {
     if (!this.localPlayer) {
+      return;
+    }
+
+    if (this.ignoreServerSnaps) {
       return;
     }
 
@@ -917,6 +993,7 @@ export class GameWorld {
     this.navmeshQuery = undefined;
     this.localPlayer = undefined;
     this.localPlayerId = undefined;
+    this.localMovement?.dispose();
     this.localMovement = undefined;
     this.combatController = undefined;
     this.combatTextSystem?.clear();
@@ -932,6 +1009,118 @@ export class GameWorld {
     this.updateNavmeshInspectProvider();
     this.updateMovementDebugProvider();
     this.updateCombatDebugProvider();
+  }
+
+  private createAxisLine(name: string, color: string): Line {
+    const line = new Line(name);
+    line.color = color;
+    line.lineWidth = 4;
+    line.isHitTestVisible = false;
+    this.uiLayer?.addControl(line);
+    return line;
+  }
+
+  private createAxisLabel(text: string, color: string): TextBlock {
+    const label = new TextBlock(`world_orientation_label_${text.replaceAll(" ", "_")}`);
+    label.text = text;
+    label.color = color;
+    label.fontSize = 12;
+    label.fontFamily = "Segoe UI, system-ui, sans-serif";
+    label.fontWeight = "700";
+    label.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+    label.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+    label.outlineWidth = 3;
+    label.outlineColor = "black";
+    label.isHitTestVisible = false;
+    this.uiLayer?.addControl(label);
+    return label;
+  }
+
+  private createWorldOrientationHud(): void {
+    this.disposeWorldOrientationHud();
+    if (!this.uiLayer) {
+      return;
+    }
+
+    const axisX = this.createAxisLine("world_orientation_axis_x", "#ff6b6b");
+    const axisY = this.createAxisLine("world_orientation_axis_y", "#5fe05f");
+    const axisZ = this.createAxisLine("world_orientation_axis_z", "#6ea8ff");
+    const labels = [
+      this.createAxisLabel("+X", "#ff6b6b"),
+      this.createAxisLabel("+Y", "#5fe05f"),
+      this.createAxisLabel("+Z (Back)", "#6ea8ff"),
+    ];
+
+    this.worldOrientationHud = { axisX, axisY, axisZ, labels };
+    this.updateWorldOrientationHud();
+  }
+
+  private updateWorldOrientationHud(): void {
+    const hud = this.worldOrientationHud;
+    const camera = this.camera;
+    const scene = this.scene;
+    if (!hud || !camera || !scene) {
+      return;
+    }
+
+    const engine = scene.getEngine();
+    const centerX = engine.getRenderWidth() - WORLD_ORIENTATION_HUD_RIGHT_OFFSET;
+    const centerY = WORLD_ORIENTATION_HUD_TOP_OFFSET;
+    const view = camera.getViewMatrix(true);
+
+    const updateAxis = (
+      axis: Vector3,
+      line: Line,
+      label: TextBlock,
+      fallbackX: number,
+      fallbackY: number,
+    ): void => {
+      Vector3.TransformNormalToRef(axis, view, this.worldOrientationViewAxis);
+      const endX = centerX + this.worldOrientationViewAxis.x * WORLD_ORIENTATION_HUD_AXIS_LENGTH;
+      const endY = centerY - this.worldOrientationViewAxis.y * WORLD_ORIENTATION_HUD_AXIS_LENGTH;
+
+      line.x1 = `${centerX}px`;
+      line.y1 = `${centerY}px`;
+      line.x2 = `${endX}px`;
+      line.y2 = `${endY}px`;
+
+      const labelXDirection =
+        Math.abs(this.worldOrientationViewAxis.x) > 0.05
+          ? Math.sign(this.worldOrientationViewAxis.x)
+          : fallbackX;
+      const labelYDirection =
+        Math.abs(this.worldOrientationViewAxis.y) > 0.05
+          ? -Math.sign(this.worldOrientationViewAxis.y)
+          : fallbackY;
+
+      label.left = `${endX + labelXDirection * WORLD_ORIENTATION_HUD_LABEL_OFFSET}px`;
+      label.top = `${endY + labelYDirection * WORLD_ORIENTATION_HUD_LABEL_OFFSET}px`;
+    };
+
+    updateAxis(Vector3.RightReadOnly, hud.axisX, hud.labels[0], 1, 0);
+    updateAxis(Vector3.UpReadOnly, hud.axisY, hud.labels[1], 0, -1);
+    updateAxis(Vector3.Forward(scene.useRightHandedSystem), hud.axisZ, hud.labels[2], -1, 0);
+  }
+
+  private disposeWorldOrientationHud(): void {
+    const hud = this.worldOrientationHud;
+    if (!hud) {
+      return;
+    }
+
+    this.uiLayer?.removeControl(hud.axisX);
+    this.uiLayer?.removeControl(hud.axisY);
+    this.uiLayer?.removeControl(hud.axisZ);
+    hud.axisX.dispose();
+    hud.axisY.dispose();
+    hud.axisZ.dispose();
+
+    for (const label of hud.labels) {
+      this.uiLayer?.removeControl(label);
+      label.dispose();
+    }
+
+    this.worldOrientationHud = undefined;
   }
 
   private showSpeechBubble(playerId: string, message: string): void {
@@ -972,6 +1161,13 @@ export class GameWorld {
       }
       const position = player.position;
       const moveDebug = player.getLastNavmeshMoveDebug();
+      const groundHeight = this.groundMesh?.getHeightAtCoordinates(position.x, position.z);
+      const navmeshHeight = navmesh.sampleHeight(position.x, position.z) ?? undefined;
+      const hasHeights =
+        typeof groundHeight === "number" &&
+        Number.isFinite(groundHeight) &&
+        typeof navmeshHeight === "number" &&
+        Number.isFinite(navmeshHeight);
       const isOnNavmesh = navmesh.isPointOnNavmesh(position.x, position.z);
       const nearest = navmesh.findNearestPoint(position.x, position.z, maxDistance);
       if (!nearest) {
@@ -981,6 +1177,9 @@ export class GameWorld {
           playerZ: position.z,
           isOnNavmesh,
           maxDistance,
+          groundHeight: hasHeights ? groundHeight : undefined,
+          navmeshHeight: hasHeights ? navmeshHeight : undefined,
+          heightDelta: hasHeights ? navmeshHeight - groundHeight : undefined,
           move: moveDebug
             ? {
                 requested: moveDebug.requested,
@@ -1002,6 +1201,9 @@ export class GameWorld {
         playerZ: position.z,
         isOnNavmesh,
         maxDistance,
+        groundHeight: hasHeights ? groundHeight : undefined,
+        navmeshHeight: hasHeights ? navmeshHeight : undefined,
+        heightDelta: hasHeights ? navmeshHeight - groundHeight : undefined,
         move: moveDebug
           ? {
               requested: moveDebug.requested,
@@ -1128,17 +1330,17 @@ export class GameWorld {
         return;
       }
 
-      const prediction = controller.getPredictionState();
       const nowMs = Date.now();
+      const clientCombatState = controller.getClientCombatState(nowMs);
       const lastAck = controller.getLastAck();
       const target = this.targetingController?.getCurrentTarget();
       const targetPosition = target?.getPosition();
-      let targetAggro: CombatDebugData['targetAggro'];
+      let targetAggro: CombatDebugData["targetAggro"];
 
-      if (target && 'combatState' in target.sync) {
+      if (target && "combatState" in target.sync) {
         const combatState = (target.sync as NPCState).combatState;
         if (combatState) {
-          const entries: NonNullable<CombatDebugData['targetAggro']> = [];
+          const entries: NonNullable<CombatDebugData["targetAggro"]> = [];
           for (const [id, entry] of combatState.aggro.entries()) {
             entries.push({ id, percent: entry.percent });
           }
@@ -1148,12 +1350,9 @@ export class GameWorld {
       }
 
       return {
-        gcdRemainingMs: Math.max(0, prediction.predictedGcdEndTimeMs - nowMs),
-        internalCooldownRemainingMs: Math.max(
-          0,
-          prediction.predictedInternalCooldownEndTimeMs - nowMs
-        ),
-        queuedAbilityId: prediction.queuedAbilityId,
+        gcdRemainingMs: clientCombatState.gcd.remainingMs,
+        internalCooldownRemainingMs: clientCombatState.internalCooldown.remainingMs,
+        queuedAbilityId: clientCombatState.queuedAbilityId,
         target:
           target && targetPosition
             ? {
@@ -1203,7 +1402,7 @@ export class GameWorld {
       }
 
       const polyIndex = navmeshData.nodes.findIndex(
-        (node) => node.allocated && node.ref === nearest.nodeRef
+        (node) => node.allocated && node.ref === nearest.nodeRef,
       );
       const polyInfo =
         polyIndex === -1
@@ -1266,7 +1465,7 @@ export class GameWorld {
 
   private resolveEntityName(entityId: string): string {
     if (!entityId) {
-      return 'Unknown';
+      return "Unknown";
     }
 
     const player = this.players.get(entityId);
@@ -1321,14 +1520,14 @@ export class GameWorld {
     this.combatTextSystem.spawnDamage(
       target.getModelMesh(),
       damage,
-      effect.outcome === 'crit',
-      effect.targetId
+      effect.outcome === "crit",
+      effect.targetId,
     );
   }
 
   private resolveAbilityName(abilityId: string): string {
     if (!abilityId) {
-      return 'Unknown';
+      return "Unknown";
     }
 
     const ability = ABILITY_DEFINITIONS[abilityId as keyof typeof ABILITY_DEFINITIONS];

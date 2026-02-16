@@ -1,26 +1,26 @@
-import type { Observer } from '@babylonjs/core/Misc/observable';
-import { Mesh } from '@babylonjs/core/Meshes/mesh';
-import { LinesMesh } from '@babylonjs/core/Meshes/linesMesh';
-import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
-import { Scene } from '@babylonjs/core/scene';
-import { Matrix, Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
-import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
-import { KeyboardEventTypes, type KeyboardInfo } from '@babylonjs/core/Events/keyboardEvents';
-import { PointerEventTypes, type PointerInfo } from '@babylonjs/core/Events/pointerEvents';
-import { TextBlock } from '@babylonjs/gui/2D/controls/textBlock';
-import { Control } from '@babylonjs/gui/2D/controls/control';
-import type { NavMesh } from 'navcat';
-import type { InputManager } from '../input/input-manager';
-import type { UiLayer } from '../ui/ui-layer';
-import { createNavMeshPolyHelper, type DebugObject } from '../zone/navcat-debug';
+import type { Observer } from "@babylonjs/core/Misc/observable";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { LinesMesh } from "@babylonjs/core/Meshes/linesMesh";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { Scene } from "@babylonjs/core/scene";
+import { Matrix, Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
+import { KeyboardEventTypes, type KeyboardInfo } from "@babylonjs/core/Events/keyboardEvents";
+import { PointerEventTypes, type PointerInfo } from "@babylonjs/core/Events/pointerEvents";
+import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
+import { Control } from "@babylonjs/gui/2D/controls/control";
+import type { NavMesh } from "navcat";
+import type { InputManager } from "../input/input-manager";
+import type { UiLayer } from "../ui/ui-layer";
+import { createNavMeshPolyHelper, type DebugObject } from "../zone/navcat-debug";
 
 // Side-effect import
-import '@babylonjs/core/Culling/ray';
+import "@babylonjs/core/Culling/ray";
 
-const inspectorEnabled = import.meta.env.VITE_ENABLE_INSPECTOR === 'true';
+const inspectorEnabled = import.meta.env.VITE_ENABLE_INSPECTOR === "true";
 
-const loadInspectorLib = () => import('@babylonjs/inspector');
+const loadInspectorLib = () => import("@babylonjs/inspector");
 
 export interface NavmeshProbeData {
   playerX: number;
@@ -28,6 +28,9 @@ export interface NavmeshProbeData {
   playerZ: number;
   isOnNavmesh: boolean;
   maxDistance: number;
+  groundHeight?: number;
+  navmeshHeight?: number;
+  heightDelta?: number;
   move?: {
     requested: number;
     actual: number;
@@ -176,7 +179,7 @@ export class DebugManager {
   constructor(
     private scene: Scene,
     private input: InputManager,
-    private uiLayer: UiLayer
+    private uiLayer: UiLayer,
   ) {
     this.bindDebugToggle();
     this.bindInspectPick();
@@ -197,7 +200,7 @@ export class DebugManager {
    * @param provider - callback returning metrics.
    */
   setMovementMetricsProvider(
-    provider?: () => { pendingInputs: number; reconcileDistance: number }
+    provider?: () => { pendingInputs: number; reconcileDistance: number },
   ): void {
     this.movementMetricsProvider = provider;
   }
@@ -223,7 +226,7 @@ export class DebugManager {
           lastProcessedSeq: number;
           serverTimeMs: number;
         }
-      | undefined
+      | undefined,
   ): void {
     this.playerSyncProvider = provider;
   }
@@ -281,7 +284,7 @@ export class DebugManager {
 
       const key = kbInfo.event.key.toLowerCase();
 
-      if (key === 'i') {
+      if (key === "i") {
         if (kbInfo.event.shiftKey) {
           this.toggleNavmeshDebug();
           return;
@@ -295,42 +298,42 @@ export class DebugManager {
         return;
       }
 
-      if (key === 'o') {
+      if (key === "o") {
         this.toggleServerPositionVisuals();
         return;
       }
 
-      if (key === 'm') {
+      if (key === "m") {
         this.toggleMovementDebugHud();
         return;
       }
 
-      if (key === 'c') {
+      if (key === "c") {
         this.togglePlayerSyncHud();
         return;
       }
 
-      if (key === 'b') {
+      if (key === "b") {
         this.togglePlayerInputDebugHud();
         return;
       }
 
-      if (key === 'g') {
+      if (key === "g") {
         this.toggleCombatDebugHud();
         return;
       }
 
-      if (key === 'r') {
+      if (key === "r") {
         this.reconcileNudgeHandler?.();
         return;
       }
 
-      if (key === 'p') {
+      if (key === "p") {
         this.toggleNavmeshProbe();
         return;
       }
 
-      if (key === 'k') {
+      if (key === "k") {
         this.toggleNavmeshInspect();
       }
     });
@@ -430,9 +433,9 @@ export class DebugManager {
         this.scene.pointerY,
         (mesh) =>
           mesh.isPickable &&
-          !mesh.name.startsWith('navmeshProbe') &&
-          !mesh.name.startsWith('navmeshInspect') &&
-          !mesh.name.startsWith('navcat_debug')
+          !mesh.name.startsWith("navmeshProbe") &&
+          !mesh.name.startsWith("navmeshInspect") &&
+          !mesh.name.startsWith("navcat_debug"),
       );
 
       if (pick?.hit && pick.pickedPoint) {
@@ -450,7 +453,7 @@ export class DebugManager {
         this.scene.pointerX,
         this.scene.pointerY,
         Matrix.Identity(),
-        camera
+        camera,
       );
       const dirY = ray.direction.y;
       if (Math.abs(dirY) < 0.0001) {
@@ -513,25 +516,25 @@ export class DebugManager {
 
     const navmeshMove = data.navmeshMove;
     const lines: string[] = [
-      'Movement Debug',
+      "Movement Debug",
       `PendingMoves: ${data.pendingMoves}`,
       `ReplayΔ: ${this.formatFloat(data.lastReconcileDelta)} ` +
-        `Snap: ${data.lastReconcileSnapped ? 'yes' : 'no'}`,
+        `Snap: ${data.lastReconcileSnapped ? "yes" : "no"}`,
       `ReplaySeq: ${data.lastReconcileSeq}`,
       ...(navmeshMove
         ? [
             `Move: req ${this.formatFloat(navmeshMove.requested)} ` +
               `act ${this.formatFloat(navmeshMove.actual)} ` +
               `ratio ${this.formatFloat(navmeshMove.ratio)}`,
-            `MoveCollide: ${navmeshMove.collided ? 'yes' : 'no'}`,
-            ...(typeof navmeshMove.nodeRef === 'number'
+            `MoveCollide: ${navmeshMove.collided ? "yes" : "no"}`,
+            ...(typeof navmeshMove.nodeRef === "number"
               ? [`MoveNode: ${navmeshMove.nodeRef}`]
               : []),
           ]
         : []),
     ];
 
-    this.movementDebugHud.text = lines.join('\n');
+    this.movementDebugHud.text = lines.join("\n");
   }
 
   private updatePlayerSyncHud(): void {
@@ -576,27 +579,27 @@ export class DebugManager {
     }
 
     const lines: string[] = [
-      'Input Debug',
+      "Input Debug",
       `Tick: ${data.serverTick}`,
       `Pending: ${data.pendingInputs} ` + `Processed: ${data.processedInputs}`,
-      '',
+      "",
       `Dropped: ${data.droppedInputs} ` + `Remaining: ${data.remainingInputs}`,
       `Budget: ${data.budgetBefore} -> ${data.budgetAfter}`,
-      ...(typeof data.clientPendingMoves === 'number'
+      ...(typeof data.clientPendingMoves === "number"
         ? [`ClientPending: ${data.clientPendingMoves} ` + `Acked: ${data.clientLastAckedSeq ?? 0}`]
         : []),
-      ...(typeof data.clientReconcileDelta === 'number'
+      ...(typeof data.clientReconcileDelta === "number"
         ? [
             `ReplayΔ: ${this.formatFloat(data.clientReconcileDelta)} ` +
-              `Snap: ${data.clientReconcileSnapped ? 'yes' : 'no'}`,
+              `Snap: ${data.clientReconcileSnapped ? "yes" : "no"}`,
           ]
         : []),
-      ...(typeof data.clientReconcileSeq === 'number'
+      ...(typeof data.clientReconcileSeq === "number"
         ? [`ReplaySeq: ${data.clientReconcileSeq}`]
         : []),
     ];
 
-    this.playerInputDebugHud.text = lines.join('\n');
+    this.playerInputDebugHud.text = lines.join("\n");
   }
 
   private updateCombatDebugHud(): void {
@@ -619,12 +622,12 @@ export class DebugManager {
     const lastAck = data.lastAck;
     const targetAggro = data.targetAggro;
     const lines: string[] = [
-      'Combat Debug',
+      "Combat Debug",
       `GCD: ${Math.max(0, Math.round(data.gcdRemainingMs))}ms ` +
         `(${this.formatFloat(data.gcdRemainingMs / 1000)}s)`,
       `ICD: ${Math.max(0, Math.round(data.internalCooldownRemainingMs))}ms ` +
         `(${this.formatFloat(data.internalCooldownRemainingMs / 1000)}s)`,
-      `Buffered: ${data.queuedAbilityId ?? 'none'}`,
+      `Buffered: ${data.queuedAbilityId ?? "none"}`,
       ...(target
         ? [
             `Target: ${target.id}`,
@@ -632,11 +635,11 @@ export class DebugManager {
               `${this.formatFloat(target.y)} ` +
               `${this.formatFloat(target.z)}`,
           ]
-        : ['Target: none']),
+        : ["Target: none"]),
       ...(lastAck
         ? [
-            `Ack: ${lastAck.requestId} ` + `${lastAck.accepted ? 'ok' : 'rej'}`,
-            ...(lastAck.accepted ? [] : [`Reject: ${lastAck.rejectReason ?? 'unknown'}`]),
+            `Ack: ${lastAck.requestId} ` + `${lastAck.accepted ? "ok" : "rej"}`,
+            ...(lastAck.accepted ? [] : [`Reject: ${lastAck.rejectReason ?? "unknown"}`]),
             `AckTick: ${lastAck.serverTick}`,
             `AckServerMs: ${Math.round(lastAck.serverTimeMs)}`,
             `Cast: ${Math.round(lastAck.castStartTimeMs)} -> ` +
@@ -645,15 +648,15 @@ export class DebugManager {
         : []),
       ...(targetAggro
         ? [
-            '',
+            "",
             ...(targetAggro.length === 0
-              ? ['Aggro: none']
-              : ['Aggro:', ...targetAggro.map((entry) => `Aggro ${entry.id}: ${entry.percent}%`)]),
+              ? ["Aggro: none"]
+              : ["Aggro:", ...targetAggro.map((entry) => `Aggro ${entry.id}: ${entry.percent}%`)]),
           ]
         : []),
     ];
 
-    this.combatDebugHud.text = lines.join('\n');
+    this.combatDebugHud.text = lines.join("\n");
   }
 
   private updateNavmeshProbe(): void {
@@ -677,11 +680,18 @@ export class DebugManager {
     const nearest = data.nearest;
     const move = data.move;
     const lines: string[] = [
-      'Navmesh Probe',
+      "Navmesh Probe",
       `Player: ${this.formatFloat(data.playerX)} ` +
         `${this.formatFloat(data.playerY)} ` +
         `${this.formatFloat(data.playerZ)}`,
-      `OnNavmesh: ${data.isOnNavmesh ? 'yes' : 'no'}`,
+      `OnNavmesh: ${data.isOnNavmesh ? "yes" : "no"}`,
+      ...(typeof data.groundHeight === "number" && typeof data.navmeshHeight === "number"
+        ? [
+            `Heights: ground ${this.formatFloat(data.groundHeight)} ` +
+              `nav ${this.formatFloat(data.navmeshHeight)} ` +
+              `Δ ${this.formatFloat(data.heightDelta ?? 0)}`,
+          ]
+        : []),
       ...(nearest
         ? [
             `Nearest: ${this.formatFloat(nearest.x)} ` +
@@ -697,8 +707,8 @@ export class DebugManager {
             `Move: req ${this.formatFloat(move.requested)} ` +
               `act ${this.formatFloat(move.actual)} ` +
               `ratio ${this.formatFloat(move.ratio)}`,
-            `MoveCollide: ${move.collided ? 'yes' : 'no'}`,
-            ...(typeof move.nodeRef === 'number' ? [`MoveNode: ${move.nodeRef}`] : []),
+            `MoveCollide: ${move.collided ? "yes" : "no"}`,
+            ...(typeof move.nodeRef === "number" ? [`MoveNode: ${move.nodeRef}`] : []),
           ]
         : []),
     ];
@@ -710,13 +720,13 @@ export class DebugManager {
         data.playerZ,
         nearest.x,
         nearest.y,
-        nearest.z
+        nearest.z,
       );
     } else {
       this.setNavmeshProbeVisible(false);
     }
 
-    this.navmeshProbeHud.text = lines.join('\n');
+    this.navmeshProbeHud.text = lines.join("\n");
   }
 
   private updateNavmeshInspectState(): void {
@@ -755,7 +765,7 @@ export class DebugManager {
         result.clickZ,
         nearest.x,
         nearest.y,
-        nearest.z
+        nearest.z,
       );
     } else {
       this.setNavmeshInspectVisible(false);
@@ -778,36 +788,36 @@ export class DebugManager {
       }
       polyInfoLines = [
         `Tile: ${polyInfo.tileId} Poly: ${polyInfo.polyIndex}`,
-        `Neighbors: ${polyInfo.neighbors.join(', ')}`,
-        `Edges B:${boundaryEdges.join(',') || '-'} ` +
-          `P:${portalEdges.join(',') || '-'} ` +
-          `I:${internalEdges.join(',') || '-'}`,
+        `Neighbors: ${polyInfo.neighbors.join(", ")}`,
+        `Edges B:${boundaryEdges.join(",") || "-"} ` +
+          `P:${portalEdges.join(",") || "-"} ` +
+          `I:${internalEdges.join(",") || "-"}`,
       ];
     }
 
     const lines: string[] = [
-      'Navmesh Inspect (click)',
+      "Navmesh Inspect (click)",
       `Click: ${this.formatFloat(result.clickX)} ` +
         `${this.formatFloat(result.clickY)} ` +
         `${this.formatFloat(result.clickZ)}`,
-      `OnNavmesh: ${result.isOnNavmesh ? 'yes' : 'no'}`,
+      `OnNavmesh: ${result.isOnNavmesh ? "yes" : "no"}`,
       ...nearestLines,
       ...polyInfoLines,
     ];
 
-    this.navmeshInspectHud.text = lines.join('\n');
+    this.navmeshInspectHud.text = lines.join("\n");
 
-    if (result.navmesh && result.polyInfo && typeof result.nodeRef === 'number') {
+    if (result.navmesh && result.polyInfo && typeof result.nodeRef === "number") {
       this.updateNavmeshInspectPoly(result.navmesh, result.nodeRef);
       this.updateNavmeshInspectEdges(
         result.navmesh,
         result.polyInfo.tileId,
-        result.polyInfo.polyIndex
+        result.polyInfo.polyIndex,
       );
       this.updateNavmeshInspectNeighborPolys(
         result.navmesh,
         result.polyInfo.tileId,
-        result.polyInfo.neighbors
+        result.polyInfo.neighbors,
       );
     } else {
       this.disposeNavmeshInspectPoly();
@@ -825,7 +835,7 @@ export class DebugManager {
       this.navmeshInspectHud = this.createNavmeshInspectHud();
     }
 
-    this.navmeshInspectHud.text = 'Navmesh Inspect (click)\n' + 'Click ground to inspect polygon';
+    this.navmeshInspectHud.text = "Navmesh Inspect (click)\n" + "Click ground to inspect polygon";
   }
 
   private updateNavmeshProbeMeshes(
@@ -834,22 +844,22 @@ export class DebugManager {
     playerZ: number,
     targetX: number,
     targetY: number,
-    targetZ: number
+    targetZ: number,
   ): void {
     const start = new Vector3(playerX, playerY, playerZ);
     const end = new Vector3(targetX, targetY, targetZ);
 
     if (this.navmeshProbeLine) {
       MeshBuilder.CreateLines(
-        'navmeshProbeLine',
+        "navmeshProbeLine",
         { points: [start, end], instance: this.navmeshProbeLine },
-        this.scene
+        this.scene,
       );
     } else {
       this.navmeshProbeLine = MeshBuilder.CreateLines(
-        'navmeshProbeLine',
+        "navmeshProbeLine",
         { points: [start, end] },
-        this.scene
+        this.scene,
       );
       this.navmeshProbeLine.isPickable = false;
       this.navmeshProbeLine.color = new Color3(1, 0.85, 0.2);
@@ -858,11 +868,11 @@ export class DebugManager {
 
     if (!this.navmeshProbePoint) {
       this.navmeshProbePoint = MeshBuilder.CreateSphere(
-        'navmeshProbePoint',
+        "navmeshProbePoint",
         { diameter: 0.2 },
-        this.scene
+        this.scene,
       );
-      const mat = new StandardMaterial('navmeshProbePointMat', this.scene);
+      const mat = new StandardMaterial("navmeshProbePointMat", this.scene);
       mat.emissiveColor = new Color3(1, 0.8, 0.2);
       mat.diffuseColor = new Color3(1, 0.8, 0.2);
       this.navmeshProbePoint.material = mat;
@@ -885,22 +895,22 @@ export class DebugManager {
     clickZ: number,
     targetX: number,
     targetY: number,
-    targetZ: number
+    targetZ: number,
   ): void {
     const start = new Vector3(clickX, clickY, clickZ);
     const end = new Vector3(targetX, targetY, targetZ);
 
     if (this.navmeshInspectLine) {
       MeshBuilder.CreateLines(
-        'navmeshInspectLine',
+        "navmeshInspectLine",
         { points: [start, end], instance: this.navmeshInspectLine },
-        this.scene
+        this.scene,
       );
     } else {
       this.navmeshInspectLine = MeshBuilder.CreateLines(
-        'navmeshInspectLine',
+        "navmeshInspectLine",
         { points: [start, end] },
-        this.scene
+        this.scene,
       );
       this.navmeshInspectLine.isPickable = false;
       this.navmeshInspectLine.color = new Color3(0.2, 1, 0.6);
@@ -909,11 +919,11 @@ export class DebugManager {
 
     if (!this.navmeshInspectClickPoint) {
       this.navmeshInspectClickPoint = MeshBuilder.CreateSphere(
-        'navmeshInspectClickPoint',
+        "navmeshInspectClickPoint",
         { diameter: 0.16 },
-        this.scene
+        this.scene,
       );
-      const mat = new StandardMaterial('navmeshInspectClickMat', this.scene);
+      const mat = new StandardMaterial("navmeshInspectClickMat", this.scene);
       mat.emissiveColor = new Color3(0.2, 1, 0.6);
       mat.diffuseColor = new Color3(0.2, 1, 0.6);
       this.navmeshInspectClickPoint.material = mat;
@@ -923,11 +933,11 @@ export class DebugManager {
 
     if (!this.navmeshInspectNearestPoint) {
       this.navmeshInspectNearestPoint = MeshBuilder.CreateSphere(
-        'navmeshInspectNearestPoint',
+        "navmeshInspectNearestPoint",
         { diameter: 0.2 },
-        this.scene
+        this.scene,
       );
-      const mat = new StandardMaterial('navmeshInspectNearestMat', this.scene);
+      const mat = new StandardMaterial("navmeshInspectNearestMat", this.scene);
       mat.emissiveColor = new Color3(0.2, 0.9, 1);
       mat.diffuseColor = new Color3(0.2, 0.9, 1);
       this.navmeshInspectNearestPoint.material = mat;
@@ -992,9 +1002,9 @@ export class DebugManager {
     }
 
     this.navmeshInspectEdges = MeshBuilder.CreateLineSystem(
-      'navmeshInspectEdges',
+      "navmeshInspectEdges",
       { lines: points, colors },
-      this.scene
+      this.scene,
     );
     this.navmeshInspectEdges.isPickable = false;
     this.navmeshInspectEdges.renderingGroupId = 1;
@@ -1003,7 +1013,7 @@ export class DebugManager {
   private updateNavmeshInspectNeighborPolys(
     navmesh: NavMesh,
     tileId: number,
-    neighbors: number[]
+    neighbors: number[],
   ): void {
     this.disposeNavmeshInspectNeighborPolys();
 
@@ -1040,7 +1050,7 @@ export class DebugManager {
         continue;
       }
       this.navmeshInspectNeighborPolys.push(
-        createNavMeshPolyHelper(navmesh, ref, this.scene, [0.1, 0.6, 1])
+        createNavMeshPolyHelper(navmesh, ref, this.scene, [0.1, 0.6, 1]),
       );
     }
   }
@@ -1107,15 +1117,15 @@ export class DebugManager {
   }
 
   private createMovementHud(): TextBlock {
-    const hud = new TextBlock('movementHud');
+    const hud = new TextBlock("movementHud");
     hud.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     hud.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-    hud.color = '#e6f1ff';
+    hud.color = "#e6f1ff";
     hud.fontSize = 14;
-    hud.fontFamily = 'JetBrains Mono, Consolas, Menlo, monospace';
-    hud.paddingLeft = '12px';
-    hud.paddingTop = '10px';
-    hud.shadowColor = '#000000';
+    hud.fontFamily = "JetBrains Mono, Consolas, Menlo, monospace";
+    hud.paddingLeft = "12px";
+    hud.paddingTop = "10px";
+    hud.shadowColor = "#000000";
     hud.shadowBlur = 4;
     hud.shadowOffsetX = 1;
     hud.shadowOffsetY = 1;
@@ -1125,15 +1135,15 @@ export class DebugManager {
   }
 
   private createMovementDebugHud(): TextBlock {
-    const hud = new TextBlock('movementDebugHud');
+    const hud = new TextBlock("movementDebugHud");
     hud.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     hud.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-    hud.color = '#c6ffd9';
+    hud.color = "#c6ffd9";
     hud.fontSize = 14;
-    hud.fontFamily = 'JetBrains Mono, Consolas, Menlo, monospace';
-    hud.paddingLeft = '12px';
-    hud.paddingTop = '240px';
-    hud.shadowColor = '#000000';
+    hud.fontFamily = "JetBrains Mono, Consolas, Menlo, monospace";
+    hud.paddingLeft = "12px";
+    hud.paddingTop = "240px";
+    hud.shadowColor = "#000000";
     hud.shadowBlur = 4;
     hud.shadowOffsetX = 1;
     hud.shadowOffsetY = 1;
@@ -1143,15 +1153,15 @@ export class DebugManager {
   }
 
   private createPlayerSyncHud(): TextBlock {
-    const hud = new TextBlock('playerSyncHud');
+    const hud = new TextBlock("playerSyncHud");
     hud.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     hud.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-    hud.color = '#c2f2ff';
+    hud.color = "#c2f2ff";
     hud.fontSize = 14;
-    hud.fontFamily = 'JetBrains Mono, Consolas, Menlo, monospace';
-    hud.paddingLeft = '12px';
-    hud.paddingTop = '40px';
-    hud.shadowColor = '#000000';
+    hud.fontFamily = "JetBrains Mono, Consolas, Menlo, monospace";
+    hud.paddingLeft = "12px";
+    hud.paddingTop = "40px";
+    hud.shadowColor = "#000000";
     hud.shadowBlur = 4;
     hud.shadowOffsetX = 1;
     hud.shadowOffsetY = 1;
@@ -1161,15 +1171,15 @@ export class DebugManager {
   }
 
   private createPlayerInputDebugHud(): TextBlock {
-    const hud = new TextBlock('playerInputDebugHud');
+    const hud = new TextBlock("playerInputDebugHud");
     hud.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     hud.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-    hud.color = '#ffd6a5';
+    hud.color = "#ffd6a5";
     hud.fontSize = 14;
-    hud.fontFamily = 'JetBrains Mono, Consolas, Menlo, monospace';
-    hud.paddingLeft = '12px';
-    hud.paddingTop = '110px';
-    hud.shadowColor = '#000000';
+    hud.fontFamily = "JetBrains Mono, Consolas, Menlo, monospace";
+    hud.paddingLeft = "12px";
+    hud.paddingTop = "110px";
+    hud.shadowColor = "#000000";
     hud.shadowBlur = 4;
     hud.shadowOffsetX = 1;
     hud.shadowOffsetY = 1;
@@ -1179,15 +1189,15 @@ export class DebugManager {
   }
 
   private createCombatDebugHud(): TextBlock {
-    const hud = new TextBlock('combatDebugHud');
+    const hud = new TextBlock("combatDebugHud");
     hud.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     hud.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-    hud.color = '#f6cfa8';
+    hud.color = "#f6cfa8";
     hud.fontSize = 14;
-    hud.fontFamily = 'JetBrains Mono, Consolas, Menlo, monospace';
-    hud.paddingLeft = '12px';
-    hud.paddingTop = '170px';
-    hud.shadowColor = '#000000';
+    hud.fontFamily = "JetBrains Mono, Consolas, Menlo, monospace";
+    hud.paddingLeft = "12px";
+    hud.paddingTop = "170px";
+    hud.shadowColor = "#000000";
     hud.shadowBlur = 4;
     hud.shadowOffsetX = 1;
     hud.shadowOffsetY = 1;
@@ -1197,15 +1207,15 @@ export class DebugManager {
   }
 
   private createNavmeshProbeHud(): TextBlock {
-    const hud = new TextBlock('navmeshProbeHud');
+    const hud = new TextBlock("navmeshProbeHud");
     hud.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     hud.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-    hud.color = '#f7d48a';
+    hud.color = "#f7d48a";
     hud.fontSize = 14;
-    hud.fontFamily = 'JetBrains Mono, Consolas, Menlo, monospace';
-    hud.paddingLeft = '12px';
-    hud.paddingTop = '70px';
-    hud.shadowColor = '#000000';
+    hud.fontFamily = "JetBrains Mono, Consolas, Menlo, monospace";
+    hud.paddingLeft = "12px";
+    hud.paddingTop = "70px";
+    hud.shadowColor = "#000000";
     hud.shadowBlur = 4;
     hud.shadowOffsetX = 1;
     hud.shadowOffsetY = 1;
@@ -1215,15 +1225,15 @@ export class DebugManager {
   }
 
   private createNavmeshInspectHud(): TextBlock {
-    const hud = new TextBlock('navmeshInspectHud');
+    const hud = new TextBlock("navmeshInspectHud");
     hud.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     hud.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
-    hud.color = '#9ff1d4';
+    hud.color = "#9ff1d4";
     hud.fontSize = 14;
-    hud.fontFamily = 'JetBrains Mono, Consolas, Menlo, monospace';
-    hud.paddingLeft = '12px';
-    hud.paddingTop = '170px';
-    hud.shadowColor = '#000000';
+    hud.fontFamily = "JetBrains Mono, Consolas, Menlo, monospace";
+    hud.paddingLeft = "12px";
+    hud.paddingTop = "170px";
+    hud.shadowColor = "#000000";
     hud.shadowBlur = 4;
     hud.shadowOffsetX = 1;
     hud.shadowOffsetY = 1;

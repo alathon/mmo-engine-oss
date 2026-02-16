@@ -1,17 +1,17 @@
-import { describe, expect, it } from 'vitest';
-import { UI_LAYOUT_SCHEMA_VERSION, createDefaultLayout } from './ui-layout-defaults';
-import { migrateLayoutStore, parseLayoutStore, serializeLayoutStore } from './ui-layout-storage';
-import type { UiLayoutStore } from './ui-layout-types';
+import { describe, expect, it } from "vitest";
+import { UI_LAYOUT_SCHEMA_VERSION, createDefaultLayout } from "./ui-layout-defaults";
+import { migrateLayoutStore, parseLayoutStore, serializeLayoutStore } from "./ui-layout-storage";
+import type { UiLayoutStore } from "./ui-layout-types";
 
-describe('uiLayoutStorage', () => {
-  it('serializes and parses layout stores', () => {
+describe("uiLayoutStorage", () => {
+  it("serializes and parses layout stores", () => {
     const layout = createDefaultLayout({
       viewport: { width: 1920, height: 1080 },
       now: 123_456,
     });
     const store: UiLayoutStore = {
       schemaVersion: UI_LAYOUT_SCHEMA_VERSION,
-      activeLayoutId: 'default',
+      activeLayoutId: "default",
       layouts: [layout],
     };
 
@@ -24,10 +24,10 @@ describe('uiLayoutStorage', () => {
     }
   });
 
-  it('migrates older schema versions', () => {
+  it("migrates older schema versions", () => {
     const legacy: UiLayoutStore = {
       schemaVersion: 0,
-      activeLayoutId: 'default',
+      activeLayoutId: "default",
       layouts: [
         createDefaultLayout({
           viewport: { width: 800, height: 600 },
@@ -40,10 +40,10 @@ describe('uiLayoutStorage', () => {
     expect(migrated?.schemaVersion).toBe(UI_LAYOUT_SCHEMA_VERSION);
   });
 
-  it('rejects unsupported schema versions', () => {
+  it("rejects unsupported schema versions", () => {
     const future: UiLayoutStore = {
       schemaVersion: UI_LAYOUT_SCHEMA_VERSION + 1,
-      activeLayoutId: 'default',
+      activeLayoutId: "default",
       layouts: [
         createDefaultLayout({
           viewport: { width: 800, height: 600 },

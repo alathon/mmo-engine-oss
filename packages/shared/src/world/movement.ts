@@ -61,9 +61,7 @@ export interface NavmeshMovementStepInput {
  * @param input - movement step parameters.
  * @returns validated end position with height.
  */
-export function applyNavmeshMovementStep(
-  input: NavmeshMovementStepInput,
-): NavMovementResult {
+export function applyNavmeshMovementStep(input: NavmeshMovementStepInput): NavMovementResult {
   const recoverySnapEpsilon = 0.01;
   const {
     currentX,
@@ -78,19 +76,9 @@ export function applyNavmeshMovementStep(
   } = input;
 
   if (deltaTime <= 0 || (directionX === 0 && directionZ === 0)) {
-    const idleResult = navmesh.validateMovement(
-      currentX,
-      currentZ,
-      0,
-      0,
-      startNodeRef,
-    );
+    const idleResult = navmesh.validateMovement(currentX, currentZ, 0, 0, startNodeRef);
     if (idleResult.movementRatio === 0 && recoveryDistance) {
-      const nearest = navmesh.findNearestPoint(
-        currentX,
-        currentZ,
-        recoveryDistance,
-      );
+      const nearest = navmesh.findNearestPoint(currentX, currentZ, recoveryDistance);
       if (nearest) {
         const dx = nearest.x - currentX;
         const dz = nearest.z - currentZ;
@@ -113,19 +101,9 @@ export function applyNavmeshMovementStep(
   const deltaX = directionX * speed * deltaTime;
   const deltaZ = directionZ * speed * deltaTime;
 
-  const result = navmesh.validateMovement(
-    currentX,
-    currentZ,
-    deltaX,
-    deltaZ,
-    startNodeRef,
-  );
+  const result = navmesh.validateMovement(currentX, currentZ, deltaX, deltaZ, startNodeRef);
   if (result.movementRatio === 0 && recoveryDistance) {
-    const nearest = navmesh.findNearestPoint(
-      currentX,
-      currentZ,
-      recoveryDistance,
-    );
+    const nearest = navmesh.findNearestPoint(currentX, currentZ, recoveryDistance);
     if (nearest) {
       const dx = nearest.x - currentX;
       const dz = nearest.z - currentZ;

@@ -10,10 +10,10 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "start": "tsx watch src/index.ts",
-    "start:prod": "tsx src/index.ts",
-    "dev": "tsx watch src/index.ts",
-    "build": "pnpm run clean && tsc",
+    "start": "node dist/index.mjs",
+    "start:prod": "node dist/index.mjs",
+    "dev": "tsdown --watch --onSuccess \"node dist/index.mjs\"",
+    "build": "tsdown",
     "clean": "rimraf dist",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
@@ -25,6 +25,7 @@
     "@types/jsonwebtoken": "catalog:",
     "eslint": "catalog:",
     "rimraf": "catalog:",
+    "tsdown": "^0.20.3",
     "tsx": "catalog:",
     "typescript": "catalog:"
   },

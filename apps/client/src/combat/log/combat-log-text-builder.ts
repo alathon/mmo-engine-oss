@@ -20,7 +20,7 @@ import {
   type EventLogEntry,
   type MobEnterCombatEvent,
   type MobExitCombatEvent,
-} from '@mmo/shared';
+} from "@mmo/shared";
 
 export interface CombatLogTextContext {
   resolveEntityName(entityId: string): string;
@@ -28,7 +28,7 @@ export interface CombatLogTextContext {
   resolveSelfId?: () => string | undefined;
 }
 
-export type CombatLogMessageTone = 'damage' | 'healing';
+export type CombatLogMessageTone = "damage" | "healing";
 
 export interface CombatLogMessagePart {
   /** Raw text for this segment. */
@@ -46,34 +46,34 @@ export interface CombatLogMessage {
 
 export type CombatLogTextBuilder = (
   entry: EventLogEntry,
-  context: CombatLogTextContext
+  context: CombatLogTextContext,
 ) => CombatLogMessage | undefined;
 
 type CombatTextRule = (
   entry: EventLogEntry,
-  context: CombatLogTextContext
+  context: CombatLogTextContext,
 ) => CombatLogMessage | undefined;
 
 const COMBAT_TEXT_TEMPLATES = {
-  castStartSelf: 'You begin casting {ability}.',
-  castStartOther: '{actor} begins casting {ability}.',
-  castFinishSelf: 'You finish casting {ability}.',
-  castFinishOther: '{actor} finishes casting {ability}.',
-  castInterrupt: '{actorPossessive} {ability} was interrupted ({reason}).',
-  effectDamageSelf: 'You hit {target} with {ability} for {damage}.',
-  effectDamageOther: '{actor} hits {target} with {ability} for {damage}.',
-  effectCritDamageSelf: 'You critically hit {target} with {ability} for {damage}.',
-  effectCritDamageOther: '{actor} critically hits {target} with {ability} for {damage}.',
-  effectHealingSelf: 'You heal {target} for {healing}.',
-  effectHealingOther: '{actor} heals {target} for {healing}.',
-  effectMissSelf: 'You miss {target} with {ability}.',
-  effectMissOther: '{actor} misses {target} with {ability}.',
-  effectBlockedHit: '{actorPossessive} {ability} hit {target} for {damage} (blocked: {blocked}).',
-  effectDodged: '{target} dodges {actorPossessive} {ability}.',
-  effectImmune: '{target} is immune to {actorPossessive} {ability}.',
-  effectNoEffect: '{actorPossessive} {ability} has no effect on {target}.',
-  enterCombat: '{mob} enters combat.',
-  exitCombat: '{mob} leaves combat.',
+  castStartSelf: "You begin casting {ability}.",
+  castStartOther: "{actor} begins casting {ability}.",
+  castFinishSelf: "You finish casting {ability}.",
+  castFinishOther: "{actor} finishes casting {ability}.",
+  castInterrupt: "{actorPossessive} {ability} was interrupted ({reason}).",
+  effectDamageSelf: "You hit {target} with {ability} for {damage}.",
+  effectDamageOther: "{actor} hits {target} with {ability} for {damage}.",
+  effectCritDamageSelf: "You critically hit {target} with {ability} for {damage}.",
+  effectCritDamageOther: "{actor} critically hits {target} with {ability} for {damage}.",
+  effectHealingSelf: "You heal {target} for {healing}.",
+  effectHealingOther: "{actor} heals {target} for {healing}.",
+  effectMissSelf: "You miss {target} with {ability}.",
+  effectMissOther: "{actor} misses {target} with {ability}.",
+  effectBlockedHit: "{actorPossessive} {ability} hit {target} for {damage} (blocked: {blocked}).",
+  effectDodged: "{target} dodges {actorPossessive} {ability}.",
+  effectImmune: "{target} is immune to {actorPossessive} {ability}.",
+  effectNoEffect: "{actorPossessive} {ability} has no effect on {target}.",
+  enterCombat: "{mob} enters combat.",
+  exitCombat: "{mob} leaves combat.",
 } as const;
 
 const COMBAT_TEXT_RULES: Partial<Record<CombatEventType, CombatTextRule>> = {
@@ -118,7 +118,7 @@ export const buildCombatLogText: CombatLogTextBuilder = (entry, context) => {
 export const createCombatLogTextContext = (
   resolveEntityName: (entityId: string) => string,
   resolveAbilityName?: (abilityId: string) => string,
-  resolveSelfId?: () => string | undefined
+  resolveSelfId?: () => string | undefined,
 ): CombatLogTextContext => {
   return {
     resolveEntityName,
@@ -139,7 +139,7 @@ interface ActorDisplay {
 const resolveActorDisplay = (actorId: string, context: CombatLogTextContext): ActorDisplay => {
   const selfId = context.resolveSelfId?.();
   if (selfId && actorId === selfId) {
-    return { subject: 'You', possessive: 'Your', isSelf: true };
+    return { subject: "You", possessive: "Your", isSelf: true };
   }
 
   const name = context.resolveEntityName(actorId);
@@ -161,7 +161,7 @@ const createToneValue = (value: number, tone: CombatLogMessageTone): CombatLogMe
 
 const buildCastStart = (
   entry: AbilityCastStartEvent,
-  context: CombatLogTextContext
+  context: CombatLogTextContext,
 ): CombatLogMessage => {
   const actor = resolveActorDisplay(entry.actorId, context);
   return formatTemplate(
@@ -169,13 +169,13 @@ const buildCastStart = (
     {
       actor: actor.subject,
       ability: context.resolveAbilityName(entry.abilityId),
-    }
+    },
   );
 };
 
 const buildCastFinish = (
   entry: AbilityCastFinishEvent,
-  context: CombatLogTextContext
+  context: CombatLogTextContext,
 ): CombatLogMessage => {
   const actor = resolveActorDisplay(entry.actorId, context);
   return formatTemplate(
@@ -183,13 +183,13 @@ const buildCastFinish = (
     {
       actor: actor.subject,
       ability: context.resolveAbilityName(entry.abilityId),
-    }
+    },
   );
 };
 
 const buildCastInterrupt = (
   entry: AbilityCastInterruptEvent,
-  context: CombatLogTextContext
+  context: CombatLogTextContext,
 ): CombatLogMessage => {
   const actor = resolveActorDisplay(entry.actorId, context);
   return formatTemplate(COMBAT_TEXT_TEMPLATES.castInterrupt, {
@@ -201,38 +201,38 @@ const buildCastInterrupt = (
 
 const buildEffectApplied = (
   entry: AbilityEffectAppliedEvent,
-  context: CombatLogTextContext
+  context: CombatLogTextContext,
 ): CombatLogMessage | undefined => {
   const actor = resolveActorDisplay(entry.actorId, context);
   const target = context.resolveEntityName(entry.targetId);
   const ability = context.resolveAbilityName(entry.abilityId);
 
   switch (entry.outcome) {
-    case 'miss': {
+    case "miss": {
       return formatTemplate(
         actor.isSelf ? COMBAT_TEXT_TEMPLATES.effectMissSelf : COMBAT_TEXT_TEMPLATES.effectMissOther,
         {
           actor: actor.subject,
           target,
           ability,
-        }
+        },
       );
     }
-    case 'dodged': {
+    case "dodged": {
       return formatTemplate(COMBAT_TEXT_TEMPLATES.effectDodged, {
         actorPossessive: actor.possessive,
         target,
         ability,
       });
     }
-    case 'immune': {
+    case "immune": {
       return formatTemplate(COMBAT_TEXT_TEMPLATES.effectImmune, {
         actorPossessive: actor.possessive,
         target,
         ability,
       });
     }
-    case 'no_effect': {
+    case "no_effect": {
       return formatTemplate(COMBAT_TEXT_TEMPLATES.effectNoEffect, {
         actorPossessive: actor.possessive,
         target,
@@ -246,7 +246,7 @@ const buildEffectApplied = (
 
   if (entry.damage !== undefined && entry.damage > 0) {
     if (
-      entry.outcome === 'blocked' &&
+      entry.outcome === "blocked" &&
       entry.blockedAmount !== undefined &&
       entry.blockedAmount > 0
     ) {
@@ -254,12 +254,12 @@ const buildEffectApplied = (
         actorPossessive: actor.possessive,
         target,
         ability,
-        damage: createToneValue(entry.damage, 'damage'),
+        damage: createToneValue(entry.damage, "damage"),
         blocked: entry.blockedAmount,
       });
     }
 
-    if (entry.outcome === 'crit') {
+    if (entry.outcome === "crit") {
       return formatTemplate(
         actor.isSelf
           ? COMBAT_TEXT_TEMPLATES.effectCritDamageSelf
@@ -268,8 +268,8 @@ const buildEffectApplied = (
           actor: actor.subject,
           target,
           ability,
-          damage: createToneValue(entry.damage, 'damage'),
-        }
+          damage: createToneValue(entry.damage, "damage"),
+        },
       );
     }
 
@@ -281,8 +281,8 @@ const buildEffectApplied = (
         actor: actor.subject,
         target,
         ability,
-        damage: createToneValue(entry.damage, 'damage'),
-      }
+        damage: createToneValue(entry.damage, "damage"),
+      },
     );
   }
 
@@ -295,8 +295,8 @@ const buildEffectApplied = (
         actor: actor.subject,
         target,
         ability,
-        healing: createToneValue(entry.healing, 'healing'),
-      }
+        healing: createToneValue(entry.healing, "healing"),
+      },
     );
   }
 
@@ -305,7 +305,7 @@ const buildEffectApplied = (
 
 const buildMobEnter = (
   entry: MobEnterCombatEvent,
-  context: CombatLogTextContext
+  context: CombatLogTextContext,
 ): CombatLogMessage => {
   return formatTemplate(COMBAT_TEXT_TEMPLATES.enterCombat, {
     mob: context.resolveEntityName(entry.mobId),
@@ -314,7 +314,7 @@ const buildMobEnter = (
 
 const buildMobExit = (
   entry: MobExitCombatEvent,
-  context: CombatLogTextContext
+  context: CombatLogTextContext,
 ): CombatLogMessage => {
   return formatTemplate(COMBAT_TEXT_TEMPLATES.exitCombat, {
     mob: context.resolveEntityName(entry.mobId),
@@ -329,10 +329,10 @@ const buildMobExit = (
  */
 const formatTemplate = (
   template: string,
-  values: Record<string, TemplateValue>
+  values: Record<string, TemplateValue>,
 ): CombatLogMessage => {
   const parts: CombatLogMessagePart[] = [];
-  let text = '';
+  let text = "";
   let cursor = 0;
   const regex = /\{(\w+)\}/g;
   let match: RegExpExecArray | null;
@@ -355,7 +355,7 @@ const formatTemplate = (
     const value = values[key];
     if (value === undefined) {
       pushPart({ text: match[0] });
-    } else if (typeof value === 'object') {
+    } else if (typeof value === "object") {
       pushPart(value);
     } else {
       pushPart({ text: String(value) });

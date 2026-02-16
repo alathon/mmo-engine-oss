@@ -1,7 +1,7 @@
 import { Schema, MapSchema, type } from "@colyseus/schema";
-import { PlayerState } from "./playerState";
-import { ObjState } from "./objState";
-import { NPCState } from "./npcState";
+import { PlayerState } from "./player-state";
+import { ObjState } from "./obj-state";
+import { NPCState } from "./npc-state";
 
 /**
  * World state schema synced to clients.

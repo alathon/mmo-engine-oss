@@ -6,6 +6,7 @@ A work-in-progress MMO engine built as a pnpm + Turborepo monorepo. It uses Coly
 ## Requirements
 - Node.js >= 22
 - pnpm >= 10
+- turbo globally installed (`pnpm install -g turbo`)
 
 ## Run (Dev)
 1. Install dependencies: `pnpm install`

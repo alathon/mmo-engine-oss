@@ -1,9 +1,9 @@
-import type { Observer } from '@babylonjs/core/Misc/observable';
-import { Scene } from '@babylonjs/core/scene';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { KeyboardEventTypes, type KeyboardInfo } from '@babylonjs/core/Events/keyboardEvents';
-import { PointerEventTypes, type PointerInfo } from '@babylonjs/core/Events/pointerEvents';
-import type { InputManager, PointerClick, PointerDrag } from './input-manager';
+import type { Observer } from "@babylonjs/core/Misc/observable";
+import { Scene } from "@babylonjs/core/scene";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { KeyboardEventTypes, type KeyboardInfo } from "@babylonjs/core/Events/keyboardEvents";
+import { PointerEventTypes, type PointerInfo } from "@babylonjs/core/Events/pointerEvents";
+import type { InputManager, PointerClick, PointerDrag } from "./input-manager";
 
 export class DomInputManager implements InputManager {
   private static readonly CLICK_DRAG_THRESHOLD_PX = 6;
@@ -19,7 +19,7 @@ export class DomInputManager implements InputManager {
       return;
     }
 
-    if (event.target.closest('[data-ui-input]')) {
+    if (event.target.closest("[data-ui-input]")) {
       this.chatInputFocused = true;
     }
   };
@@ -33,7 +33,7 @@ export class DomInputManager implements InputManager {
       return;
     }
 
-    if (!nextTarget.closest('[data-ui-input]')) {
+    if (!nextTarget.closest("[data-ui-input]")) {
       this.chatInputFocused = false;
     }
   };
@@ -109,7 +109,7 @@ export class DomInputManager implements InputManager {
             down.dragging = true;
             this.pointerDrags.push({
               button,
-              phase: 'start',
+              phase: "start",
               x: currentX,
               y: currentY,
               clientX: pointerInfo.event.clientX,
@@ -130,7 +130,7 @@ export class DomInputManager implements InputManager {
           if (down.dragging) {
             this.pointerDrags.push({
               button,
-              phase: 'move',
+              phase: "move",
               x: currentX,
               y: currentY,
               clientX: pointerInfo.event.clientX,
@@ -161,7 +161,7 @@ export class DomInputManager implements InputManager {
         if (down.dragging) {
           this.pointerDrags.push({
             button: pointerInfo.event.button,
-            phase: 'end',
+            phase: "end",
             x: scene.pointerX,
             y: scene.pointerY,
             clientX: pointerInfo.event.clientX,
@@ -195,8 +195,8 @@ export class DomInputManager implements InputManager {
       }
     });
 
-    document.addEventListener('focusin', this.handleUiFocusIn);
-    document.addEventListener('focusout', this.handleUiFocusOut);
+    document.addEventListener("focusin", this.handleUiFocusIn);
+    document.addEventListener("focusout", this.handleUiFocusOut);
     this.isInitialized = true;
   }
 
@@ -213,8 +213,8 @@ export class DomInputManager implements InputManager {
       this.scene.onPointerObservable.remove(this.pointerObserver);
       this.pointerObserver = undefined;
     }
-    document.removeEventListener('focusin', this.handleUiFocusIn);
-    document.removeEventListener('focusout', this.handleUiFocusOut);
+    document.removeEventListener("focusin", this.handleUiFocusIn);
+    document.removeEventListener("focusout", this.handleUiFocusOut);
 
     this.scene = undefined;
     this.keys.clear();
@@ -326,7 +326,7 @@ export class DomInputManager implements InputManager {
    * Checks if the sprint key is currently held down.
    */
   public isSprinting(): boolean {
-    return this.isKeyDown('shift');
+    return this.isKeyDown("shift");
   }
 
   public getMovementDirection(): Vector3 {
@@ -339,16 +339,16 @@ export class DomInputManager implements InputManager {
     let z = 0;
 
     // WASD movement only to avoid camera key conflicts
-    if (this.isKeyDown('w')) {
+    if (this.isKeyDown("w")) {
       z += 1;
     }
-    if (this.isKeyDown('s')) {
+    if (this.isKeyDown("s")) {
       z -= 1;
     }
-    if (this.isKeyDown('d')) {
+    if (this.isKeyDown("d")) {
       x -= 1;
     }
-    if (this.isKeyDown('a')) {
+    if (this.isKeyDown("a")) {
       x += 1;
     }
 

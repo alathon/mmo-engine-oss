@@ -1,15 +1,15 @@
-import type { Scene } from '@babylonjs/core/scene';
-import { Color3 } from '@babylonjs/core/Maths/math.color';
-import type { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
-import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
-import type { Mesh } from '@babylonjs/core/Meshes/mesh';
-import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
-import type { InputHandler } from '../input/input-handler';
-import type { InputManager, PointerClick } from '../input/input-manager';
-import type { ZoneConnectionManager } from '../network/zone-connection-manager';
-import type { PlayerEntity } from '../entities/player-entity';
-import type { NpcEntity } from '../entities/npc-entity';
-import { MobEntity } from '../entities/mob-entity';
+import type { Scene } from "@babylonjs/core/scene";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import type { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import type { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import type { InputHandler } from "../input/input-handler";
+import type { InputManager, PointerClick } from "../input/input-manager";
+import type { ZoneConnectionManager } from "../network/zone-connection-manager";
+import type { PlayerEntity } from "../entities/player-entity";
+import type { NpcEntity } from "../entities/npc-entity";
+import { MobEntity } from "../entities/mob-entity";
 
 export interface TargetingWorld {
   getScene(): Scene | undefined;
@@ -28,17 +28,18 @@ export class TargetingController implements InputHandler {
 
   // Babylon's API uses null for parent clearing; lint forbids null so we pass undefined.
   private clearIndicatorParent(indicator: AbstractMesh): void {
-    indicator.setParent(undefined as unknown as AbstractMesh);
+    indicator.parent = null;
   }
 
   private static readonly IN_LOS_DIFFUSE = new Color3(0.9, 0.1, 0.1);
   private static readonly IN_LOS_EMISSIVE = new Color3(0.4, 0.05, 0.05);
   private static readonly OUT_LOS_DIFFUSE = new Color3(0.2, 0.2, 0.2);
   private static readonly OUT_LOS_EMISSIVE = new Color3(0.08, 0.08, 0.08);
+  private static readonly INDICATOR_OFFSET_Y = 0.2;
 
   constructor(
     private readonly world: TargetingWorld,
-    private readonly zoneNetwork: ZoneConnectionManager
+    private readonly zoneNetwork: ZoneConnectionManager,
   ) {}
 
   enabled(): boolean {
@@ -52,11 +53,11 @@ export class TargetingController implements InputHandler {
     if (input.isChatInputFocused()) {
       return;
     }
-    if (input.consumeKeyPress('escape')) {
+    if (input.consumeKeyPress("escape")) {
       this.clearTarget();
       return;
     }
-    if (!input.consumeKeyPress('tab')) {
+    if (!input.consumeKeyPress("tab")) {
       return;
     }
 
@@ -156,7 +157,7 @@ export class TargetingController implements InputHandler {
     }
 
     this.zoneNetwork.sendTargetChange(
-      this.currentTargetId ? { targetEntityId: this.currentTargetId } : {}
+      this.currentTargetId ? { targetEntityId: this.currentTargetId } : {},
     );
 
     if (this.currentTargetId) {
@@ -238,14 +239,14 @@ export class TargetingController implements InputHandler {
     }
 
     const indicator = MeshBuilder.CreateTorus(
-      'target_indicator',
+      "target_indicator",
       { diameter: 1.4, thickness: 0.05, tessellation: 48 },
-      scene
+      scene,
     );
     indicator.isPickable = false;
-    indicator.position.y = 0.05;
+    indicator.position.y = TargetingController.INDICATOR_OFFSET_Y;
 
-    const material = new StandardMaterial('target_indicator_mat', scene);
+    const material = new StandardMaterial("target_indicator_mat", scene);
     material.diffuseColor = TargetingController.IN_LOS_DIFFUSE;
     material.emissiveColor = TargetingController.IN_LOS_EMISSIVE;
     material.alpha = 0.85;
@@ -271,6 +272,9 @@ export class TargetingController implements InputHandler {
     }
 
     indicator.parent = target;
+    indicator.position.set(0, TargetingController.INDICATOR_OFFSET_Y, 0);
+    indicator.rotation.set(0, 0, 0);
+    indicator.scaling.set(1, 1, 1);
     indicator.setEnabled(true);
     this.indicatorInLos = undefined;
     this.updateIndicatorLoS();

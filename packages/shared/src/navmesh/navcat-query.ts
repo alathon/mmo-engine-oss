@@ -24,7 +24,7 @@ export interface NavcatStats {
 
 export class NavcatQuery {
   private navMesh: NavMesh;
-  private readonly halfExtents: Vec3 = [0.5, 1.0, 0.5];
+  private readonly halfExtents: Vec3;
   private static readonly MIN_MOVE_DISTANCE = 0.0001;
 
   /**
@@ -34,6 +34,7 @@ export class NavcatQuery {
    */
   constructor(navMesh: NavMesh) {
     this.navMesh = navMesh;
+    this.halfExtents = NavcatQuery.computeHalfExtents(navMesh);
   }
 
   /**
@@ -52,6 +53,24 @@ export class NavcatQuery {
       links: this.navMesh.links.length,
       tiles: Object.keys(this.navMesh.tiles).length,
     };
+  }
+
+  private static computeHalfExtents(navMesh: NavMesh): Vec3 {
+    let minY = Number.POSITIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+    for (const tile of Object.values(navMesh.tiles)) {
+      if (!tile?.bounds) {
+        continue;
+      }
+      minY = Math.min(minY, tile.bounds[0][1]);
+      maxY = Math.max(maxY, tile.bounds[1][1]);
+    }
+    if (!Number.isFinite(minY) || !Number.isFinite(maxY)) {
+      return [0.5, 1.0, 0.5];
+    }
+    const maxAbs = Math.max(Math.abs(minY), Math.abs(maxY));
+    const yExtent = Math.max(1, Math.ceil(maxAbs + 1));
+    return [0.5, yExtent, 0.5];
   }
 
   /**
@@ -105,12 +124,7 @@ export class NavcatQuery {
     }
 
     const closestResult = createGetClosestPointOnPolyResult();
-    const closest = getClosestPointOnPoly(
-      closestResult,
-      this.navMesh,
-      nearest.nodeRef,
-      center,
-    );
+    const closest = getClosestPointOnPoly(closestResult, this.navMesh, nearest.nodeRef, center);
 
     if (!closest.success) {
       return null;
@@ -156,12 +170,7 @@ export class NavcatQuery {
     }
 
     const closestResult = createGetClosestPointOnPolyResult();
-    const closest = getClosestPointOnPoly(
-      closestResult,
-      this.navMesh,
-      nearest.nodeRef,
-      center,
-    );
+    const closest = getClosestPointOnPoly(closestResult, this.navMesh, nearest.nodeRef, center);
 
     if (!closest.success) {
       return null;
@@ -251,12 +260,7 @@ export class NavcatQuery {
       }
 
       const closestResult = createGetClosestPointOnPolyResult();
-      const closest = getClosestPointOnPoly(
-        closestResult,
-        this.navMesh,
-        nearest.nodeRef,
-        start,
-      );
+      const closest = getClosestPointOnPoly(closestResult, this.navMesh, nearest.nodeRef, start);
 
       if (!closest.success) {
         return {
@@ -279,7 +283,6 @@ export class NavcatQuery {
     }
 
     const start: Vec3 = [currentX, 0, currentZ];
-    const end: Vec3 = [currentX + deltaX, 0, currentZ + deltaZ];
     const nearestResult = createFindNearestPolyResult();
     const nearest = findNearestPoly(
       nearestResult,
@@ -301,11 +304,26 @@ export class NavcatQuery {
       };
     }
 
+    const closestResult = createGetClosestPointOnPolyResult();
+    const closest = getClosestPointOnPoly(closestResult, this.navMesh, nearest.nodeRef, start);
+
+    if (!closest.success) {
+      return {
+        x: currentX,
+        y: 0,
+        z: currentZ,
+        collided: true,
+        movementRatio: 0,
+      };
+    }
+
+    const snappedStart: Vec3 = [closest.position[0], closest.position[1], closest.position[2]];
+    const end: Vec3 = [snappedStart[0] + deltaX, snappedStart[1], snappedStart[2] + deltaZ];
     const resolvedStartNodeRef = nearest.nodeRef ?? startNodeRef ?? 0;
     const move = moveAlongSurface(
       this.navMesh,
       resolvedStartNodeRef,
-      start,
+      snappedStart,
       end,
       DEFAULT_QUERY_FILTER,
     );
@@ -318,11 +336,7 @@ export class NavcatQuery {
 
     if (actual > overshootLimit) {
       const scale = requested / actual;
-      const clampedPos: Vec3 = [
-        currentX + movedX * scale,
-        finalPos[1],
-        currentZ + movedZ * scale,
-      ];
+      const clampedPos: Vec3 = [currentX + movedX * scale, finalPos[1], currentZ + movedZ * scale];
 
       if (move.nodeRef) {
         const closestResult = createGetClosestPointOnPolyResult();
@@ -364,12 +378,7 @@ export class NavcatQuery {
     }
 
     const closestResult = createGetClosestPointOnPolyResult();
-    const closest = getClosestPointOnPoly(
-      closestResult,
-      this.navMesh,
-      nearest.nodeRef,
-      position,
-    );
+    const closest = getClosestPointOnPoly(closestResult, this.navMesh, nearest.nodeRef, position);
 
     if (!closest.success) {
       return;

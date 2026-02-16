@@ -1,4 +1,4 @@
-import type { Control } from '@babylonjs/gui/2D/controls/control';
+import type { Control } from "@babylonjs/gui/2D/controls/control";
 
 export interface UiLayer {
   addControl(control: Control): UiLayer;

@@ -3,13 +3,13 @@ import {
   DEFAULT_WIDGET_LAYOUT,
   UI_LAYOUT_SCHEMA_VERSION,
   createDefaultLayout,
-} from './ui-layout-defaults';
+} from "./ui-layout-defaults";
 import {
   buildLayoutStorageKey,
   migrateLayoutStore,
   parseLayoutStore,
   serializeLayoutStore,
-} from './ui-layout-storage';
+} from "./ui-layout-storage";
 import type {
   UiLayout,
   UiLayoutSnapshot,
@@ -17,12 +17,12 @@ import type {
   UiViewport,
   UiWidgetLayout,
   UiWidgetLayoutPatch,
-} from './ui-layout-types';
-import { readViewport } from './ui-layout-viewport';
+} from "./ui-layout-types";
+import { readViewport } from "./ui-layout-viewport";
 
 type Listener = () => void;
 
-export type UiLayoutImportMode = 'merge' | 'replace';
+export type UiLayoutImportMode = "merge" | "replace";
 
 export interface UiLayoutActionResult {
   ok: boolean;
@@ -49,7 +49,7 @@ function cloneLayout(layout: UiLayout): UiLayout {
           ...widget,
           lastViewport: widget.lastViewport ? { ...widget.lastViewport } : undefined,
         },
-      ])
+      ]),
     ),
   };
 }
@@ -222,7 +222,7 @@ export class UiLayoutManager {
   initializeStorage(playerId?: string): UiLayoutActionResult {
     const storage = resolveStorage();
     if (!storage) {
-      return { ok: false, error: 'localStorage is not available.' };
+      return { ok: false, error: "localStorage is not available." };
     }
 
     this.storage = storage;
@@ -248,7 +248,7 @@ export class UiLayoutManager {
   saveToStorage(): UiLayoutActionResult {
     const storage = this.storage ?? resolveStorage();
     if (!storage) {
-      return { ok: false, error: 'localStorage is not available.' };
+      return { ok: false, error: "localStorage is not available." };
     }
 
     this.storage = storage;
@@ -258,7 +258,7 @@ export class UiLayoutManager {
       storage.setItem(this.storageKey, serializeLayoutStore(store));
       return { ok: true };
     } catch {
-      return { ok: false, error: 'Failed to save layout data.' };
+      return { ok: false, error: "Failed to save layout data." };
     }
   }
 
@@ -272,7 +272,7 @@ export class UiLayoutManager {
   /**
    * Imports layout data from JSON, optionally merging with current layouts.
    */
-  importFromJson(raw: string, mode: UiLayoutImportMode = 'replace'): UiLayoutActionResult {
+  importFromJson(raw: string, mode: UiLayoutImportMode = "replace"): UiLayoutActionResult {
     const parsed = parseLayoutStore(raw);
     if (!parsed.ok) {
       return { ok: false, error: parsed.error };
@@ -305,7 +305,7 @@ export class UiLayoutManager {
 
   private loadFromStorage(): UiLayoutActionResult {
     if (!this.storage) {
-      return { ok: false, error: 'localStorage is not available.' };
+      return { ok: false, error: "localStorage is not available." };
     }
 
     const raw = this.storage.getItem(this.storageKey);
@@ -326,12 +326,12 @@ export class UiLayoutManager {
       };
     }
 
-    this.applyStore(migrated, 'replace');
+    this.applyStore(migrated, "replace");
     return { ok: true };
   }
 
   private applyStore(store: UiLayoutStore, mode: UiLayoutImportMode): void {
-    if (mode === 'replace') {
+    if (mode === "replace") {
       this.layouts = new Map();
     }
 
@@ -381,7 +381,7 @@ export class UiLayoutManager {
       return;
     }
 
-    window.addEventListener('resize', this.handleViewportResize);
+    window.addEventListener("resize", this.handleViewportResize);
   }
 
   private handleViewportResize = (): void => {
@@ -461,24 +461,24 @@ const normalizeLayout = (layout: UiLayout, viewport: UiViewport): UiLayout => {
     ...layout,
     lastViewport: isViewport(layout.lastViewport) ? layout.lastViewport : viewport,
     widgets:
-      layout.widgets && typeof layout.widgets === 'object' && !Array.isArray(layout.widgets)
+      layout.widgets && typeof layout.widgets === "object" && !Array.isArray(layout.widgets)
         ? layout.widgets
         : {},
   };
 };
 
 const isViewport = (value: unknown): value is UiViewport => {
-  if (!value || typeof value !== 'object') {
+  if (!value || typeof value !== "object") {
     return false;
   }
 
-  const width = Reflect.get(value, 'width');
-  const height = Reflect.get(value, 'height');
+  const width = Reflect.get(value, "width");
+  const height = Reflect.get(value, "height");
 
   return (
-    typeof width === 'number' &&
+    typeof width === "number" &&
     Number.isFinite(width) &&
-    typeof height === 'number' &&
+    typeof height === "number" &&
     Number.isFinite(height)
   );
 };

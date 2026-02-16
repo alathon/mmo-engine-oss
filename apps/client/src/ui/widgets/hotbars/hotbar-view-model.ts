@@ -1,8 +1,12 @@
-import { ABILITY_DEFINITIONS, type AbilityDefinition, type ResourceCost } from '@mmo/shared';
-import type { CombatPredictionState } from '../../../combat/combat-prediction-state';
-import type { HotbarSlot } from './hotbar-controller';
+import { ABILITY_DEFINITIONS, type AbilityDefinition, type ResourceCost } from "@mmo/shared";
+import type { HotbarSlot } from "./hotbar-controller";
 
 type Listener = () => void;
+interface HotbarCooldownState {
+  active: boolean;
+  ratio: number;
+  remainingMs: number;
+}
 
 export interface HotbarSlotSnapshot {
   index: number;
@@ -35,11 +39,14 @@ export interface HotbarDataSource {
 }
 
 export interface CombatDataSource {
-  getPredictionState(): CombatPredictionState;
-  getCastingAbilityId(nowMs: number): string | undefined;
+  getAbilityCooldownState(abilityId: string, nowMs: number): HotbarCooldownState;
+  getGcdState(nowMs: number): HotbarCooldownState;
+  isUsingAbility(abilityId: string, nowMs: number): boolean;
 }
 
 export class HotbarViewModel {
+  constructor(private readonly getNowMs: () => number = () => Date.now()) {}
+
   private listeners = new Set<Listener>();
   private slots: HotbarSlotSnapshot[] = [];
   private snapshot: HotbarViewSnapshot = { slots: this.slots };
@@ -61,7 +68,7 @@ export class HotbarViewModel {
   bind(hotbar: HotbarDataSource, combat: CombatDataSource): void {
     this.hotbar = hotbar;
     this.combat = combat;
-    this.tick(Date.now());
+    this.tick(this.getNowMs());
   }
 
   clear(): void {
@@ -97,14 +104,7 @@ export class HotbarViewModel {
       changed = true;
     }
 
-    const prediction = this.combat.getPredictionState();
-    const castingAbilityId = this.combat.getCastingAbilityId(nowMs);
-    const cooldowns = prediction.getAbilitiesOnCooldown();
-    const gcdDisplay = getGcdDisplay(
-      prediction.getPredictedGcdStartTimeMs(),
-      prediction.getPredictedGcdEndTimeMs(),
-      nowMs
-    );
+    const gcdDisplay = this.combat.getGcdState(nowMs);
 
     for (const [i, slot] of slotData.entries()) {
       const slotSnapshot = this.slots[i];
@@ -117,13 +117,13 @@ export class HotbarViewModel {
         changed = true;
       }
 
-      const keyLabel = slot.key ? slot.key.toUpperCase() : '';
+      const keyLabel = slot.key ? slot.key.toUpperCase() : "";
       if (slotSnapshot.keyLabel !== keyLabel) {
         slotSnapshot.keyLabel = keyLabel;
         changed = true;
       }
 
-      const abilityId = slot.action.type === 'ability' ? slot.action.abilityId : undefined;
+      const abilityId = slot.action.type === "ability" ? slot.action.abilityId : undefined;
       if (slotSnapshot.abilityId !== abilityId) {
         slotSnapshot.abilityId = abilityId;
         changed = true;
@@ -135,19 +135,19 @@ export class HotbarViewModel {
         changed = true;
       }
 
-      let abilityLabel = '';
-      let abilityName = '';
+      let abilityLabel = "";
+      let abilityName = "";
       let iconId: string | undefined = undefined;
-      let abilityCooldownText = '';
-      let abilityCastText = '';
-      let abilityResourceText = '';
+      let abilityCooldownText = "";
+      let abilityCastText = "";
+      let abilityResourceText = "";
       let iconAlpha = 0.35;
       let isCasting = false;
       let gcdActive = false;
       let gcdRatio = 0;
       let cooldownActive = false;
       let cooldownRatio = 0;
-      let cooldownText = '';
+      let cooldownText = "";
 
       if (abilityId) {
         const ability = ABILITY_DEFINITIONS[abilityId as keyof typeof ABILITY_DEFINITIONS] as
@@ -160,19 +160,18 @@ export class HotbarViewModel {
           abilityCooldownText = formatAbilityCooldown(ability.cooldownMs);
           abilityCastText = formatAbilityCastTime(ability.castTimeMs);
           abilityResourceText = formatAbilityResourceCosts(ability.resourceCosts);
-          isCasting = castingAbilityId === ability.id;
-
-          const cooldownEnd = cooldowns.get(abilityId);
-          const cooldownDisplay = getCooldownDisplay(ability, cooldownEnd, nowMs);
-
-          cooldownActive = cooldownDisplay.active;
-          cooldownRatio = cooldownDisplay.ratio;
-          cooldownText = cooldownActive ? formatCooldownText(cooldownDisplay.remainingMs) : '';
-
-          gcdActive = gcdDisplay.active && ability.isOnGcd;
-          gcdRatio = gcdActive ? gcdDisplay.ratio : 0;
-
-          iconAlpha = cooldownActive ? 0.55 : 1;
+          isCasting = this.combat.isUsingAbility(ability.id, nowMs);
+          iconAlpha = 1;
+          const cooldownDisplay = this.combat.getAbilityCooldownState(ability.id, nowMs);
+          if (cooldownDisplay.active) {
+            cooldownActive = true;
+            cooldownRatio = cooldownDisplay.ratio;
+            cooldownText = formatCooldownText(cooldownDisplay.remainingMs);
+            iconAlpha = 0.55;
+          } else if (gcdDisplay.active && ability.isOnGcd) {
+            gcdActive = true;
+            gcdRatio = gcdDisplay.ratio;
+          }
         }
       }
 
@@ -273,14 +272,14 @@ export class HotbarViewModel {
 
 const createSlotSnapshot = (index: number): HotbarSlotSnapshot => ({
   index,
-  keyLabel: '',
+  keyLabel: "",
   abilityId: undefined,
   iconId: undefined,
-  abilityName: '',
-  abilityCooldownText: '',
-  abilityCastText: '',
-  abilityResourceText: '',
-  abilityLabel: '',
+  abilityName: "",
+  abilityCooldownText: "",
+  abilityCastText: "",
+  abilityResourceText: "",
+  abilityLabel: "",
   iconAlpha: 0.35,
   isPressed: false,
   isCasting: false,
@@ -288,43 +287,21 @@ const createSlotSnapshot = (index: number): HotbarSlotSnapshot => ({
   gcdRatio: 0,
   cooldownActive: false,
   cooldownRatio: 0,
-  cooldownText: '',
+  cooldownText: "",
 });
 
-const clamp = (value: number, min: number, max: number): number =>
-  Math.max(min, Math.min(max, value));
-
 const getAbilityLabel = (ability: AbilityDefinition): string => {
-  const words = ability.name.split(' ').filter(Boolean);
+  const words = ability.name.split(" ").filter(Boolean);
   if (words.length === 0) {
     return ability.id.slice(0, 3).toUpperCase();
   }
-  const initials = words.map((word) => word[0]).join('');
+  const initials = words.map((word) => word[0]).join("");
   return initials.slice(0, 3).toUpperCase();
-};
-
-const getCooldownDisplay = (
-  ability: AbilityDefinition,
-  cooldownEnd: number | undefined,
-  nowMs: number
-): { active: boolean; ratio: number; remainingMs: number } => {
-  if (!cooldownEnd || ability.cooldownMs <= 0) {
-    return { active: false, ratio: 0, remainingMs: 0 };
-  }
-
-  const cooldownStart = cooldownEnd - ability.cooldownMs;
-  if (nowMs < cooldownStart) {
-    return { active: false, ratio: 0, remainingMs: 0 };
-  }
-
-  const remainingMs = Math.max(0, cooldownEnd - nowMs);
-  const ratio = clamp(remainingMs / ability.cooldownMs, 0, 1);
-  return { active: remainingMs > 0, ratio, remainingMs };
 };
 
 const formatCooldownText = (remainingMs: number): string => {
   if (remainingMs <= 0) {
-    return '';
+    return "";
   }
 
   return (remainingMs / 1000).toFixed(1);
@@ -332,7 +309,7 @@ const formatCooldownText = (remainingMs: number): string => {
 
 const formatAbilityCooldown = (cooldownMs: number): string => {
   if (cooldownMs <= 0) {
-    return '';
+    return "";
   }
   const seconds = Math.max(0, cooldownMs) / 1000;
   return `${seconds.toFixed(1)}s`;
@@ -340,7 +317,7 @@ const formatAbilityCooldown = (cooldownMs: number): string => {
 
 const formatAbilityCastTime = (castTimeMs: number): string => {
   if (castTimeMs <= 0) {
-    return 'Instant';
+    return "Instant";
   }
   const seconds = Math.max(0, castTimeMs) / 1000;
   return `${seconds.toFixed(1)}s`;
@@ -348,7 +325,7 @@ const formatAbilityCastTime = (castTimeMs: number): string => {
 
 const formatAbilityResourceCosts = (costs?: ResourceCost[]): string => {
   if (!costs || costs.length === 0) {
-    return 'None';
+    return "None";
   }
 
   const entries = costs
@@ -356,10 +333,10 @@ const formatAbilityResourceCosts = (costs?: ResourceCost[]): string => {
     .map((cost) => `${cost.amount} ${capitalize(cost.type)}`);
 
   if (entries.length === 0) {
-    return 'None';
+    return "None";
   }
 
-  return entries.join(', ');
+  return entries.join(", ");
 };
 
 const capitalize = (value: string): string => {
@@ -367,23 +344,4 @@ const capitalize = (value: string): string => {
     return value;
   }
   return value[0].toUpperCase() + value.slice(1);
-};
-
-const getGcdDisplay = (
-  gcdStart: number,
-  gcdEnd: number,
-  nowMs: number
-): { active: boolean; ratio: number; remainingMs: number } => {
-  if (gcdEnd <= nowMs || gcdEnd <= gcdStart) {
-    return { active: false, ratio: 0, remainingMs: 0 };
-  }
-
-  if (nowMs < gcdStart) {
-    return { active: false, ratio: 0, remainingMs: 0 };
-  }
-
-  const remainingMs = Math.max(0, gcdEnd - nowMs);
-  const durationMs = Math.max(1, gcdEnd - gcdStart);
-  const ratio = clamp(remainingMs / durationMs, 0, 1);
-  return { active: remainingMs > 0, ratio, remainingMs };
 };

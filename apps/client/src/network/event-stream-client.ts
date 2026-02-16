@@ -3,7 +3,7 @@ import type {
   EventStreamBatch,
   EventStreamResyncRequest,
   EventStreamResyncResponse,
-} from '@mmo/shared';
+} from "@mmo/shared";
 
 export interface EventStreamTransport {
   sendResyncRequest(request: EventStreamResyncRequest): void;
@@ -58,7 +58,7 @@ export class EventStreamClient {
     fromEventId: number,
     toEventId: number,
     events: EventLogEntry[],
-    allowResync: boolean
+    allowResync: boolean,
   ): void {
     if (this.lastEventId === undefined) {
       this.lastEventId = Math.max(0, fromEventId - 1);
@@ -72,7 +72,7 @@ export class EventStreamClient {
         if (!this.resyncInFlight) {
           this.resyncInFlight = true;
           this.transport.sendResyncRequest({
-            type: 'event_stream_resync_request',
+            type: "event_stream_resync_request",
             sinceEventId: baseline,
           });
         }

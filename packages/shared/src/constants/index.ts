@@ -10,6 +10,7 @@ export const PATCH_RATE = 50; // State patches per second (ms between patches)
 export const GCD_SECONDS = 2.5; // Global cooldown in seconds
 export const GCD_TICKS = GCD_SECONDS * TICK_RATE; // GCD in ticks (50)
 export const INTERNAL_COOLDOWN_MS = 700;
+export const BUFFER_OPEN_MS = 300;
 export const MAX_BUFFERED_ABILITIES = 1;
 
 // World

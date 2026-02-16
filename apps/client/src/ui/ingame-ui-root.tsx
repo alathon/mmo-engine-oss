@@ -1,17 +1,20 @@
-import type { ChatViewModel } from './widgets/chat/chat-view-model';
-import type { ConnectionStatusViewModel } from './widgets/connectionStatus/connection-status-view-model';
-import type { HotbarViewModel } from './widgets/hotbars/hotbar-view-model';
-import type { PerformanceViewModel } from './widgets/performance/performance-view-model';
-import { ChatOverlay } from './widgets/chat/chat-overlay';
-import { ConnectionStatusOverlay } from './widgets/connectionStatus/connection-status-overlay';
-import { HotbarOverlay } from './widgets/hotbars/hotbar-overlay';
-import { PerformanceOverlay } from './widgets/performance/performance-overlay';
-import { UiLayoutControlsOverlay } from './widgets/layoutControls/ui-layout-controls-overlay';
+import type { ChatViewModel } from "./widgets/chat/chat-view-model";
+import type { ConnectionStatusViewModel } from "./widgets/connectionStatus/connection-status-view-model";
+import type { HotbarViewModel } from "./widgets/hotbars/hotbar-view-model";
+import type { NavmeshTuningViewModel } from "./widgets/navmesh/navmesh-tuning-view-model";
+import type { PerformanceViewModel } from "./widgets/performance/performance-view-model";
+import { ChatOverlay } from "./widgets/chat/chat-overlay";
+import { ConnectionStatusOverlay } from "./widgets/connectionStatus/connection-status-overlay";
+import { HotbarOverlay } from "./widgets/hotbars/hotbar-overlay";
+import { NavmeshTuningOverlay } from "./widgets/navmesh/navmesh-tuning-overlay";
+import { PerformanceOverlay } from "./widgets/performance/performance-overlay";
+import { UiLayoutControlsOverlay } from "./widgets/layoutControls/ui-layout-controls-overlay";
 
 export interface IngameUiRootProps {
   chatViewModel?: ChatViewModel;
   connectionStatusViewModel?: ConnectionStatusViewModel;
   hotbarViewModel?: HotbarViewModel;
+  navmeshTuningViewModel?: NavmeshTuningViewModel;
   performanceViewModel?: PerformanceViewModel;
 }
 
@@ -19,6 +22,7 @@ export const IngameUiRoot = ({
   chatViewModel,
   connectionStatusViewModel,
   hotbarViewModel,
+  navmeshTuningViewModel,
   performanceViewModel,
 }: IngameUiRootProps) => {
   return (
@@ -28,6 +32,7 @@ export const IngameUiRoot = ({
         <ConnectionStatusOverlay viewModel={connectionStatusViewModel} />
       )}
       {hotbarViewModel && <HotbarOverlay viewModel={hotbarViewModel} />}
+      {navmeshTuningViewModel && <NavmeshTuningOverlay viewModel={navmeshTuningViewModel} />}
       {chatViewModel && <ChatOverlay viewModel={chatViewModel} />}
       <UiLayoutControlsOverlay />
     </>

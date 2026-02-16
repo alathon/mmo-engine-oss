@@ -12,7 +12,7 @@
     },
     "assets": {
       "inputs": ["$TURBO_ROOT$/packages/assets/package.json"],
-      "outputs": ["icons"]
+      "outputs": []
     },
     "check-types": {
       "dependsOn": ["^build", "^check-types"]
@@ -24,6 +24,9 @@
       "env": [
         "AUTH_TOKEN_SECRET",
         "LOG_LEVEL",
+        "MMO_SERVER_COLLISION_DEBUG",
+        "MMO_SERVER_COLLISION_TRACE_STEPS",
+        "MMO_SERVER_SNAP_DEBUG",
         "MONITOR_PASSWORD",
         "PLAYER_DISCONNECT_GRACE_MS",
         "PORT",
@@ -40,6 +43,9 @@
       "cache": false
     },
     "generate:navcat": {
+      "cache": false
+    },
+    "generate:navcat:glb": {
       "cache": false
     },
     "loadtest": {

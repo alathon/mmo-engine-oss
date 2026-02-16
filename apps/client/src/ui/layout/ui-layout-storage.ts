@@ -1,16 +1,16 @@
-import { UI_LAYOUT_SCHEMA_VERSION } from './ui-layout-defaults';
-import type { UiLayoutStore } from './ui-layout-types';
+import { UI_LAYOUT_SCHEMA_VERSION } from "./ui-layout-defaults";
+import type { UiLayoutStore } from "./ui-layout-types";
 
 /**
  * Prefix used for persisted layout storage keys.
  */
-export const UI_LAYOUT_STORAGE_KEY_PREFIX = 'mmo.ui.layouts.v1';
+export const UI_LAYOUT_STORAGE_KEY_PREFIX = "mmo.ui.layouts.v1";
 
 /**
  * Builds a localStorage key for a given player ID (or temporary storage).
  */
 export const buildLayoutStorageKey = (playerId?: string): string =>
-  `${UI_LAYOUT_STORAGE_KEY_PREFIX}.${playerId ?? 'temp'}`;
+  `${UI_LAYOUT_STORAGE_KEY_PREFIX}.${playerId ?? "temp"}`;
 
 export type ParseLayoutStoreResult =
   | { ok: true; store: UiLayoutStore }
@@ -25,27 +25,27 @@ export const parseLayoutStore = (raw: string): ParseLayoutStoreResult => {
   try {
     value = JSON.parse(raw);
   } catch {
-    return { ok: false, error: 'Layout data is not valid JSON.' };
+    return { ok: false, error: "Layout data is not valid JSON." };
   }
 
-  if (!value || typeof value !== 'object') {
-    return { ok: false, error: 'Layout data must be an object.' };
+  if (!value || typeof value !== "object") {
+    return { ok: false, error: "Layout data must be an object." };
   }
 
-  const schemaVersion = Reflect.get(value, 'schemaVersion');
-  const activeLayoutId = Reflect.get(value, 'activeLayoutId');
-  const layouts = Reflect.get(value, 'layouts');
+  const schemaVersion = Reflect.get(value, "schemaVersion");
+  const activeLayoutId = Reflect.get(value, "activeLayoutId");
+  const layouts = Reflect.get(value, "layouts");
 
-  if (typeof schemaVersion !== 'number' || !Number.isFinite(schemaVersion)) {
-    return { ok: false, error: 'Layout schemaVersion must be a number.' };
+  if (typeof schemaVersion !== "number" || !Number.isFinite(schemaVersion)) {
+    return { ok: false, error: "Layout schemaVersion must be a number." };
   }
 
-  if (typeof activeLayoutId !== 'string') {
-    return { ok: false, error: 'Layout activeLayoutId must be a string.' };
+  if (typeof activeLayoutId !== "string") {
+    return { ok: false, error: "Layout activeLayoutId must be a string." };
   }
 
   if (!Array.isArray(layouts)) {
-    return { ok: false, error: 'Layout layouts must be an array.' };
+    return { ok: false, error: "Layout layouts must be an array." };
   }
 
   return {

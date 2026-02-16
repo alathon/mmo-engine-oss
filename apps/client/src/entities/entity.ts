@@ -1,10 +1,10 @@
-import { Scene } from '@babylonjs/core/scene';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
-import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
-import { Color3 } from '@babylonjs/core/Maths/math.color';
-import { Mesh } from '@babylonjs/core/Meshes/mesh';
-import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
+import { Scene } from "@babylonjs/core/scene";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 
 /** Buffer added to collision mesh dimensions. */
 const COLLISION_BUFFER = 0.1;
@@ -31,6 +31,8 @@ export interface EntityOptions {
   modelMeshOffsetY?: number;
   /** Whether this entity should have collision detection. Defaults to false. */
   hasCollision?: boolean;
+  /** Whether the collision mesh should participate in Babylon collision checks. */
+  collisionChecksEnabled?: boolean;
 }
 
 /**
@@ -64,6 +66,7 @@ export class Entity extends TransformNode {
       modelMesh,
       modelMeshOffsetY = 0,
       hasCollision = false,
+      collisionChecksEnabled = hasCollision,
     } = options;
 
     this.entityId = id;
@@ -84,7 +87,7 @@ export class Entity extends TransformNode {
 
     // Create collision mesh from model mesh bounding box if collision is enabled
     this.collisionMesh = hasCollision
-      ? this.createCollisionMesh(id, modelMeshOffsetY, scene)
+      ? this.createCollisionMesh(id, modelMeshOffsetY, collisionChecksEnabled, scene)
       : undefined;
   }
 
@@ -98,7 +101,12 @@ export class Entity extends TransformNode {
   /**
    * Creates a collision mesh (box) based on the model mesh's bounding box.
    */
-  private createCollisionMesh(id: string, offsetY: number, scene: Scene): Mesh {
+  private createCollisionMesh(
+    id: string,
+    offsetY: number,
+    collisionChecksEnabled: boolean,
+    scene: Scene,
+  ): Mesh {
     // Force bounding info calculation
     this.modelMesh.computeWorldMatrix(true);
     const boundingInfo = this.modelMesh.getBoundingInfo();
@@ -116,7 +124,7 @@ export class Entity extends TransformNode {
     // Parent to this entity and position at same offset as model
     collisionMesh.parent = this;
     collisionMesh.position = new Vector3(0, offsetY, 0);
-    collisionMesh.checkCollisions = true;
+    collisionMesh.checkCollisions = collisionChecksEnabled;
 
     // Debug visualization
     if (DEBUG_COLLISION) {
@@ -156,7 +164,7 @@ export class Entity extends TransformNode {
     return this.collisionMesh;
   }
 
-  update(_deltaTimeMs: number) {}
+  update(_deltaTimeMs: number, _fixedTickAlpha = 1) {}
 
   fixedTick(_tickMs: number): void {}
 }

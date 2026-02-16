@@ -1,7 +1,7 @@
-import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
-import { Rectangle } from '@babylonjs/gui/2D/controls/rectangle';
-import { Control } from '@babylonjs/gui/2D/controls/control';
-import type { UiLayer } from '../ui-layer';
+import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
+import { Rectangle } from "@babylonjs/gui/2D/controls/rectangle";
+import { Control } from "@babylonjs/gui/2D/controls/control";
+import type { UiLayer } from "../ui-layer";
 
 // Health bar dimensions (in pixels)
 const DEFAULT_WIDTH = 60;
@@ -34,7 +34,7 @@ export class HealthBar {
     initialHp: number,
     maxHp: number,
     options: HealthBarOptions,
-    uiLayer: UiLayer
+    uiLayer: UiLayer,
   ) {
     const width = options.width ?? DEFAULT_WIDTH;
     const height = options.height ?? DEFAULT_HEIGHT;
@@ -49,9 +49,9 @@ export class HealthBar {
     this.background.width = `${width}px`;
     this.background.height = `${height}px`;
     this.background.cornerRadius = 2;
-    this.background.color = 'black';
+    this.background.color = "black";
     this.background.thickness = 1;
-    this.background.background = '#333333';
+    this.background.background = "#333333";
 
     this.uiLayer.addControl(this.background);
     this.background.linkWithMesh(mesh);
@@ -59,9 +59,9 @@ export class HealthBar {
 
     // Fill bar (colored portion)
     this.fill = new Rectangle(`healthBarFill_${options.id}`);
-    this.fill.height = '100%';
+    this.fill.height = "100%";
     this.fill.cornerRadius = 1;
-    this.fill.color = 'transparent';
+    this.fill.color = "transparent";
     this.fill.thickness = 0;
     this.fill.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
 
@@ -97,11 +97,11 @@ export class HealthBar {
   private getColor(): string {
     const percentage = this.getPercentage();
     if (percentage > 0.6) {
-      return '#44cc44'; // Green
+      return "#44cc44"; // Green
     } else if (percentage > 0.3) {
-      return '#cccc44'; // Yellow
+      return "#cccc44"; // Yellow
     } else {
-      return '#cc4444'; // Red
+      return "#cc4444"; // Red
     }
   }
 

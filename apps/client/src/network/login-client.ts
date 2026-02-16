@@ -1,18 +1,18 @@
-import { LoginResponse } from '@mmo/shared';
+import { LoginResponse } from "@mmo/shared";
 
-const DEFAULT_LOGIN_URL = 'http://localhost:3000';
+const DEFAULT_LOGIN_URL = "http://localhost:3000";
 
 const isLoginResponse = (value: unknown): value is LoginResponse => {
-  if (!value || typeof value !== 'object') {
+  if (!value || typeof value !== "object") {
     return false;
   }
 
-  const token = Reflect.get(value, 'token');
-  const playerId = Reflect.get(value, 'playerId');
-  const displayName = Reflect.get(value, 'displayName');
+  const token = Reflect.get(value, "token");
+  const playerId = Reflect.get(value, "playerId");
+  const displayName = Reflect.get(value, "displayName");
 
   return (
-    typeof token === 'string' && typeof playerId === 'string' && typeof displayName === 'string'
+    typeof token === "string" && typeof playerId === "string" && typeof displayName === "string"
   );
 };
 
@@ -25,8 +25,8 @@ const isLoginResponse = (value: unknown): value is LoginResponse => {
 export const login = async (): Promise<LoginResponse> => {
   const loginUrl = import.meta.env.VITE_LOGIN_SERVER_URL || DEFAULT_LOGIN_URL;
   const response = await fetch(`${loginUrl}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
   });
 
   if (!response.ok) {
@@ -35,7 +35,7 @@ export const login = async (): Promise<LoginResponse> => {
 
   const data = await response.json();
   if (!isLoginResponse(data)) {
-    throw new Error('Invalid login response shape.');
+    throw new Error("Invalid login response shape.");
   }
 
   return data;

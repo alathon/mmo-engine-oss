@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { ChatManager } from './chat-manager';
-import type { ChatEventSource } from './chat-event-source';
+import { describe, expect, it } from "vitest";
+import { ChatManager } from "./chat-manager";
+import type { ChatEventSource } from "./chat-event-source";
 
 class FakeChatSource implements ChatEventSource {
   private messageHandler?: (playerId: string, playerName: string, message: string) => void;
@@ -28,8 +28,8 @@ class FakeChatSource implements ChatEventSource {
   }
 }
 
-describe('ChatManager', () => {
-  it('forwards messages and sends chat', () => {
+describe("ChatManager", () => {
+  it("forwards messages and sends chat", () => {
     const source = new FakeChatSource();
     const chat = new ChatManager(source);
 
@@ -44,13 +44,13 @@ describe('ChatManager', () => {
       system.push(message);
     });
 
-    source.emitMessage('p1', 'Alice', 'Hello');
-    source.emitSystem('Server ready');
-    chat.sendChatMessage('Hi there');
-    chat.addSystemMessage('Local notice');
+    source.emitMessage("p1", "Alice", "Hello");
+    source.emitSystem("Server ready");
+    chat.sendChatMessage("Hi there");
+    chat.addSystemMessage("Local notice");
 
-    expect(received).toEqual([['p1', 'Alice', 'Hello']]);
-    expect(system).toEqual(['Server ready', 'Local notice']);
-    expect(source.sent).toEqual(['Hi there']);
+    expect(received).toEqual([["p1", "Alice", "Hello"]]);
+    expect(system).toEqual(["Server ready", "Local notice"]);
+    expect(source.sent).toEqual(["Hi there"]);
   });
 });

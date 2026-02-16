@@ -1,15 +1,15 @@
-import { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
-import { TextBlock } from '@babylonjs/gui/2D/controls/textBlock';
-import { Control } from '@babylonjs/gui/2D/controls/control';
-import type { UiLayer } from '../ui/ui-layer';
+import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
+import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
+import { Control } from "@babylonjs/gui/2D/controls/control";
+import type { UiLayer } from "../ui/ui-layer";
 
 const DEFAULT_POOL_SIZE = 32;
-const DAMAGE_COLOR = '#ff4d4d';
-const HEAL_COLOR = '#4dff88';
+const DAMAGE_COLOR = "#ff4d4d";
+const HEAL_COLOR = "#4dff88";
 const BASE_FONT_SIZE = 20;
 const CRIT_FONT_SIZE = 26;
 const OUTLINE_WIDTH = 3;
-const OUTLINE_COLOR = 'black';
+const OUTLINE_COLOR = "black";
 const MAX_SPAWNS_PER_FRAME = 20;
 const MAX_ACTIVE_PER_ENTITY = 5;
 const CRIT_PULSE_MS = 260;
@@ -72,7 +72,7 @@ export class CombatTextSystem {
       text: `-${Math.round(damage)}`,
       color: DAMAGE_COLOR,
       fontSize: isCrit ? CRIT_FONT_SIZE : BASE_FONT_SIZE,
-      fontWeight: isCrit ? 'bold' : 'normal',
+      fontWeight: isCrit ? "bold" : "normal",
       pulseMs: isCrit ? CRIT_PULSE_MS : 0,
       pulseScale: isCrit ? CRIT_PULSE_SCALE : 0,
     });
@@ -89,7 +89,7 @@ export class CombatTextSystem {
       text: `+${Math.round(healing)}`,
       color: HEAL_COLOR,
       fontSize: BASE_FONT_SIZE,
-      fontWeight: 'normal',
+      fontWeight: "normal",
       pulseMs: 0,
       pulseScale: 0,
     });
@@ -168,10 +168,10 @@ export class CombatTextSystem {
 
   private createTextBlock(index: number): TextBlock {
     const text = new TextBlock(`combatText_${index}`);
-    text.text = '';
+    text.text = "";
     text.color = DAMAGE_COLOR;
     text.fontSize = BASE_FONT_SIZE;
-    text.fontFamily = 'Segoe UI, system-ui, sans-serif';
+    text.fontFamily = "Segoe UI, system-ui, sans-serif";
     text.outlineWidth = OUTLINE_WIDTH;
     text.outlineColor = OUTLINE_COLOR;
     text.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
@@ -195,7 +195,7 @@ export class CombatTextSystem {
     text: string;
     color: string;
     fontSize: number;
-    fontWeight: 'normal' | 'bold';
+    fontWeight: "normal" | "bold";
     pulseMs: number;
     pulseScale: number;
     entityId?: string;
@@ -269,7 +269,7 @@ export class CombatTextSystem {
     instance.control.alpha = 1;
     instance.control.scaleX = 1;
     instance.control.scaleY = 1;
-    instance.control.fontWeight = 'normal';
+    instance.control.fontWeight = "normal";
   }
 
   private removeActiveIndex(activeIndex: number): void {

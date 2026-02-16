@@ -1,19 +1,19 @@
-import type { CombatLogMessage } from '../../../combat/log';
-import type { ChatEventEmitter } from './chat-event-source';
+import type { CombatLogMessage } from "../../../combat/log";
+import type { ChatEventEmitter } from "./chat-event-source";
 
 export type BattleMessagePayload = CombatLogMessage | string;
 
 export type ChatLine =
   | {
       id: number;
-      kind: 'chat';
+      kind: "chat";
       playerId: string;
       playerName: string;
       message: string;
     }
   | {
       id: number;
-      kind: 'system';
+      kind: "system";
       message: string;
     };
 
@@ -49,7 +49,7 @@ export class ChatViewModel {
       }
       this.appendChatMessage({
         id: this.nextId++,
-        kind: 'chat',
+        kind: "chat",
         playerId,
         playerName,
         message,
@@ -62,7 +62,7 @@ export class ChatViewModel {
       }
       this.appendChatMessage({
         id: this.nextId++,
-        kind: 'system',
+        kind: "system",
         message,
       });
     });

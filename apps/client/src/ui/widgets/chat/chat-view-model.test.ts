@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { ChatViewModel } from './chat-view-model';
-import type { ChatEventEmitter } from './chat-event-source';
+import { describe, expect, it } from "vitest";
+import { ChatViewModel } from "./chat-view-model";
+import type { ChatEventEmitter } from "./chat-event-source";
 
 class FakeChatEmitter implements ChatEventEmitter {
   private chatHandlers: ((playerId: string, playerName: string, message: string) => void)[] = [];
@@ -32,20 +32,20 @@ class FakeChatEmitter implements ChatEventEmitter {
   }
 }
 
-describe('ChatViewModel', () => {
-  it('caps chat history', () => {
+describe("ChatViewModel", () => {
+  it("caps chat history", () => {
     const chat = new FakeChatEmitter();
     const viewModel = new ChatViewModel(chat);
 
     for (let i = 0; i < 501; i += 1) {
-      chat.emitChat('p1', 'Alice', `msg-${i}`);
+      chat.emitChat("p1", "Alice", `msg-${i}`);
     }
 
     const snapshot = viewModel.getSnapshot();
     expect(snapshot.chatMessages).toHaveLength(500);
-    expect(snapshot.chatMessages[0].kind).toBe('chat');
-    if (snapshot.chatMessages[0].kind === 'chat') {
-      expect(snapshot.chatMessages[0].message).toBe('msg-1');
+    expect(snapshot.chatMessages[0].kind).toBe("chat");
+    if (snapshot.chatMessages[0].kind === "chat") {
+      expect(snapshot.chatMessages[0].message).toBe("msg-1");
     }
   });
 });

@@ -1,4 +1,4 @@
-import { ClientSession } from '../state/client-session';
+import { ClientSession } from "../state/client-session";
 
 export interface CoreServices {
   session: ClientSession;

@@ -1,11 +1,11 @@
-import { useCallback, useSyncExternalStore } from 'react';
-import type { PerformanceViewModel } from './performance-view-model';
-import { useWidgetLayout } from '../../layout/use-widget-layout';
+import { useCallback, useSyncExternalStore } from "react";
+import type { PerformanceViewModel } from "./performance-view-model";
+import { useWidgetLayout } from "../../layout/use-widget-layout";
 
 const usePerformanceSnapshot = (viewModel: PerformanceViewModel) => {
   const subscribe = useCallback(
     (listener: () => void) => viewModel.subscribe(listener),
-    [viewModel]
+    [viewModel],
   );
   const getSnapshot = useCallback(() => viewModel.getSnapshot(), [viewModel]);
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
@@ -13,10 +13,10 @@ const usePerformanceSnapshot = (viewModel: PerformanceViewModel) => {
 
 export const PerformanceOverlay = ({ viewModel }: { viewModel: PerformanceViewModel }) => {
   const snapshot = usePerformanceSnapshot(viewModel);
-  const { style, dragHandlers } = useWidgetLayout('hud.performance');
+  const { style, dragHandlers } = useWidgetLayout("hud.performance");
 
-  const fpsText = snapshot.fps && snapshot.fps > 0 ? snapshot.fps : '--';
-  const pingText = snapshot.pingMs === undefined ? '--' : `${snapshot.pingMs} ms`;
+  const fpsText = snapshot.fps && snapshot.fps > 0 ? snapshot.fps : "--";
+  const pingText = snapshot.pingMs === undefined ? "--" : `${snapshot.pingMs} ms`;
 
   return (
     <div id="performance-widget" data-ui-interactive="true" style={style} {...dragHandlers}>

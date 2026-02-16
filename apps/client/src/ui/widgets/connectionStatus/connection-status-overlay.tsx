@@ -1,11 +1,11 @@
-import { useCallback, useSyncExternalStore } from 'react';
-import type { ConnectionStatusViewModel } from './connection-status-view-model';
-import { useWidgetLayout } from '../../layout/use-widget-layout';
+import { useCallback, useSyncExternalStore } from "react";
+import type { ConnectionStatusViewModel } from "./connection-status-view-model";
+import { useWidgetLayout } from "../../layout/use-widget-layout";
 
 const useConnectionStatus = (viewModel: ConnectionStatusViewModel) => {
   const subscribe = useCallback(
     (listener: () => void) => viewModel.subscribe(listener),
-    [viewModel]
+    [viewModel],
   );
   const getSnapshot = useCallback(() => viewModel.getSnapshot(), [viewModel]);
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
@@ -17,8 +17,8 @@ export const ConnectionStatusOverlay = ({
   viewModel: ConnectionStatusViewModel;
 }) => {
   const status = useConnectionStatus(viewModel);
-  const { style, dragHandlers } = useWidgetLayout('hud.connectionStatus');
-  const statusClass = status.connected ? 'connected' : 'disconnected';
+  const { style, dragHandlers } = useWidgetLayout("hud.connectionStatus");
+  const statusClass = status.connected ? "connected" : "disconnected";
 
   return (
     <div

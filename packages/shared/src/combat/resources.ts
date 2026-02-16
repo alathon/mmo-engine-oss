@@ -10,10 +10,7 @@ export interface ResourceState {
   stamina: number;
 }
 
-export const canPayResourceCost = (
-  state: ResourceState,
-  costs?: ResourceCost[],
-): boolean => {
+export const canPayResourceCost = (state: ResourceState, costs?: ResourceCost[]): boolean => {
   if (!costs || costs.length === 0) {
     return true;
   }
@@ -26,10 +23,8 @@ export const canPayResourceCost = (
       if (state.mana < cost.amount) {
         return false;
       }
-    } else if (cost.type === "stamina") {
-      if (state.stamina < cost.amount) {
-        return false;
-      }
+    } else if (cost.type === "stamina" && state.stamina < cost.amount) {
+      return false;
     }
   }
 

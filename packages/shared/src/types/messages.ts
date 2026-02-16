@@ -6,6 +6,8 @@ export interface MoveMessage {
   directionZ: number;
   /** Normalized movement direction Y. */
   directionY: number;
+  /** Whether jump was pressed this tick while grounded. */
+  jumpPressed: boolean;
   /** Client input sequence number. */
   seq: number;
   /** Client tick number. */

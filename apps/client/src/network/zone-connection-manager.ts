@@ -1,4 +1,4 @@
-import { Callbacks, ColyseusSDK, Room } from '@colyseus/sdk';
+import { Callbacks, ColyseusSDK, Room } from "@colyseus/sdk";
 //import type { server } from "../../../server/src/appConfig.ts";
 //import type { ZoneRoom } from "../../../server/src/world/zones/zoneRoom.ts";
 
@@ -17,11 +17,11 @@ import {
   type EventStreamBatch,
   type EventStreamResyncRequest,
   type EventStreamResyncResponse,
-} from '@mmo/shared';
-import type { ConnectionEventEmitter, ConnectionStatus } from './connection-event-emitter';
-import { EventStreamClient } from './event-stream-client';
+} from "@mmo/shared";
+import type { ConnectionEventEmitter, ConnectionStatus } from "./connection-event-emitter";
+import { EventStreamClient } from "./event-stream-client";
 
-const DEBUG_MOVEMENT = import.meta.env.VITE_DEBUG_MOVEMENT === 'true';
+const DEBUG_MOVEMENT = import.meta.env.VITE_DEBUG_MOVEMENT === "true";
 
 /**
  * Connection options for the game server.
@@ -40,7 +40,7 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
   private room?: Room<ZoneState>;
   private zoneId?: string;
   private isInitialized = false;
-  private lastStatusText = 'Disconnected';
+  private lastStatusText = "Disconnected";
   private lastStatusConnected = false;
   private statusHandlers: ((text: string, connected: boolean) => void)[] = [];
 
@@ -72,18 +72,18 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
     }
 
     try {
-      const serverUrl = import.meta.env.VITE_GAME_SERVER_URL || 'ws://localhost:2567';
+      const serverUrl = import.meta.env.VITE_GAME_SERVER_URL || "ws://localhost:2567";
       this.client = new ColyseusSDK(serverUrl);
       this.client.auth.token = options.token;
-      this.updateStatus('Connecting...', false);
-      console.log('Connecting to server with options', options);
-      this.room = await this.client.joinOrCreate('zone', { zoneId: options.zoneId }, ZoneState);
-      console.info('ZoneConnectionManager connected to room', {
+      this.updateStatus("Connecting...", false);
+      console.log("Connecting to server with options", options);
+      this.room = await this.client.joinOrCreate("zone", { zoneId: options.zoneId }, ZoneState);
+      console.info("ZoneConnectionManager connected to room", {
         sessionId: this.room.sessionId,
       });
 
-      this.updateStatus('Connected', true);
-      this.systemMessageCallback?.('Connected to server');
+      this.updateStatus("Connected", true);
+      this.systemMessageCallback?.("Connected to server");
       this.connectedCallback?.();
 
       this.eventStreamClient = new EventStreamClient({
@@ -94,13 +94,13 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
       const zoneId = this.room.state.zoneId;
       if (zoneId) {
         this.zoneId = zoneId;
-        console.debug('Zone assigned by server', { zoneId });
+        console.debug("Zone assigned by server", { zoneId });
         this.zoneReadyCallback?.(zoneId);
       }
     } catch (error) {
-      console.error('Failed to connect:', error);
-      this.updateStatus('Connection failed', false);
-      this.systemMessageCallback?.('Failed to connect to server');
+      console.error("Failed to connect:", error);
+      this.updateStatus("Connection failed", false);
+      this.systemMessageCallback?.("Failed to connect to server");
     }
 
     this.isInitialized = true;
@@ -111,8 +111,8 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
       return;
     }
 
-    if (DEBUG_MOVEMENT && message.type === 'move') {
-      console.debug('Sending movement', message.payload);
+    if (DEBUG_MOVEMENT && message.type === "move") {
+      console.debug("Sending movement", message.payload);
     }
 
     this.room.send(message.type, message.payload);
@@ -123,7 +123,7 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
       return;
     }
 
-    this.room.send('ability_use', request);
+    this.room.send("ability_use", request);
   }
 
   public sendAbilityCancel(request: AbilityCancelRequest): void {
@@ -131,7 +131,7 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
       return;
     }
 
-    this.room.send('ability_cancel', request);
+    this.room.send("ability_cancel", request);
   }
 
   public sendTargetChange(payload: TargetChangeMessage): void {
@@ -139,7 +139,7 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
       return;
     }
 
-    this.room.send('target_change', payload);
+    this.room.send("target_change", payload);
   }
 
   public ping(callback: (latencyMs: number) => void): boolean {
@@ -249,36 +249,36 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
       return;
     }
 
-    this.room.onMessage('snap', (data: SnapMessage) => {
+    this.room.onMessage("snap", (data: SnapMessage) => {
       this.snapCallback?.(data);
     });
 
-    this.room.onMessage('ability_ack', (data: AbilityAck) => {
+    this.room.onMessage("ability_ack", (data: AbilityAck) => {
       this.abilityAckCallback?.(data);
     });
 
-    this.room.onMessage('event_stream_batch', (data: EventStreamBatch) => {
+    this.room.onMessage("event_stream_batch", (data: EventStreamBatch) => {
       this.eventStreamClient?.handleBatch(data);
     });
 
-    this.room.onMessage('event_stream_resync_response', (data: EventStreamResyncResponse) => {
+    this.room.onMessage("event_stream_resync_response", (data: EventStreamResyncResponse) => {
       this.eventStreamClient?.handleResyncResponse(data);
     });
 
     const callbacks = Callbacks.get(this.room);
 
-    callbacks.listen('zoneId', (zoneId) => {
+    callbacks.listen("zoneId", (zoneId) => {
       if (!zoneId || zoneId === this.zoneId) {
         return;
       }
 
       this.zoneId = zoneId;
-      console.debug('Zone assigned by server', { zoneId });
+      console.debug("Zone assigned by server", { zoneId });
       this.zoneReadyCallback?.(zoneId);
     });
 
-    callbacks.onAdd('players', (player: PlayerState, playerId: string) => {
-      console.log('Player joined:', playerId);
+    callbacks.onAdd("players", (player: PlayerState, playerId: string) => {
+      console.log("Player joined:", playerId);
 
       this.playerAddCallback?.(playerId, player);
 
@@ -286,18 +286,18 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
         this.playerUpdateCallback?.(playerId, player);
       });
 
-      this.systemMessageCallback?.(`${player.name || 'Player'} joined`);
+      this.systemMessageCallback?.(`${player.name || "Player"} joined`);
     });
 
-    callbacks.onRemove('players', (player: PlayerState, playerId: string) => {
-      console.log('Player left:', playerId);
+    callbacks.onRemove("players", (player: PlayerState, playerId: string) => {
+      console.log("Player left:", playerId);
 
       this.playerRemoveCallback?.(playerId, player);
-      this.systemMessageCallback?.(`${player.name || 'Player'} left`);
+      this.systemMessageCallback?.(`${player.name || "Player"} left`);
     });
 
-    callbacks.onAdd('objects', (object: ObjState, objectId: string) => {
-      console.debug('Object added', { objectId, object });
+    callbacks.onAdd("objects", (object: ObjState, objectId: string) => {
+      console.debug("Object added", { objectId, object });
       this.objectAddCallback?.(objectId, object);
 
       callbacks.onChange(object, () => {
@@ -305,13 +305,13 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
       });
     });
 
-    callbacks.onRemove('objects', (object: ObjState, objectId: string) => {
-      console.debug('Object removed', { objectId, object });
+    callbacks.onRemove("objects", (object: ObjState, objectId: string) => {
+      console.debug("Object removed", { objectId, object });
       this.objectRemoveCallback?.(objectId, object);
     });
 
-    callbacks.onAdd('npcs', (npc: NPCState, npcId: string) => {
-      console.debug('Npc added', { npcId, npc });
+    callbacks.onAdd("npcs", (npc: NPCState, npcId: string) => {
+      console.debug("Npc added", { npcId, npc });
       this.npcAddCallback?.(npcId, npc);
 
       callbacks.onChange(npc, () => {
@@ -319,20 +319,20 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
       });
     });
 
-    callbacks.onRemove('npcs', (npc: NPCState, npcId: string) => {
-      console.debug('Npc removed', { npcId, npc });
+    callbacks.onRemove("npcs", (npc: NPCState, npcId: string) => {
+      console.debug("Npc removed", { npcId, npc });
       this.npcRemoveCallback?.(npcId, npc);
     });
 
     this.room.onError((code, message) => {
-      console.error('Room error:', code, message);
+      console.error("Room error:", code, message);
       this.systemMessageCallback?.(`Error: ${message}`);
     });
 
     this.room.onLeave((code) => {
-      console.log('Left room:', code);
-      this.updateStatus('Disconnected', false);
-      this.systemMessageCallback?.('Disconnected from server');
+      console.log("Left room:", code);
+      this.updateStatus("Disconnected", false);
+      this.systemMessageCallback?.("Disconnected from server");
       this.disconnectedCallback?.();
       this.zoneId = undefined;
       this.eventStreamClient?.clear();
@@ -341,12 +341,12 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
     this.room.onStateChange.once((state) => {
       if (state.zoneId && !this.zoneId) {
         this.zoneId = state.zoneId;
-        console.debug('Zone assigned by initial state', {
+        console.debug("Zone assigned by initial state", {
           zoneId: state.zoneId,
         });
         this.zoneReadyCallback?.(state.zoneId);
       }
-      console.debug('Initial zone state received', {
+      console.debug("Initial zone state received", {
         zoneId: state.zoneId,
         players: state.players.size,
         objects: state.objects.size,
@@ -371,7 +371,7 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
     this.client = undefined;
     this.zoneId = undefined;
     this.isInitialized = false;
-    this.lastStatusText = 'Disconnected';
+    this.lastStatusText = "Disconnected";
     this.lastStatusConnected = false;
     this.statusHandlers = [];
     this.systemMessageCallback = undefined;
@@ -410,6 +410,6 @@ export class ZoneConnectionManager implements ConnectionEventEmitter {
       return;
     }
 
-    this.room.send('event_stream_resync_request', request);
+    this.room.send("event_stream_resync_request", request);
   }
 }

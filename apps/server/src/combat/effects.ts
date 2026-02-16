@@ -26,10 +26,7 @@ export const applyDisplacement = (): void => {
   // Displacement effects are not implemented yet.
 };
 
-export const applyResourceCost = (
-  target: MobState,
-  costs?: ResourceCost[],
-): void => {
+export const applyResourceCost = (target: MobState, costs?: ResourceCost[]): void => {
   if (!costs || costs.length === 0) {
     return;
   }

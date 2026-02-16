@@ -16,10 +16,7 @@ export class AiTargetSelectionSystem {
         continue;
       }
 
-      const target = this.resolveCombatant(
-        awareness.topAggroTargetId,
-        combatants,
-      );
+      const target = this.resolveCombatant(awareness.topAggroTargetId, combatants);
       if (!target) {
         selection.targetId = undefined;
         selection.targetX = 0;

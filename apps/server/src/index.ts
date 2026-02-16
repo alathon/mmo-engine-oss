@@ -10,7 +10,7 @@ const zoneLoader = new DefaultZoneLoader();
 const bootServer = async () => {
   const zoneData = await zoneLoader.load("startingPlains");
   await matchMaker.createRoom("zone", { zoneData, zoneId: zoneData.zoneId });
-  console.log("StartingPlains created");
+  console.log("startingPlains created");
 
   const server = await listen(app);
   if (process.env.SIMULATE_LATENCY) {

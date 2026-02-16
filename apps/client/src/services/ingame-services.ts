@@ -1,14 +1,16 @@
-import type { Scene } from '@babylonjs/core/scene';
-import type { InputManager } from '../input/input-manager';
-import { DomInputManager } from '../input/dom-input-manager';
-import { GameUI } from '../ui/game-ui';
-import { ZoneConnectionManager } from '../network/zone-connection-manager';
-import { SocialNetworkManager } from '../network/social-network-manager';
-import { ChatManager } from '../ui/widgets/chat/chat-manager';
-import { ChatViewModel } from '../ui/widgets/chat/chat-view-model';
-import { ConnectionStatusViewModel } from '../ui/widgets/connectionStatus/connection-status-view-model';
-import { HotbarViewModel } from '../ui/widgets/hotbars/hotbar-view-model';
-import { PerformanceViewModel } from '../ui/widgets/performance/performance-view-model';
+import type { Scene } from "@babylonjs/core/scene";
+import type { InputManager } from "../input/input-manager";
+import { DomInputManager } from "../input/dom-input-manager";
+import { GameUI } from "../ui/game-ui";
+import { ZoneConnectionManager } from "../network/zone-connection-manager";
+import { SocialNetworkManager } from "../network/social-network-manager";
+import { ChatManager } from "../ui/widgets/chat/chat-manager";
+import { ChatViewModel } from "../ui/widgets/chat/chat-view-model";
+import { ConnectionStatusViewModel } from "../ui/widgets/connectionStatus/connection-status-view-model";
+import { HotbarViewModel } from "../ui/widgets/hotbars/hotbar-view-model";
+import { NavmeshTuningViewModel } from "../ui/widgets/navmesh/navmesh-tuning-view-model";
+import { PerformanceViewModel } from "../ui/widgets/performance/performance-view-model";
+import { SystemClock, type Clock } from "./clock";
 
 export interface IngameServices {
   input: InputManager;
@@ -19,7 +21,9 @@ export interface IngameServices {
   chatViewModel: ChatViewModel;
   connectionStatusViewModel: ConnectionStatusViewModel;
   hotbarViewModel: HotbarViewModel;
+  navmeshTuningViewModel: NavmeshTuningViewModel;
   performanceViewModel: PerformanceViewModel;
+  clock: Clock;
 }
 
 export const createIngameServices = (scene: Scene): IngameServices => {
@@ -30,7 +34,9 @@ export const createIngameServices = (scene: Scene): IngameServices => {
   const chat = new ChatManager(socialNetwork);
   const chatViewModel = new ChatViewModel(chat);
   const connectionStatusViewModel = new ConnectionStatusViewModel(zoneNetwork);
-  const hotbarViewModel = new HotbarViewModel();
+  const clock = new SystemClock();
+  const hotbarViewModel = new HotbarViewModel(() => clock.nowMs());
+  const navmeshTuningViewModel = new NavmeshTuningViewModel();
   const performanceViewModel = new PerformanceViewModel(scene, zoneNetwork);
 
   return {
@@ -42,6 +48,8 @@ export const createIngameServices = (scene: Scene): IngameServices => {
     chatViewModel,
     connectionStatusViewModel,
     hotbarViewModel,
+    navmeshTuningViewModel,
     performanceViewModel,
+    clock,
   };
 };

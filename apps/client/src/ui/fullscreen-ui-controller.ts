@@ -1,6 +1,6 @@
-import { Scene } from '@babylonjs/core/scene';
-import { AdvancedDynamicTexture } from '@babylonjs/gui/2D/advancedDynamicTexture';
-import { Control } from '@babylonjs/gui/2D/controls/control';
+import { Scene } from "@babylonjs/core/scene";
+import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
+import { Control } from "@babylonjs/gui/2D/controls/control";
 
 /**
  * Controls full-screen Babylon GUI screens (login, character select, etc.).
@@ -15,7 +15,7 @@ export class FullscreenUiController {
    * @param scene - Babylon.js scene to attach the UI to.
    */
   constructor(scene: Scene) {
-    this.texture = AdvancedDynamicTexture.CreateFullscreenUI('fullscreenUI', true, scene);
+    this.texture = AdvancedDynamicTexture.CreateFullscreenUI("fullscreenUI", true, scene);
   }
 
   /**

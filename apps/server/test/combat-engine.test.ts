@@ -20,17 +20,18 @@ import { ServerPlayer } from "../src/world/entities/player";
 import { ServerNPC } from "../src/world/entities/npc";
 import { ServerZone, ZoneData } from "../src/world/zones/zone";
 import { createTestNavmeshQuery } from "./test-navmesh";
+import { createTestCollisionWorld } from "./test-collision-world";
+
+const TEST_NAVMESH_BASE_X = -52;
+const TEST_NAVMESH_BASE_Y = 8;
+const TEST_NAVMESH_BASE_Z = 24;
 
 const createZone = (): ServerZone => {
   const definition = {
     id: "combat-test-zone",
     name: "Combat Test Zone",
     sceneData: {
-      width: 1,
-      height: 1,
-      ground: {
-        color: { r: 0, g: 0, b: 0 },
-      },
+      glbFilePath: "test.glb",
       terrainObjects: [],
       navmeshFilePath: "test.navmesh",
     },
@@ -39,22 +40,19 @@ const createZone = (): ServerZone => {
     "combat-test-zone",
     createTestNavmeshQuery(),
     definition,
+    createTestCollisionWorld("combat-test-zone"),
   );
 
   return new ServerZone(zoneData, new ZoneState());
 };
 
-const createPlayer = (
-  zone: ServerZone,
-  id: string,
-  x = 0,
-  z = 0,
-): ServerPlayer => {
+const createPlayer = (zone: ServerZone, id: string, x = 0, z = 0): ServerPlayer => {
   const state = new PlayerState();
   state.id = id;
   state.playerId = id;
-  state.x = x;
-  state.z = z;
+  state.x = TEST_NAVMESH_BASE_X + x;
+  state.y = TEST_NAVMESH_BASE_Y;
+  state.z = TEST_NAVMESH_BASE_Z + z;
   state.name = id;
   state.factionId = "players";
   const player = new ServerPlayer(state);
@@ -65,8 +63,9 @@ const createPlayer = (
 const createNpc = (zone: ServerZone, id: string, x = 0, z = 0): ServerNPC => {
   const state = new NPCState();
   state.id = id;
-  state.x = x;
-  state.z = z;
+  state.x = TEST_NAVMESH_BASE_X + x;
+  state.y = TEST_NAVMESH_BASE_Y;
+  state.z = TEST_NAVMESH_BASE_Z + z;
   state.name = id;
   state.factionId = "npcs";
   const npc = new ServerNPC(state);
@@ -120,9 +119,7 @@ describe("AbilityEngine", () => {
     const abilityState = player.synced.abilityState;
     expect(abilityState.castAbilityId).toBe("shield_bash");
     expect(abilityState.gcdEndTimeMs).toBe(1000 + GCD_SECONDS * 1000);
-    expect(abilityState.internalCooldownEndTimeMs).toBe(
-      1000 + INTERNAL_COOLDOWN_MS,
-    );
+    expect(abilityState.internalCooldownEndTimeMs).toBe(1000 + INTERNAL_COOLDOWN_MS);
 
     engine.fixedTick(1000, 6);
 
@@ -159,9 +156,7 @@ describe("AbilityEngine", () => {
       sendAck: (ack) => acks.push(ack),
     });
 
-    const targets =
-      acks[0]?.result?.effects[0]?.targets?.map((t) => t.targetId).toSorted() ??
-      [];
+    const targets = acks[0]?.result?.effects[0]?.targets?.map((t) => t.targetId).toSorted() ?? [];
     expect(targets).toEqual(["npc-1", "npc-2"]);
   });
 
@@ -193,9 +188,7 @@ describe("AbilityEngine", () => {
       sendAck: (ack) => acks.push(ack),
     });
 
-    const targets =
-      acks[0]?.result?.effects[0]?.targets?.map((t) => t.targetId).toSorted() ??
-      [];
+    const targets = acks[0]?.result?.effects[0]?.targets?.map((t) => t.targetId).toSorted() ?? [];
     expect(targets).toEqual(["npc-1", "npc-2"]);
   });
 
@@ -321,9 +314,7 @@ describe("AbilityEngine", () => {
       range: 6,
       targetType: "enemy",
       aoeShape: "single",
-      effects: [
-        { type: "damage", school: "physical", targetFilter: "enemies" },
-      ],
+      effects: [{ type: "damage", school: "physical", targetFilter: "enemies" }],
     };
 
     const listener = { onAbilityEvent: vi.fn() };
@@ -446,7 +437,7 @@ describe("AbilityEngine", () => {
     engine.handleAbilityUse({
       request: bufferRequestEarly,
       actor: player,
-      serverTimeMs: 1600,
+      serverTimeMs: 1200,
       serverTick: 2,
       sendAck: (ack) => acks.push(ack),
     });
@@ -526,6 +517,8 @@ describe("AbilityEngine", () => {
       expect(acks).toHaveLength(1);
       expect(acks[0].accepted).toBe(true);
       expect(acks[0].castEndTimeMs).toBe(4000);
+      expect(acks[0].gcdStartTimeMs).toBe(1000);
+      expect(acks[0].gcdEndTimeMs).toBe(3500);
 
       const bufferShieldBash: AbilityUseRequest = {
         type: "ability_use",
@@ -547,9 +540,7 @@ describe("AbilityEngine", () => {
       });
 
       expect(acks).toHaveLength(1);
-      expect(player.bufferedRequest?.request.requestId).toBe(
-        "req-buffer-shield",
-      );
+      expect(player.bufferedRequest?.request.requestId).toBe("req-buffer-shield");
 
       engine.fixedTick(4000, 3);
       engine.fixedTick(4100, 4);
@@ -585,6 +576,8 @@ describe("AbilityEngine", () => {
       expect(acks).toHaveLength(3);
       expect(acks[2].accepted).toBe(true);
       expect(acks[2].castStartTimeMs).toBe(6500);
+      expect(acks[2].gcdStartTimeMs).toBe(6500);
+      expect(acks[2].gcdEndTimeMs).toBe(9000);
       expect(acks[2].result?.abilityId).toBe(longCastId);
     } finally {
       delete abilityMap[longCastId];
@@ -886,6 +879,60 @@ describe("AbilityEngine", () => {
     expect(acks[1].requestId).toBe("req-gcd");
   });
 
+  it("rejects GCD buffering before buffer-open and allows at 300ms even with internal cooldown", () => {
+    const player = createPlayer(zone, "player-1");
+    createNpc(zone, "npc-1", 1, 0);
+
+    player.synced.abilityState.gcdEndTimeMs = 3500;
+    player.synced.abilityState.internalCooldownEndTimeMs = 1700;
+
+    const earlyRequest: AbilityUseRequest = {
+      type: "ability_use",
+      requestId: "req-gcd-early",
+      sequence: 1,
+      clientTick: 1,
+      actorId: "player-1",
+      abilityId: "shield_bash",
+      target: { targetEntityId: "npc-1" },
+      clientTimeMs: 0,
+    };
+
+    const openRequest: AbilityUseRequest = {
+      type: "ability_use",
+      requestId: "req-gcd-open",
+      sequence: 2,
+      clientTick: 2,
+      actorId: "player-1",
+      abilityId: "shield_bash",
+      target: { targetEntityId: "npc-1" },
+      clientTimeMs: 0,
+    };
+
+    const acks: AbilityAck[] = [];
+    engine.handleAbilityUse({
+      request: earlyRequest,
+      actor: player,
+      serverTimeMs: 1200,
+      serverTick: 1,
+      sendAck: (ack) => acks.push(ack),
+    });
+
+    expect(acks).toHaveLength(1);
+    expect(acks[0].accepted).toBe(false);
+    expect(acks[0].rejectReason).toBe("buffer_window_closed");
+
+    engine.handleAbilityUse({
+      request: openRequest,
+      actor: player,
+      serverTimeMs: 1300,
+      serverTick: 2,
+      sendAck: (ack) => acks.push(ack),
+    });
+
+    expect(acks).toHaveLength(1);
+    expect(player.bufferedRequest?.request.requestId).toBe("req-gcd-open");
+  });
+
   it("rejects out-of-range targets", () => {
     const player = createPlayer(zone, "player-1");
     createNpc(zone, "npc-1", 100, 0);
@@ -1052,9 +1099,7 @@ describe("AbilityEngine", () => {
       range: 6,
       targetType: "enemy",
       aoeShape: "single",
-      effects: [
-        { type: "damage", school: "physical", targetFilter: "enemies" },
-      ],
+      effects: [{ type: "damage", school: "physical", targetFilter: "enemies" }],
     };
 
     try {
@@ -1117,9 +1162,7 @@ describe("AbilityEngine", () => {
       range: 6,
       targetType: "enemy",
       aoeShape: "single",
-      effects: [
-        { type: "damage", school: "physical", targetFilter: "enemies" },
-      ],
+      effects: [{ type: "damage", school: "physical", targetFilter: "enemies" }],
     };
 
     try {
@@ -1267,7 +1310,7 @@ describe("AbilityEngine", () => {
     engine.handleAbilityUse({
       request: bufferRequest,
       actor: player,
-      serverTimeMs: 1700,
+      serverTimeMs: 1300,
       serverTick: 2,
       sendAck: (ack) => acks.push(ack),
     });
@@ -1323,6 +1366,53 @@ describe("AbilityEngine", () => {
     expect(player.bufferedRequest).toBeDefined();
   });
 
+  it("buffers after cast end when gcd is still active and cast cleanup is pending", () => {
+    const player = createPlayer(zone, "player-1");
+    createNpc(zone, "npc-1", 1, 0);
+
+    const castRequest: AbilityUseRequest = {
+      type: "ability_use",
+      requestId: "req-cast",
+      sequence: 1,
+      clientTick: 1,
+      actorId: "player-1",
+      abilityId: "sky_sword",
+      target: { targetEntityId: "npc-1" },
+      clientTimeMs: 0,
+    };
+
+    const bufferRequest: AbilityUseRequest = {
+      type: "ability_use",
+      requestId: "req-buffer",
+      sequence: 2,
+      clientTick: 2,
+      actorId: "player-1",
+      abilityId: "shield_bash",
+      target: { targetEntityId: "npc-1" },
+      clientTimeMs: 0,
+    };
+
+    const acks: AbilityAck[] = [];
+    engine.handleAbilityUse({
+      request: castRequest,
+      actor: player,
+      serverTimeMs: 1000,
+      serverTick: 1,
+      sendAck: (ack) => acks.push(ack),
+    });
+
+    engine.handleAbilityUse({
+      request: bufferRequest,
+      actor: player,
+      serverTimeMs: 2600,
+      serverTick: 2,
+      sendAck: (ack) => acks.push(ack),
+    });
+
+    expect(acks).toHaveLength(1);
+    expect(player.bufferedRequest).toBeDefined();
+  });
+
   it("omits GCD fields in ACKs for oGCD abilities", () => {
     const player = createPlayer(zone, "player-1");
     createNpc(zone, "npc-1", 1, 0);
@@ -1369,9 +1459,7 @@ describe("CombatEngine aggro", () => {
       range: 6,
       targetType: "enemy",
       aoeShape: "single",
-      effects: [
-        { type: "damage", school: "physical", targetFilter: "enemies" },
-      ],
+      effects: [{ type: "damage", school: "physical", targetFilter: "enemies" }],
     };
 
     const result: AbilityResult = {

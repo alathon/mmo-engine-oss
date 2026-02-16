@@ -1,6 +1,6 @@
 import { ArraySchema, type } from "@colyseus/schema";
-import { MobState } from "./mobState";
-import { PlayerDebugInfo } from "./playerDebugInfo";
+import { MobState } from "./mob-state";
+import { PlayerDebugInfo } from "./player-debug-info";
 
 /**
  * Shared player schema synced to clients.
@@ -10,6 +10,10 @@ export class PlayerState extends MobState {
   @type("string") playerId = "";
   /** Session identifier used by Colyseus. */
   @type("string") sessionId = "";
+  /** Authoritative vertical velocity from server movement simulation. */
+  @type("float32") velocityY = 0;
+  /** Whether the player is grounded in server movement simulation. */
+  @type("boolean") grounded = true;
   /** Last processed input sequence number. */
   @type("uint32") lastProcessedSeq = 0;
   /** Whether the player has disconnected but is still present in the zone. */

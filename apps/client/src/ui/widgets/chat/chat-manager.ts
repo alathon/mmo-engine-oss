@@ -1,4 +1,4 @@
-import type { ChatEventEmitter, ChatEventSource } from './chat-event-source';
+import type { ChatEventEmitter, ChatEventSource } from "./chat-event-source";
 
 export class ChatManager implements ChatEventEmitter {
   private chatMessageHandlers: ((playerId: string, playerName: string, message: string) => void)[] =

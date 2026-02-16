@@ -1,7 +1,7 @@
 import type {
   ConnectionEventEmitter,
   ConnectionStatus,
-} from '../../../network/connection-event-emitter';
+} from "../../../network/connection-event-emitter";
 
 type Listener = () => void;
 

@@ -1,5 +1,5 @@
-import { lerpAngle } from '../utils/math';
-import type { RemotePoseSample } from './movement-types';
+import { lerpAngle } from "../utils/math";
+import type { RemotePoseSample } from "./movement-types";
 
 /**
  * Buffers timestamped remote movement samples for interpolation.

@@ -1,3 +1,3 @@
-import { silenceColyseusLogger } from '@mmo/shared-servers';
+import { silenceColyseusLogger } from "@mmo/shared-servers";
 
 silenceColyseusLogger();

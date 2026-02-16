@@ -1,4 +1,4 @@
-import type { LoginResponse } from '@mmo/shared';
+import type { LoginResponse } from "@mmo/shared";
 
 /**
  * Stores client-only session data across states.

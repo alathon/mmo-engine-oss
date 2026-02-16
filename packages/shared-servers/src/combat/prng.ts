@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/number-literal-case */
 /* eslint-disable unicorn/prefer-code-point */
 export const hashStringToUint32 = (value: string): number => {
   let hash = 2_166_136_261;

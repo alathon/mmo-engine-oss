@@ -1,8 +1,4 @@
-import {
-  ABILITY_DEFINITIONS,
-  hasLineOfSight,
-  type NavcatQuery,
-} from "@mmo/shared";
+import { ABILITY_DEFINITIONS, hasLineOfSight, type NavcatQuery } from "@mmo/shared";
 import type { ServerNPC } from "../entities/npc";
 import type { ServerPlayer } from "../entities/player";
 import type { ServerZone } from "./zone";
@@ -81,11 +77,7 @@ export class LineOfSightTracker {
     });
     this.lastUpdateTick.set(player.id, serverTick);
 
-    const nearby = this.collectNearbyCandidates(
-      grid,
-      player.synced.x,
-      player.synced.z,
-    );
+    const nearby = this.collectNearbyCandidates(grid, player.synced.x, player.synced.z);
     const visibleTargets: string[] = [];
 
     for (const candidate of nearby) {
@@ -117,10 +109,7 @@ export class LineOfSightTracker {
     this.applyVisibleTargets(player, visibleTargets);
   }
 
-  private applyVisibleTargets(
-    player: ServerPlayer,
-    visibleTargets: string[],
-  ): void {
+  private applyVisibleTargets(player: ServerPlayer, visibleTargets: string[]): void {
     const existing = player.synced.visibleTargets;
     if (existing.length === visibleTargets.length) {
       let same = true;
@@ -168,9 +157,7 @@ export class LineOfSightTracker {
     };
   }
 
-  private buildSpatialGrid(
-    candidates: TargetCandidate[],
-  ): Map<string, TargetCandidate[]> {
+  private buildSpatialGrid(candidates: TargetCandidate[]): Map<string, TargetCandidate[]> {
     const grid = new Map<string, TargetCandidate[]>();
     for (const candidate of candidates) {
       const key = this.cellKey(candidate.x, candidate.z);

@@ -1,3 +1,1 @@
-import baseConfig from "@mmo/eslint-config";
-
-export default baseConfig;
+export { default } from "@mmo/eslint-config";

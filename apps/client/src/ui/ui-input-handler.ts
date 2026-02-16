@@ -1,5 +1,5 @@
-import type { InputHandler } from '../input/input-handler';
-import type { PointerClick } from '../input/input-manager';
+import type { InputHandler } from "../input/input-handler";
+import type { PointerClick } from "../input/input-manager";
 
 /**
  * Minimal UI input handler that consumes pointer clicks over UI elements.
@@ -12,7 +12,7 @@ export class UiInputHandler implements InputHandler {
   }
 
   handlePointerClick(click: PointerClick): boolean {
-    if (typeof document === 'undefined') {
+    if (typeof document === "undefined") {
       return false;
     }
 
@@ -21,7 +21,7 @@ export class UiInputHandler implements InputHandler {
       return false;
     }
 
-    if (element.closest('[data-ui-interactive]')) {
+    if (element.closest("[data-ui-interactive]")) {
       return true;
     }
 

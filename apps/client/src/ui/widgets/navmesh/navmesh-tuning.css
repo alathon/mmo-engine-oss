@@ -1,0 +1,121 @@
+#navmesh-tuning-widget {
+  position: absolute;
+  min-width: 260px;
+  max-width: 320px;
+  padding: 10px 12px;
+  background: rgba(14, 18, 26, 0.92);
+  border: 1px solid rgba(118, 132, 154, 0.6);
+  border-radius: 8px;
+  color: #e6f1ff;
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-size: 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  z-index: 125;
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__toggle {
+  border: 1px solid rgba(120, 146, 180, 0.5);
+  background: rgba(26, 34, 48, 0.9);
+  color: #d6e2f5;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__fields {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__field {
+  display: grid;
+  grid-template-columns: 1fr 90px;
+  gap: 8px;
+  align-items: center;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__label {
+  color: #b8c7e1;
+  font-size: 11px;
+  letter-spacing: 0.2px;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__input {
+  background: rgba(8, 12, 18, 0.9);
+  border: 1px solid rgba(118, 132, 154, 0.5);
+  border-radius: 6px;
+  color: #f2f6ff;
+  padding: 4px 6px;
+  font-size: 11px;
+  text-align: right;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__button {
+  border: 1px solid rgba(120, 146, 180, 0.7);
+  background: rgba(34, 46, 66, 0.95);
+  color: #eaf2ff;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__button--ghost {
+  background: transparent;
+  color: #c9d7ef;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__button--active {
+  background: rgba(120, 38, 38, 0.92);
+  border-color: rgba(255, 138, 138, 0.8);
+  color: #ffdcdc;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__footer {
+  margin-top: 8px;
+  display: grid;
+  gap: 4px;
+  color: #9fb4d8;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__stats {
+  font-size: 11px;
+}
+
+#navmesh-tuning-widget .navmesh-tuning__error {
+  color: #ff9f9f;
+  font-size: 11px;
+}

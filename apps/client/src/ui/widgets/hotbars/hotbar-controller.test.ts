@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
-import type { InputManager } from '../../../input/input-manager';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { HotbarController } from './hotbar-controller';
+import { describe, expect, it } from "vitest";
+import type { InputManager } from "../../../input/input-manager";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { HotbarController } from "./hotbar-controller";
 
 class StubInputManager implements InputManager {
   private pressed = new Set<string>();
@@ -32,13 +32,13 @@ class StubInputManager implements InputManager {
     this.pressed.delete(normalized);
     return true;
   }
-  consumePointerClick(_button?: number): ReturnType<InputManager['consumePointerClick']> {
+  consumePointerClick(_button?: number): ReturnType<InputManager["consumePointerClick"]> {
     return;
   }
   consumeAllPointerClicks() {
     return [];
   }
-  consumePointerDrag(_button?: number): ReturnType<InputManager['consumePointerDrag']> {
+  consumePointerDrag(_button?: number): ReturnType<InputManager["consumePointerDrag"]> {
     return;
   }
   consumeAllPointerDrags() {
@@ -64,29 +64,29 @@ class StubInputManager implements InputManager {
   }
 }
 
-describe('HotbarController', () => {
-  it('fires activation callbacks for pressed keys', () => {
+describe("HotbarController", () => {
+  it("fires activation callbacks for pressed keys", () => {
     const input = new StubInputManager();
     const controller = new HotbarController(input, 2);
-    controller.setSlotAction(0, { type: 'ability', abilityId: 'quick_dart' });
+    controller.setSlotAction(0, { type: "ability", abilityId: "quick_dart" });
 
     let activated: string | undefined;
     controller.onSlotActivated((_slot, action) => {
-      if (action.type === 'ability') {
+      if (action.type === "ability") {
         activated = action.abilityId;
       }
     });
 
-    input.press('1');
+    input.press("1");
     controller.update();
 
-    expect(activated).toBe('quick_dart');
+    expect(activated).toBe("quick_dart");
   });
 
-  it('ignores activations while chat is focused', () => {
+  it("ignores activations while chat is focused", () => {
     const input = new StubInputManager();
     const controller = new HotbarController(input, 1);
-    controller.setSlotAction(0, { type: 'ability', abilityId: 'quick_dart' });
+    controller.setSlotAction(0, { type: "ability", abilityId: "quick_dart" });
 
     let activated = false;
     controller.onSlotActivated(() => {
@@ -94,7 +94,7 @@ describe('HotbarController', () => {
     });
 
     input.setChatFocused(true);
-    input.press('1');
+    input.press("1");
     controller.update();
 
     expect(activated).toBe(false);

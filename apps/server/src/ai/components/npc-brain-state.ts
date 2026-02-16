@@ -1,8 +1,6 @@
 import type { NavcatQuery } from "@mmo/shared";
 
-export type SmoothPathPoint = ReturnType<
-  NavcatQuery["findSmoothPath"]
->["path"][number];
+export type SmoothPathPoint = ReturnType<NavcatQuery["findSmoothPath"]>["path"][number];
 
 export interface NpcBrainState {
   targetYaw: number;

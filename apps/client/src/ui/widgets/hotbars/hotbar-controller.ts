@@ -1,6 +1,6 @@
-import type { InputManager } from '../../../input/input-manager';
+import type { InputManager } from "../../../input/input-manager";
 
-export type HotbarAction = { type: 'none' } | { type: 'ability'; abilityId: string };
+export type HotbarAction = { type: "none" } | { type: "ability"; abilityId: string };
 
 export interface HotbarSlot {
   index: number;
@@ -8,7 +8,7 @@ export interface HotbarSlot {
   action: HotbarAction;
 }
 
-const DEFAULT_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+const DEFAULT_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
 export const DEFAULT_HOTBAR_SLOT_COUNT = 4;
 const HOTBAR_GAP_RATIO = 0.06;
 const HOTBAR_BOTTOM_OFFSET_RATIO = 0.62;
@@ -31,7 +31,7 @@ export interface HotbarLayoutMetrics {
 export const computeHotbarLayoutMetrics = (
   viewportWidth: number,
   viewportHeight: number,
-  slotCount: number = DEFAULT_HOTBAR_SLOT_COUNT
+  slotCount: number = DEFAULT_HOTBAR_SLOT_COUNT,
 ): HotbarLayoutMetrics => {
   const vmin = Math.max(0, Math.min(viewportWidth, viewportHeight));
   const slotSize = clamp(vmin * 0.08, 44, 64);
@@ -57,11 +57,11 @@ export class HotbarController {
 
   constructor(
     private readonly input: InputManager,
-    slotCount = DEFAULT_HOTBAR_SLOT_COUNT
+    slotCount = DEFAULT_HOTBAR_SLOT_COUNT,
   ) {
     for (let i = 0; i < slotCount; i += 1) {
-      const key = DEFAULT_KEYS[i] ?? '';
-      this.slots.push({ index: i, key, action: { type: 'none' } });
+      const key = DEFAULT_KEYS[i] ?? "";
+      this.slots.push({ index: i, key, action: { type: "none" } });
     }
   }
 

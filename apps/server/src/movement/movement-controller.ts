@@ -1,10 +1,12 @@
 import {
-  applyNavmeshMovementStep,
-  NAVMESH_RECOVERY_DISTANCE,
+  CLIENT_RECONCILE_DISTANCE_EPSILON,
   PLAYER_SPEED,
+  PLAYER_SPRINT_MULTIPLIER,
   type MobState,
   type NavcatQuery,
 } from "@mmo/shared";
+import type { ServerCollisionWorld } from "../collision/server-collision-world";
+import { PlayerCollisionSimulator } from "./player-collision-simulator";
 import type { ServerPlayer } from "../world/entities/player";
 import type { ServerMob } from "../world/entities/server-mob";
 import type { ServerZone } from "../world/zones/zone";
@@ -16,6 +18,11 @@ import {
 
 const MOVEMENT_EPSILON_SQ = 0.0001 * 0.0001;
 const DIRECTION_EPSILON = 0.0001;
+const SERVER_SNAP_DEBUG_ENABLED = (() => {
+  const raw = process.env.MMO_SERVER_SNAP_DEBUG?.trim().toLowerCase();
+  return raw === "1" || raw === "true" || raw === "yes";
+})();
+const SERVER_SNAP_DEBUG_SAMPLE_LIMIT = 120;
 
 export interface MobMovementEvent {
   mob: ServerMob<MobState>;
@@ -36,6 +43,9 @@ export type MobMovementListener = (
 
 export class MovementController {
   private readonly mobMovementListeners: MobMovementListener[] = [];
+  private playerCollisionSimulator?: PlayerCollisionSimulator;
+  private playerCollisionWorld?: ServerCollisionWorld;
+  private snapDebugSamplesRemaining = SERVER_SNAP_DEBUG_SAMPLE_LIMIT;
 
   constructor(private readonly zone: ServerZone) {}
 
@@ -44,9 +54,21 @@ export class MovementController {
     tickMs: number,
     serverTick: number,
     navmesh: NavcatQuery,
+    collisionWorld?: ServerCollisionWorld,
   ): void {
+    if (!collisionWorld) {
+      throw new Error(
+        `Zone ${this.zone.zoneData.zoneId} is missing collision world for player movement`,
+      );
+    }
     this.tickNpcs(serverTimeMs, tickMs, serverTick, navmesh);
-    this.tickPlayers(serverTimeMs, tickMs, serverTick, navmesh);
+    this.tickPlayers(serverTimeMs, tickMs, serverTick, collisionWorld);
+  }
+
+  dispose(): void {
+    this.playerCollisionSimulator?.dispose();
+    this.playerCollisionSimulator = undefined;
+    this.playerCollisionWorld = undefined;
   }
 
   onMobMovement(listener: MobMovementListener): () => void {
@@ -83,8 +105,7 @@ export class MovementController {
       npc.synced.facingYaw = steering.facingYaw;
 
       const attempted =
-        Math.abs(directionX) > DIRECTION_EPSILON ||
-        Math.abs(directionZ) > DIRECTION_EPSILON;
+        Math.abs(directionX) > DIRECTION_EPSILON || Math.abs(directionZ) > DIRECTION_EPSILON;
 
       if (attempted) {
         const moveX = directionX * npc.aiConfig.moveSpeed * deltaSeconds;
@@ -126,11 +147,12 @@ export class MovementController {
     serverTimeMs: number,
     tickMs: number,
     serverTick: number,
-    navmesh: NavcatQuery,
+    collisionWorld: ServerCollisionWorld,
   ): void {
-    const deltaSeconds = tickMs / 1000;
-    const speed = PLAYER_SPEED;
+    const collisionSimulator = this.getPlayerCollisionSimulator(collisionWorld);
     const snapDistanceSq = SERVER_SNAP_DISTANCE * SERVER_SNAP_DISTANCE;
+    const reconcileDistanceSq =
+      CLIENT_RECONCILE_DISTANCE_EPSILON * CLIENT_RECONCILE_DISTANCE_EPSILON;
 
     for (const serverPlayer of this.zone.players.values()) {
       const pendingBefore = serverPlayer.pendingInputs.length;
@@ -143,6 +165,8 @@ export class MovementController {
       const budgetBefore = serverPlayer.inputBudgetTicks;
 
       if (serverPlayer.pendingInputs.length === 0) {
+        serverPlayer.synced.velocityY = serverPlayer.velocityY;
+        serverPlayer.synced.grounded = serverPlayer.grounded;
         this.updateMovementDebug(serverPlayer, {
           serverTick,
           pendingInputs: pendingBefore,
@@ -158,8 +182,7 @@ export class MovementController {
 
       if (serverPlayer.clientTickOffset === undefined) {
         // Map client tick numbers into server tick space using the first input.
-        serverPlayer.clientTickOffset =
-          serverTick - serverPlayer.pendingInputs[0].tick;
+        serverPlayer.clientTickOffset = serverTick - serverPlayer.pendingInputs[0].tick;
       }
 
       // Drop inputs that are too old to prevent time-banking bursts.
@@ -173,6 +196,13 @@ export class MovementController {
         const mappedTick = input.tick + (serverPlayer.clientTickOffset ?? 0);
         if (mappedTick < oldestAllowedTick) {
           droppedStale += 1;
+          continue;
+        }
+
+        // Do not process client inputs that map to future server ticks.
+        // Processing these early causes simulation phase drift (especially in vertical motion).
+        if (mappedTick > serverTick) {
+          nextPendingInputs.push(input);
           continue;
         }
 
@@ -197,26 +227,32 @@ export class MovementController {
           y: serverPlayer.synced.y,
           z: serverPlayer.synced.z,
         };
-        const attempted =
-          Math.abs(directionX) > DIRECTION_EPSILON ||
-          Math.abs(directionZ) > DIRECTION_EPSILON;
+        const attemptedHorizontal =
+          Math.abs(directionX) > DIRECTION_EPSILON || Math.abs(directionZ) > DIRECTION_EPSILON;
+        const attempted = attemptedHorizontal || input.jumpPressed;
 
-        const result = applyNavmeshMovementStep({
+        const speed = input.isSprinting ? PLAYER_SPEED * PLAYER_SPRINT_MULTIPLIER : PLAYER_SPEED;
+        const result = collisionSimulator.simulateStep({
           currentX: serverPlayer.synced.x,
+          currentY: serverPlayer.synced.y,
           currentZ: serverPlayer.synced.z,
           directionX,
           directionZ,
-          deltaTime: deltaSeconds,
+          deltaTimeMs: tickMs,
           speed,
-          navmesh,
-          startNodeRef: serverPlayer.navmeshNodeRef ?? undefined,
-          recoveryDistance: NAVMESH_RECOVERY_DISTANCE,
+          velocityY: serverPlayer.velocityY,
+          grounded: serverPlayer.grounded,
+          jumpPressed: input.jumpPressed,
         });
 
-        serverPlayer.navmeshNodeRef = result.nodeRef ?? undefined;
+        serverPlayer.velocityY = result.velocityY;
+        serverPlayer.grounded = result.grounded;
         serverPlayer.synced.x = result.x;
         serverPlayer.synced.y = result.y;
         serverPlayer.synced.z = result.z;
+        serverPlayer.synced.velocityY = result.velocityY;
+        serverPlayer.synced.grounded = result.grounded;
+        serverPlayer.navmeshNodeRef = undefined;
         const after = {
           x: serverPlayer.synced.x,
           y: serverPlayer.synced.y,
@@ -242,7 +278,58 @@ export class MovementController {
         const dy = serverPlayer.synced.y - input.predictedY;
         const dz = serverPlayer.synced.z - input.predictedZ;
         const distanceSq = dx * dx + dy * dy + dz * dz;
+
+        if (
+          SERVER_SNAP_DEBUG_ENABLED &&
+          this.snapDebugSamplesRemaining > 0 &&
+          distanceSq > reconcileDistanceSq
+        ) {
+          this.snapDebugSamplesRemaining -= 1;
+          console.log("[server-reconcile] drift", {
+            zoneId: this.zone.zoneData.zoneId,
+            playerId: serverPlayer.synced.playerId,
+            seq: input.seq,
+            serverTick,
+            mappedTick,
+            dx,
+            dy,
+            dz,
+            predictedY: input.predictedY,
+            serverY: serverPlayer.synced.y,
+            distance: Math.sqrt(distanceSq),
+            reconcileThreshold: CLIENT_RECONCILE_DISTANCE_EPSILON,
+            snapThreshold: SERVER_SNAP_DISTANCE,
+            wouldServerSnap: distanceSq > snapDistanceSq,
+            directionX,
+            directionZ,
+            jumpPressed: input.jumpPressed,
+            velocityY: serverPlayer.velocityY,
+            grounded: serverPlayer.grounded,
+          });
+        }
+
         if (distanceSq > snapDistanceSq) {
+          if (SERVER_SNAP_DEBUG_ENABLED && this.snapDebugSamplesRemaining > 0) {
+            this.snapDebugSamplesRemaining -= 1;
+            console.log("[server-snap] correction", {
+              zoneId: this.zone.zoneData.zoneId,
+              playerId: serverPlayer.synced.playerId,
+              seq: input.seq,
+              distance: Math.sqrt(distanceSq),
+              threshold: Math.sqrt(snapDistanceSq),
+              directionX,
+              directionZ,
+              jumpPressed: input.jumpPressed,
+              velocityY: serverPlayer.velocityY,
+              grounded: serverPlayer.grounded,
+              serverX: serverPlayer.synced.x,
+              serverY: serverPlayer.synced.y,
+              serverZ: serverPlayer.synced.z,
+              predictedX: input.predictedX,
+              predictedY: input.predictedY,
+              predictedZ: input.predictedZ,
+            });
+          }
           serverPlayer.snapLocked = true;
           serverPlayer.snapTarget = {
             x: serverPlayer.synced.x,
@@ -275,6 +362,22 @@ export class MovementController {
     }
   }
 
+  private getPlayerCollisionSimulator(
+    collisionWorld: ServerCollisionWorld,
+  ): PlayerCollisionSimulator {
+    if (
+      this.playerCollisionSimulator !== undefined &&
+      this.playerCollisionWorld === collisionWorld
+    ) {
+      return this.playerCollisionSimulator;
+    }
+
+    this.playerCollisionSimulator?.dispose();
+    this.playerCollisionSimulator = new PlayerCollisionSimulator(collisionWorld);
+    this.playerCollisionWorld = collisionWorld;
+    return this.playerCollisionSimulator;
+  }
+
   private updateMovementDebug(
     player: ServerPlayer,
     info: {
@@ -300,11 +403,7 @@ export class MovementController {
     debugInfo.budgetAfter = info.budgetAfter;
   }
 
-  private emitMobMovement(
-    event: MobMovementEvent,
-    serverTick: number,
-    serverTimeMs: number,
-  ): void {
+  private emitMobMovement(event: MobMovementEvent, serverTick: number, serverTimeMs: number): void {
     for (const listener of this.mobMovementListeners) {
       listener(event, serverTick, serverTimeMs);
     }

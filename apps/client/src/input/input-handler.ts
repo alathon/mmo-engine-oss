@@ -1,4 +1,4 @@
-import type { InputManager, PointerClick, PointerDrag } from './input-manager';
+import type { InputManager, PointerClick, PointerDrag } from "./input-manager";
 
 export interface InputHandler {
   /**

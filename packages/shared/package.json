@@ -4,28 +4,27 @@
   "private": true,
   "version": "0.0.2",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./assets/*": "./assets/*"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
   },
   "files": [
     "dist",
     "assets"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "generate:navcat": "node --import tsx scripts/generate-navcat.ts",
+    "build": "tsdown",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
   },
   "devDependencies": {
+    "@codecompose/typescript-config": "^2.3.0",
     "eslint": "catalog:",
+    "tsdown": "^0.20.3",
     "tsx": "catalog:",
     "typescript": "catalog:"
   },

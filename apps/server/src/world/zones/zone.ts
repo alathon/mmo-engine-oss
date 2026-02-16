@@ -1,4 +1,10 @@
-import { ZoneState, ZoneDefinition, NavcatQuery } from "@mmo/shared";
+import {
+  PlayerCollisionSimulator,
+  TICK_MS,
+  ZoneState,
+  ZoneDefinition,
+  NavcatQuery,
+} from "@mmo/shared";
 import { ServerPlayer } from "../entities/player";
 import { ServerNPC } from "../entities/npc";
 import { ZoneEntryPoint, ZoneSpawnPoint } from "./types";
@@ -9,22 +15,44 @@ import { EventLog } from "../../eventLog";
 import { MovementController } from "../../movement/movement-controller";
 import { AiController } from "../../ai/ai-controller";
 import { AbilityIntentSystem } from "../../ai/systems/ability-intent-system";
+import type { ServerCollisionWorld } from "../../collision/server-collision-world";
+
+const PLAYER_SPAWN_START_HEIGHT_OFFSET = 2;
+const PLAYER_SPAWN_SETTLE_STEPS = 80;
+const PLAYER_SPAWN_GROUNDED_VELOCITY_EPSILON = 0.2;
+const PLAYER_SPAWN_OFFSETS = [
+  { x: 0, z: 0 },
+  { x: 0.6, z: 0 },
+  { x: -0.6, z: 0 },
+  { x: 0, z: 0.6 },
+  { x: 0, z: -0.6 },
+  { x: 1.2, z: 0 },
+  { x: -1.2, z: 0 },
+  { x: 0, z: 1.2 },
+  { x: 0, z: -1.2 },
+];
 
 export class ZoneData {
+  private spawnProbeSeq = 1;
+
   constructor(
     zoneId: string,
     navmeshQuery: NavcatQuery,
     definition: ZoneDefinition,
+    collisionWorld?: ServerCollisionWorld,
   ) {
     this.definition = definition;
     this.navmeshQuery = navmeshQuery;
     this.zoneId = zoneId;
+    this.collisionWorld = collisionWorld;
   }
 
   public readonly zoneId: string;
   public readonly navmeshQuery: NavcatQuery;
   /** The zone definition data. */
   public readonly definition: ZoneDefinition;
+  /** Server-side Babylon collision world for this zone. */
+  public readonly collisionWorld?: ServerCollisionWorld;
 
   /** The entry points for this zone. */
   public entryPoints: ZoneEntryPoint[] = [];
@@ -46,9 +74,7 @@ export class ZoneData {
 
     // Check for entry point from another zone
     if (fromZone) {
-      const entryPoint = this.entryPoints.find(
-        (entry) => entry.fromZoneId === fromZone,
-      );
+      const entryPoint = this.entryPoints.find((entry) => entry.fromZoneId === fromZone);
       if (entryPoint) {
         spawnX = entryPoint.position.x;
         spawnZ = entryPoint.position.z;
@@ -60,29 +86,90 @@ export class ZoneData {
         spawnY = 0;
       }
     } else {
-      // Use default spawn for new players
-      spawnX = 0;
-      spawnZ = 0;
-      spawnY = 0;
-    }
-
-    // Validate and adjust spawn position against navmesh
-    const navmesh = this.navmeshQuery;
-    if (navmesh.isPointOnNavmesh(spawnX, spawnZ)) {
-      const height = navmesh.sampleHeight(spawnX, spawnZ) ?? undefined;
-      if (height !== undefined) {
-        spawnY = height;
-      }
-    } else {
-      const nearest = navmesh.findNearestPoint(spawnX, spawnZ, 10);
-      if (nearest) {
-        spawnX = nearest.x;
-        spawnZ = nearest.z;
-        spawnY = nearest.y;
+      // Use the first configured entry point as the default spawn.
+      const defaultEntryPoint = this.entryPoints[0];
+      if (defaultEntryPoint) {
+        spawnX = defaultEntryPoint.position.x;
+        spawnZ = defaultEntryPoint.position.z;
+        spawnY = defaultEntryPoint.position.y ?? 0;
+      } else {
+        spawnX = 0;
+        spawnZ = 0;
+        spawnY = 0;
       }
     }
 
-    return { x: spawnX, y: spawnY, z: spawnZ };
+    return this.resolvePlayerSpawnPosition(spawnX, spawnY, spawnZ);
+  }
+
+  public resolvePlayerSpawnPosition(
+    x: number,
+    y = 0,
+    z: number,
+  ): { x: number; y: number; z: number } {
+    const collisionWorld = this.collisionWorld;
+    if (!collisionWorld) {
+      throw new Error(`Zone ${this.zoneId} is missing collision world for player spawn placement`);
+    }
+
+    const simulator = new PlayerCollisionSimulator(
+      collisionWorld.scene,
+      `server_player_spawn_probe_${this.zoneId}_${this.spawnProbeSeq++}`,
+    );
+
+    try {
+      let fallback = this.settlePlayerSpawnCandidate(simulator, x, y, z);
+      for (const offset of PLAYER_SPAWN_OFFSETS) {
+        const candidate = this.settlePlayerSpawnCandidate(simulator, x + offset.x, y, z + offset.z);
+        if (candidate.grounded) {
+          return { x: candidate.x, y: candidate.y, z: candidate.z };
+        }
+        fallback = candidate;
+      }
+
+      return { x: fallback.x, y: fallback.y, z: fallback.z };
+    } finally {
+      simulator.dispose();
+    }
+  }
+
+  private settlePlayerSpawnCandidate(
+    simulator: PlayerCollisionSimulator,
+    x: number,
+    y: number,
+    z: number,
+  ): { x: number; y: number; z: number; grounded: boolean } {
+    let currentX = x;
+    let currentY = y + PLAYER_SPAWN_START_HEIGHT_OFFSET;
+    let currentZ = z;
+    let velocityY = 0;
+    let grounded = false;
+
+    for (let step = 0; step < PLAYER_SPAWN_SETTLE_STEPS; step += 1) {
+      const result = simulator.simulateStep({
+        currentX,
+        currentY,
+        currentZ,
+        directionX: 0,
+        directionZ: 0,
+        deltaTimeMs: TICK_MS,
+        speed: 0,
+        velocityY,
+        grounded,
+        jumpPressed: false,
+      });
+      currentX = result.x;
+      currentY = result.y;
+      currentZ = result.z;
+      velocityY = result.velocityY;
+      grounded = result.grounded;
+
+      if (grounded && Math.abs(velocityY) <= PLAYER_SPAWN_GROUNDED_VELOCITY_EPSILON) {
+        return { x: currentX, y: currentY, z: currentZ, grounded: true };
+      }
+    }
+
+    return { x: currentX, y: currentY, z: currentZ, grounded };
   }
 }
 
@@ -140,6 +227,7 @@ export class ServerZone {
       tickMs,
       this.serverTick,
       this.zoneData.navmeshQuery,
+      this.zoneData.collisionWorld,
     );
 
     this.lineOfSightTracker.update(this, this.serverTick);
@@ -157,5 +245,7 @@ export class ServerZone {
     this.players.clear();
     this.npcs.clear();
     this.objects.clear();
+    this.movementController.dispose();
+    this.zoneData.collisionWorld?.dispose();
   }
 }

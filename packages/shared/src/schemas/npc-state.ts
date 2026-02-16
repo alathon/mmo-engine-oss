@@ -1,6 +1,6 @@
 import { type } from "@colyseus/schema";
-import { MobState } from "./mobState";
-import { CombatState } from "./combatState";
+import { MobState } from "./mob-state";
+import { CombatState } from "./combat-state";
 
 /**
  * Synced NPC state schema.

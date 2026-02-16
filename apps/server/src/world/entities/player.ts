@@ -4,6 +4,7 @@ import { ServerMob } from "./server-mob";
 export interface QueuedMoveInput {
   directionX: number;
   directionZ: number;
+  jumpPressed: boolean;
   seq: number;
   tick: number;
   isSprinting: boolean;
@@ -17,6 +18,10 @@ export interface QueuedMoveInput {
  */
 export class ServerPlayer extends ServerMob<PlayerState> {
   pendingInputs: QueuedMoveInput[] = [];
+  /** Current authoritative vertical velocity for collision simulation. */
+  velocityY = 0;
+  /** Whether the player is currently considered grounded by collision simulation. */
+  grounded = true;
   /** Accumulated budget of input steps the server may process for this player. */
   inputBudgetTicks = 0;
   /** Offset between client tick numbers and server tick numbers. */

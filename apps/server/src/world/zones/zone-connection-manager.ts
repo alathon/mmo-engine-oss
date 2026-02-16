@@ -14,9 +14,8 @@ export class ZoneConnectionManager {
   /**
    * Creates a new zone connection manager.
    *
-   * @param state - authoritative zone state.
-   * @param players - server-side player map.
    * @param getSpawnPosition - function for resolving spawn positions.
+   * @param resolvePlayerSpawnPosition - function for collision-safe player placement.
    */
   constructor(
     private getSpawnPosition: (fromZone?: string) => {
@@ -24,6 +23,11 @@ export class ZoneConnectionManager {
       y: number;
       z: number;
     },
+    private resolvePlayerSpawnPosition: (
+      x: number,
+      y: number,
+      z: number,
+    ) => { x: number; y: number; z: number },
   ) {}
 
   /**
@@ -70,6 +74,15 @@ export class ZoneConnectionManager {
         this.disconnectTimeouts.delete(playerId);
       }
 
+      const resolved = this.resolvePlayerSpawnPosition(
+        existingPlayer.x,
+        existingPlayer.y,
+        existingPlayer.z,
+      );
+      existingPlayer.x = resolved.x;
+      existingPlayer.y = resolved.y;
+      existingPlayer.z = resolved.z;
+
       existingPlayer.isDisconnected = false;
       existingPlayer.sessionId = client.sessionId;
       return;
@@ -114,10 +127,7 @@ export class ZoneConnectionManager {
    * @param consented - whether the client consented to leaving.
    */
   onLeave(client: Client, consented: boolean, zoneRoom: ZoneRoom): void {
-    logger.info(
-      { sessionId: client.sessionId, consented },
-      "Client left ZoneRoom",
-    );
+    logger.info({ sessionId: client.sessionId, consented }, "Client left ZoneRoom");
 
     const { playerId } = this.getClientUserData(client);
     const playerState = zoneRoom.state.players.get(playerId);
@@ -164,8 +174,7 @@ export class ZoneConnectionManager {
 
     const record = userData as { playerId?: unknown; displayName?: unknown };
     const playerId = typeof record.playerId === "string" ? record.playerId : "";
-    const displayName =
-      typeof record.displayName === "string" ? record.displayName : "";
+    const displayName = typeof record.displayName === "string" ? record.displayName : "";
 
     if (!playerId || !displayName) {
       throw new Error("Missing client user data.");
@@ -197,19 +206,14 @@ export class ZoneConnectionManager {
   }
 
   private static parseAuthToken(token: string): AuthTokenPayload {
-    const payload = jwt.verify(
-      token,
-      ZoneConnectionManager.getAuthTokenSecret(),
-    );
+    const payload = jwt.verify(token, ZoneConnectionManager.getAuthTokenSecret());
 
     if (!payload || typeof payload !== "object") {
       throw new Error("Invalid auth token payload.");
     }
 
-    const playerId =
-      typeof payload.playerId === "string" ? payload.playerId : "";
-    const displayName =
-      typeof payload.displayName === "string" ? payload.displayName : "";
+    const playerId = typeof payload.playerId === "string" ? payload.playerId : "";
+    const displayName = typeof payload.displayName === "string" ? payload.displayName : "";
 
     if (!playerId || !displayName) {
       throw new Error("Auth token missing required fields.");

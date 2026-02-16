@@ -3,5 +3,5 @@
 
 export * from "./messages.js";
 export * from "./auth.js";
-export * from "./combatMessages.js";
-export * from "./eventLog.js";
+export * from "./combat-messages.js";
+export * from "./event-log.js";

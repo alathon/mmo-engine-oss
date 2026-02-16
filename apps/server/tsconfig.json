@@ -1,19 +1,59 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
-    "target": "ESNext",
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "strict": true,
-    "allowJs": true,
-    "strictNullChecks": true,
+    "composite": false,
+    "declaration": true,
+    "declarationMap": true,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "useDefineForClassFields": false
+    "allowImportingTsExtensions": true,
+    "inlineSources": false,
+    "isolatedModules": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ESNext",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "preserveWatchOutput": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "strictNullChecks": true,
+    "lib": ["es2023"],
+    "outDir": "./dist",
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules"],
 }
+
+/*
+"composite": false,
+"declaration": true,
+"declarationMap": true,
+"esModuleInterop": true,
+"forceConsistentCasingInFileNames": true,
+"allowImportingTsExtensions": true,
+"inlineSources": false,
+"isolatedModules": true,
+"module": "ESNext",
+"moduleResolution": "Bundler",
+"noUnusedLocals": false,
+"noUnusedParameters": false,
+"preserveWatchOutput": true,
+"skipLibCheck": true,
+"strict": true,
+"noEmit": true,
+"strictNullChecks": true
+*/
+
+/*
+{
+  "extends": "@repo/typescript-config/base.json",
+  "compilerOptions": {
+    "lib": ["ES2015"],
+    "outDir": "./dist"
+  },
+  "exclude": ["node_modules"],
+  "include": ["."]
+}*/

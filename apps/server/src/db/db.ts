@@ -3,7 +3,7 @@
 import { ZoneEntryPoint, ZoneSpawnPoint } from "../world/zones/types";
 
 const MOB_SPAWN_POINTS: Record<string, ZoneSpawnPoint<"mob">[]> = {
-  "startingPlains": [
+  startingPlains: [
     {
       templateId: "npc_wanderer_1",
       type: "mob",
@@ -11,9 +11,9 @@ const MOB_SPAWN_POINTS: Record<string, ZoneSpawnPoint<"mob">[]> = {
         mobType: "wanderer",
       },
       position: {
-        x: 6,
-        y: 0,
-        z: 8,
+        x: -25.47,
+        y: 9.16,
+        z: 48.69,
       },
       respawnTime: 10_000,
       countPerSpawn: 1,
@@ -26,9 +26,9 @@ const MOB_SPAWN_POINTS: Record<string, ZoneSpawnPoint<"mob">[]> = {
         mobType: "wanderer",
       },
       position: {
-        x: -6,
-        y: 0,
-        z: -8,
+        x: -39.8,
+        y: 9.35,
+        z: 47.29,
       },
       respawnTime: 10_000,
       countPerSpawn: 1,
@@ -41,9 +41,9 @@ const MOB_SPAWN_POINTS: Record<string, ZoneSpawnPoint<"mob">[]> = {
         mobType: "wanderer",
       },
       position: {
-        x: 12,
-        y: 0,
-        z: -12,
+        x: -53.59,
+        y: 9.12,
+        z: 36.81,
       },
       respawnTime: 10_000,
       countPerSpawn: 2,
@@ -53,7 +53,7 @@ const MOB_SPAWN_POINTS: Record<string, ZoneSpawnPoint<"mob">[]> = {
 };
 
 const OBJ_SPAWN_POINTS: Record<string, ZoneSpawnPoint<"obj">[]> = {
-  "startingPlains": [
+  startingPlains: [
     {
       templateId: "obj_1",
       type: "obj",
@@ -63,9 +63,9 @@ const OBJ_SPAWN_POINTS: Record<string, ZoneSpawnPoint<"obj">[]> = {
         color: { r: 0.5, g: 0.5, b: 0.5 },
       },
       position: {
-        x: 0,
-        y: 0,
-        z: 0,
+        x: 39,
+        y: 7,
+        z: -50,
       },
       respawnTime: 10_000,
       countPerSpawn: 1,
@@ -75,13 +75,13 @@ const OBJ_SPAWN_POINTS: Record<string, ZoneSpawnPoint<"obj">[]> = {
 };
 
 const ZONE_ENTRY_POINTS: Record<string, ZoneEntryPoint[]> = {
-  "startingPlains": [
+  startingPlains: [
     {
       fromZoneId: "startingPlains",
       position: {
-        x: 0,
-        y: 0,
-        z: 0,
+        x: -25,
+        y: 5,
+        z: 17.71,
       },
     },
   ],

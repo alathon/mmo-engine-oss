@@ -33,8 +33,6 @@ export class AbilityState extends Schema {
   }
 
   public isCasting(serverTimeMs: number): boolean {
-    return (
-      this.castStartTimeMs <= serverTimeMs && serverTimeMs <= this.castEndTimeMs
-    );
+    return this.castStartTimeMs <= serverTimeMs && serverTimeMs <= this.castEndTimeMs;
   }
 }

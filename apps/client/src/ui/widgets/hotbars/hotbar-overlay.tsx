@@ -4,15 +4,15 @@ import {
   useSyncExternalStore,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
-} from 'react';
-import type { HotbarViewModel } from './hotbar-view-model';
-import { useWidgetLayout } from '../../layout/use-widget-layout';
-import { GameUIIcons } from '../../assets/game-ui-icons';
+} from "react";
+import type { HotbarViewModel } from "./hotbar-view-model";
+import { useWidgetLayout } from "../../layout/use-widget-layout";
+import { GameUIIcons } from "../../assets/game-ui-icons";
 
 const useHotbarSnapshot = (viewModel: HotbarViewModel) => {
   const subscribe = useCallback(
     (listener: () => void) => viewModel.subscribe(listener),
-    [viewModel]
+    [viewModel],
   );
   const getSnapshot = useCallback(() => viewModel.getSnapshot(), [viewModel]);
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
@@ -20,7 +20,7 @@ const useHotbarSnapshot = (viewModel: HotbarViewModel) => {
 
 export const HotbarOverlay = ({ viewModel }: { viewModel: HotbarViewModel }) => {
   const snapshot = useHotbarSnapshot(viewModel);
-  const { style, dragHandlers } = useWidgetLayout('hud.hotbar');
+  const { style, dragHandlers } = useWidgetLayout("hud.hotbar");
   const handlePointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>, index: number) => {
       if (event.button !== 0) {
@@ -30,7 +30,7 @@ export const HotbarOverlay = ({ viewModel }: { viewModel: HotbarViewModel }) => 
       event.stopPropagation();
       viewModel.activateSlot(index);
     },
-    [viewModel]
+    [viewModel],
   );
 
   useEffect(() => {
@@ -47,11 +47,11 @@ export const HotbarOverlay = ({ viewModel }: { viewModel: HotbarViewModel }) => 
         const showCooldownOverlay = slot.cooldownActive;
         const showGcdOverlay = slot.gcdActive && !slot.cooldownActive;
         const slotClass = `hotbar-slot${
-          slot.isPressed ? ' pressed' : ''
-        }${slot.isCasting ? ' casting' : ''}`;
+          slot.isPressed ? " pressed" : ""
+        }${slot.isCasting ? " casting" : ""}`;
         const slotStyle = {
-          '--gcd-ratio': `${slot.gcdRatio}`,
-          '--cooldown-ratio': showCooldownOverlay ? '1' : `${slot.cooldownRatio}`,
+          "--gcd-ratio": `${slot.gcdRatio}`,
+          "--cooldown-ratio": showCooldownOverlay ? "1" : `${slot.cooldownRatio}`,
         } as CSSProperties;
         const iconId = slot.iconId;
         let iconUrl: string | undefined;

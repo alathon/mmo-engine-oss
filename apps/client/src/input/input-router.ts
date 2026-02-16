@@ -1,5 +1,5 @@
-import type { InputManager } from './input-manager';
-import type { InputHandler } from './input-handler';
+import type { InputManager } from "./input-manager";
+import type { InputHandler } from "./input-handler";
 
 /**
  * Dispatches input to registered handlers in priority order.

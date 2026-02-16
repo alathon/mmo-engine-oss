@@ -1,5 +1,5 @@
-import type { Scene } from '@babylonjs/core/scene';
-import type { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import type { Scene } from "@babylonjs/core/scene";
+import type { Vector3 } from "@babylonjs/core/Maths/math.vector";
 
 export interface PointerClick {
   button: number;
@@ -12,7 +12,7 @@ export interface PointerClick {
   shiftKey: boolean;
 }
 
-export type PointerDragPhase = 'start' | 'move' | 'end';
+export type PointerDragPhase = "start" | "move" | "end";
 
 export interface PointerDrag {
   button: number;

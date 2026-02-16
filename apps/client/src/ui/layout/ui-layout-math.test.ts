@@ -1,11 +1,11 @@
-import { describe, expect, it } from 'vitest';
-import { clampWidgetOffsets } from './ui-layout-math';
-import type { UiWidgetLayout } from './ui-layout-types';
+import { describe, expect, it } from "vitest";
+import { clampWidgetOffsets } from "./ui-layout-math";
+import type { UiWidgetLayout } from "./ui-layout-types";
 
-describe('uiLayoutMath', () => {
-  it('clamps top-left offsets inside the viewport', () => {
+describe("uiLayoutMath", () => {
+  it("clamps top-left offsets inside the viewport", () => {
     const layout: UiWidgetLayout = {
-      anchor: 'top-left',
+      anchor: "top-left",
       offsetX: 120,
       offsetY: 120,
     };
@@ -18,9 +18,9 @@ describe('uiLayoutMath', () => {
     expect(clamped.offsetY).toBe(72);
   });
 
-  it('clamps top-right offsets inside the viewport', () => {
+  it("clamps top-right offsets inside the viewport", () => {
     const layout: UiWidgetLayout = {
-      anchor: 'top-right',
+      anchor: "top-right",
       offsetX: -10,
       offsetY: 0,
     };
@@ -30,6 +30,6 @@ describe('uiLayoutMath', () => {
     const clamped = clampWidgetOffsets(layout, viewport, size, 8);
 
     expect(clamped.offsetX).toBe(8);
-    expect(clamped.offsetY).toBe(0);
+    expect(clamped.offsetY).toBe(8);
   });
 });

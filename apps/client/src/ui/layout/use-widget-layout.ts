@@ -6,16 +6,16 @@ import {
   useSyncExternalStore,
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
-} from 'react';
-import { DEFAULT_WIDGET_LAYOUT } from './ui-layout-defaults';
+} from "react";
+import { DEFAULT_WIDGET_LAYOUT } from "./ui-layout-defaults";
 import {
   clampWidgetOffsets,
   resolveOffsetsFromTopLeft,
   resolveTopLeft,
   scaleWidgetOffsets,
-} from './ui-layout-math';
-import { UiLayoutManager, uiLayoutManager } from './ui-layout-manager';
-import type { UiWidgetLayout, UiWidgetLayoutPatch } from './ui-layout-types';
+} from "./ui-layout-math";
+import { UiLayoutManager, uiLayoutManager } from "./ui-layout-manager";
+import type { UiWidgetLayout, UiWidgetLayoutPatch } from "./ui-layout-types";
 
 /**
  * Pointer drag handlers returned by useWidgetLayout.
@@ -52,7 +52,7 @@ interface DragState {
  */
 export const useWidgetLayout = (
   widgetId: string,
-  manager: UiLayoutManager = uiLayoutManager
+  manager: UiLayoutManager = uiLayoutManager,
 ): UseWidgetLayoutResult => {
   const subscribe = useCallback((listener: () => void) => manager.subscribe(listener), [manager]);
   const getSnapshot = useCallback(() => manager.getSnapshot(), [manager]);
@@ -80,7 +80,7 @@ export const useWidgetLayout = (
     (patch: UiWidgetLayoutPatch) => {
       manager.updateWidgetLayout(widgetId, patch);
     },
-    [manager, widgetId]
+    [manager, widgetId],
   );
 
   const handlePointerDown = useCallback(
@@ -103,7 +103,7 @@ export const useWidgetLayout = (
         clamped.offsetX,
         clamped.offsetY,
         viewport,
-        size
+        size,
       );
       const state = dragState.current;
       state.dragging = true;
@@ -133,7 +133,7 @@ export const useWidgetLayout = (
         });
       }
     },
-    [manager, uiLocked, viewport, widgetId, widgetLayout]
+    [manager, uiLocked, viewport, widgetId, widgetLayout],
   );
 
   const handlePointerMove = useCallback(
@@ -154,7 +154,7 @@ export const useWidgetLayout = (
         nextLeft,
         nextTop,
         viewport,
-        { width: state.width, height: state.height }
+        { width: state.width, height: state.height },
       );
       const clamped = clampWidgetOffsets({ ...widgetLayout, ...nextOffsets }, viewport, {
         width: state.width,
@@ -169,7 +169,7 @@ export const useWidgetLayout = (
         lastViewport: viewport,
       });
     },
-    [manager, uiLocked, viewport, widgetId, widgetLayout]
+    [manager, uiLocked, viewport, widgetId, widgetLayout],
   );
 
   const handlePointerUp = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
@@ -228,7 +228,7 @@ export const useWidgetLayout = (
 
   const style = useMemo(() => {
     const nextStyle = resolveWidgetStyle(resolvedLayout);
-    nextStyle.cursor = uiLocked ? 'default' : 'move';
+    nextStyle.cursor = uiLocked ? "default" : "move";
     return nextStyle;
   }, [resolvedLayout, uiLocked]);
 
@@ -251,30 +251,30 @@ const resolveWidgetStyle = (layout: UiWidgetLayout): CSSProperties => {
   const style: CSSProperties = {};
 
   switch (layout.anchor) {
-    case 'top-left': {
+    case "top-left": {
       style.left = layout.offsetX;
       style.top = layout.offsetY;
       break;
     }
-    case 'top-right': {
+    case "top-right": {
       style.right = layout.offsetX;
       style.top = layout.offsetY;
       break;
     }
-    case 'bottom-left': {
+    case "bottom-left": {
       style.left = layout.offsetX;
       style.bottom = layout.offsetY;
       break;
     }
-    case 'bottom-right': {
+    case "bottom-right": {
       style.right = layout.offsetX;
       style.bottom = layout.offsetY;
       break;
     }
-    case 'center': {
+    case "center": {
       style.left = `calc(50% + ${layout.offsetX}px)`;
       style.top = `calc(50% + ${layout.offsetY}px)`;
-      style.transform = 'translate(-50%, -50%)';
+      style.transform = "translate(-50%, -50%)";
       break;
     }
   }
@@ -284,7 +284,7 @@ const resolveWidgetStyle = (layout: UiWidgetLayout): CSSProperties => {
   }
 
   if (layout.visible === false) {
-    style.display = 'none';
+    style.display = "none";
   }
 
   return style;

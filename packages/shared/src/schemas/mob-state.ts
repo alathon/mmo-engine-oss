@@ -1,5 +1,5 @@
 import { Schema, type } from "@colyseus/schema";
-import { AbilityState } from "./abilityState";
+import { AbilityState } from "./ability-state";
 
 /**
  * Shared mob state schema synced to clients.

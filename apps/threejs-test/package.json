@@ -1,0 +1,22 @@
+{
+  "name": "@mmo/threejs-test",
+  "author": "Martin Grünbaum <martin@itsolveonline.net>",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "check-types": "tsc --noEmit",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/three": "^0.180.0",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "navcat": "catalog:",
+    "three": "^0.180.0",
+    "vite": "catalog:"
+  }
+}

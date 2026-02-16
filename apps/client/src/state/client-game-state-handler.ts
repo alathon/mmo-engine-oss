@@ -1,5 +1,5 @@
-import type { ClientState } from './types';
-import type { ClientGameStateKey } from './client-game-state';
+import type { ClientState } from "./types";
+import type { ClientGameStateKey } from "./client-game-state";
 
 /**
  * Handles transitions between client game states.

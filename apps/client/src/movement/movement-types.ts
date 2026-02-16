@@ -1,7 +1,8 @@
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 
 export interface MovementState {
   targetPosition: Vector3;
+  previousTargetPosition: Vector3;
   serverPosition: Vector3;
   facingYaw: number;
   movementYaw: number;
@@ -28,6 +29,8 @@ export interface PredictedMoveResult {
   position: Vector3;
   navmeshNodeRef?: number;
   debug?: NavmeshMoveDebug;
+  velocityY?: number;
+  grounded?: boolean;
 }
 
 export interface PendingMove {
@@ -35,7 +38,10 @@ export interface PendingMove {
   tick: number;
   dirX: number;
   dirZ: number;
+  jumpPressed: boolean;
   isSprinting: boolean;
+  velocityY: number;
+  grounded: boolean;
   navmeshNodeRef?: number;
   predictedX: number;
   predictedY: number;

@@ -1,11 +1,11 @@
-import { Scene } from "@babylonjs/core/scene";
-import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
-import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
-import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
-import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
-import { Vector3, Matrix, Quaternion } from "@babylonjs/core/Maths/math.vector";
-import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
+import { Scene } from "@babylonjs/core/scene.js";
+import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder.js";
+import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData.js";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial.js";
+import { Color3, Color4 } from "@babylonjs/core/Maths/math.color.js";
+import { Vector3, Matrix, Quaternion } from "@babylonjs/core/Maths/math.vector.js";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode.js";
 import type {
   ArrayLike,
   CompactHeightfield,
@@ -67,11 +67,7 @@ const primitiveToBabylonJS = (
 
       // Compute normals for proper lighting (optional, helps with visibility)
       vertexData.normals = [];
-      VertexData.ComputeNormals(
-        vertexData.positions,
-        vertexData.indices ?? [],
-        vertexData.normals,
-      );
+      VertexData.ComputeNormals(vertexData.positions, vertexData.indices ?? [], vertexData.normals);
 
       vertexData.applyToMesh(mesh);
 
@@ -211,16 +207,8 @@ const primitiveToBabylonJS = (
         }
 
         // Use thin instances for performance
-        sphereTemplate.thinInstanceSetBuffer(
-          "matrix",
-          new Float32Array(matrixData),
-          16,
-        );
-        sphereTemplate.thinInstanceSetBuffer(
-          "color",
-          new Float32Array(colorData),
-          4,
-        );
+        sphereTemplate.thinInstanceSetBuffer("matrix", new Float32Array(matrixData), 16);
+        sphereTemplate.thinInstanceSetBuffer("color", new Float32Array(colorData), 4);
 
         const material = new StandardMaterial("navcat_point_mat", scene);
         material.emissiveColor = new Color3(0.3, 0.3, 0.3);
@@ -263,11 +251,7 @@ const primitiveToBabylonJS = (
 
       if (numberBoxes > 0) {
         // Create box template for thin instances
-        const boxTemplate = MeshBuilder.CreateBox(
-          "navcat_box_template",
-          { size: 1 },
-          scene,
-        );
+        const boxTemplate = MeshBuilder.CreateBox("navcat_box_template", { size: 1 }, scene);
         boxTemplate.isVisible = false;
 
         // Register color as an instanced buffer for per-instance colors
@@ -281,15 +265,9 @@ const primitiveToBabylonJS = (
           const y = boxPrimitive.positions[index * 3 + 1];
           const z = boxPrimitive.positions[index * 3 + 2];
 
-          const scaleX = boxPrimitive.scales
-            ? boxPrimitive.scales[index * 3]
-            : 1;
-          const scaleY = boxPrimitive.scales
-            ? boxPrimitive.scales[index * 3 + 1]
-            : 1;
-          const scaleZ = boxPrimitive.scales
-            ? boxPrimitive.scales[index * 3 + 2]
-            : 1;
+          const scaleX = boxPrimitive.scales ? boxPrimitive.scales[index * 3] : 1;
+          const scaleY = boxPrimitive.scales ? boxPrimitive.scales[index * 3 + 1] : 1;
+          const scaleZ = boxPrimitive.scales ? boxPrimitive.scales[index * 3 + 2] : 1;
 
           const matrix = Matrix.Compose(
             new Vector3(scaleX, scaleY, scaleZ),
@@ -307,16 +285,8 @@ const primitiveToBabylonJS = (
         }
 
         // Use thin instances for performance
-        boxTemplate.thinInstanceSetBuffer(
-          "matrix",
-          new Float32Array(matrixData),
-          16,
-        );
-        boxTemplate.thinInstanceSetBuffer(
-          "color",
-          new Float32Array(colorData),
-          4,
-        );
+        boxTemplate.thinInstanceSetBuffer("matrix", new Float32Array(matrixData), 16);
+        boxTemplate.thinInstanceSetBuffer("color", new Float32Array(colorData), 4);
 
         const material = new StandardMaterial("navcat_box_mat", scene);
         material.emissiveColor = new Color3(0.3, 0.3, 0.3);
@@ -353,10 +323,7 @@ const primitiveToBabylonJS = (
 
     default: {
       const exhaustiveCheck: never = primitive;
-      console.warn(
-        "Unknown debug primitive type:",
-        (exhaustiveCheck as DebugPrimitive).type,
-      );
+      console.warn("Unknown debug primitive type:", (exhaustiveCheck as DebugPrimitive).type);
       return {
         node: new TransformNode("navcat_debug_unknown", scene),
         dispose: () => {},
@@ -368,10 +335,7 @@ const primitiveToBabylonJS = (
 /**
  * Converts an array of debug primitives to a Babylon.js TransformNode group.
  */
-function primitivesToBabylonJS(
-  primitives: DebugPrimitive[],
-  scene: Scene,
-): DebugObject {
+function primitivesToBabylonJS(primitives: DebugPrimitive[], scene: Scene): DebugObject {
   const parent = new TransformNode("navcat_debug_group", scene);
   const disposables: (() => void)[] = [];
 
@@ -401,10 +365,7 @@ export const createTriangleAreaIdsHelper = (
   return primitivesToBabylonJS(primitives, scene);
 };
 
-export const createHeightfieldHelper = (
-  heightfield: Heightfield,
-  scene: Scene,
-): DebugObject => {
+export const createHeightfieldHelper = (heightfield: Heightfield, scene: Scene): DebugObject => {
   const primitives = NavCat.createHeightfieldHelper(heightfield);
   return primitivesToBabylonJS(primitives, scene);
 };
@@ -413,8 +374,7 @@ export const createCompactHeightfieldSolidHelper = (
   compactHeightfield: CompactHeightfield,
   scene: Scene,
 ): DebugObject => {
-  const primitives =
-    NavCat.createCompactHeightfieldSolidHelper(compactHeightfield);
+  const primitives = NavCat.createCompactHeightfieldSolidHelper(compactHeightfield);
   return primitivesToBabylonJS(primitives, scene);
 };
 
@@ -422,8 +382,7 @@ export const createCompactHeightfieldDistancesHelper = (
   compactHeightfield: CompactHeightfield,
   scene: Scene,
 ): DebugObject => {
-  const primitives =
-    NavCat.createCompactHeightfieldDistancesHelper(compactHeightfield);
+  const primitives = NavCat.createCompactHeightfieldDistancesHelper(compactHeightfield);
   return primitivesToBabylonJS(primitives, scene);
 };
 
@@ -431,15 +390,11 @@ export const createCompactHeightfieldRegionsHelper = (
   compactHeightfield: CompactHeightfield,
   scene: Scene,
 ): DebugObject => {
-  const primitives =
-    NavCat.createCompactHeightfieldRegionsHelper(compactHeightfield);
+  const primitives = NavCat.createCompactHeightfieldRegionsHelper(compactHeightfield);
   return primitivesToBabylonJS(primitives, scene);
 };
 
-export const createRawContoursHelper = (
-  contourSet: ContourSet,
-  scene: Scene,
-): DebugObject => {
+export const createRawContoursHelper = (contourSet: ContourSet, scene: Scene): DebugObject => {
   const primitives = NavCat.createRawContoursHelper(contourSet);
   return primitivesToBabylonJS(primitives, scene);
 };
@@ -452,10 +407,7 @@ export const createSimplifiedContoursHelper = (
   return primitivesToBabylonJS(primitives, scene);
 };
 
-export const createPolyMeshHelper = (
-  polyMesh: PolyMesh,
-  scene: Scene,
-): DebugObject => {
+export const createPolyMeshHelper = (polyMesh: PolyMesh, scene: Scene): DebugObject => {
   const primitives = NavCat.createPolyMeshHelper(polyMesh);
   return primitivesToBabylonJS(primitives, scene);
 };
@@ -468,18 +420,12 @@ export const createPolyMeshDetailHelper = (
   return primitivesToBabylonJS(primitives, scene);
 };
 
-export const createNavMeshHelper = (
-  navMesh: NavMesh,
-  scene: Scene,
-): DebugObject => {
+export const createNavMeshHelper = (navMesh: NavMesh, scene: Scene): DebugObject => {
   const primitives = NavCat.createNavMeshHelper(navMesh);
   return primitivesToBabylonJS(primitives, scene);
 };
 
-export const createNavMeshTileHelper = (
-  tile: NavMeshTile,
-  scene: Scene,
-): DebugObject => {
+export const createNavMeshTileHelper = (tile: NavMeshTile, scene: Scene): DebugObject => {
   const primitives = NavCat.createNavMeshTileHelper(tile);
   return primitivesToBabylonJS(primitives, scene);
 };
@@ -490,11 +436,7 @@ export const createNavMeshPolyHelper = (
   scene: Scene,
   color: [number, number, number] = [0, 0.75, 1],
 ): DebugObject => {
-  const primitives = NavCat.createNavMeshPolyHelper(
-    navMesh,
-    nodeReference,
-    color,
-  );
+  const primitives = NavCat.createNavMeshPolyHelper(navMesh, nodeReference, color);
   return primitivesToBabylonJS(primitives, scene);
 };
 
@@ -506,18 +448,12 @@ export const createNavMeshTileBvTreeHelper = (
   return primitivesToBabylonJS(primitives, scene);
 };
 
-export const createNavMeshLinksHelper = (
-  navMesh: NavMesh,
-  scene: Scene,
-): DebugObject => {
+export const createNavMeshLinksHelper = (navMesh: NavMesh, scene: Scene): DebugObject => {
   const primitives = NavCat.createNavMeshLinksHelper(navMesh);
   return primitivesToBabylonJS(primitives, scene);
 };
 
-export const createNavMeshBvTreeHelper = (
-  navMesh: NavMesh,
-  scene: Scene,
-): DebugObject => {
+export const createNavMeshBvTreeHelper = (navMesh: NavMesh, scene: Scene): DebugObject => {
   const primitives = NavCat.createNavMeshBvTreeHelper(navMesh);
   return primitivesToBabylonJS(primitives, scene);
 };
@@ -530,18 +466,12 @@ export const createNavMeshTilePortalsHelper = (
   return primitivesToBabylonJS(primitives, scene);
 };
 
-export const createNavMeshPortalsHelper = (
-  navMesh: NavMesh,
-  scene: Scene,
-): DebugObject => {
+export const createNavMeshPortalsHelper = (navMesh: NavMesh, scene: Scene): DebugObject => {
   const primitives = NavCat.createNavMeshPortalsHelper(navMesh);
   return primitivesToBabylonJS(primitives, scene);
 };
 
-export const createSearchNodesHelper = (
-  nodePool: SearchNodePool,
-  scene: Scene,
-): DebugObject => {
+export const createSearchNodesHelper = (nodePool: SearchNodePool, scene: Scene): DebugObject => {
   const primitives = NavCat.createSearchNodesHelper(nodePool);
   return primitivesToBabylonJS(primitives, scene);
 };

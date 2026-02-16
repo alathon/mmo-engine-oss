@@ -1,7 +1,7 @@
-import { Scene } from '@babylonjs/core/scene';
-import { NPCState } from '@mmo/shared';
-import { MobEntity } from './mob-entity';
-import type { UiLayer } from '../ui/ui-layer';
+import { Scene } from "@babylonjs/core/scene";
+import { NPCState } from "@mmo/shared";
+import { MobEntity } from "./mob-entity";
+import type { UiLayer } from "../ui/ui-layer";
 
 /**
  * NPC entity class.

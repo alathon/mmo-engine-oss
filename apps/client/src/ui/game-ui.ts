@@ -1,6 +1,6 @@
-import { Scene } from '@babylonjs/core/scene';
-import { AdvancedDynamicTexture } from '@babylonjs/gui/2D/advancedDynamicTexture';
-import type { BattleMessagePayload, ChatViewModel } from './widgets/chat/chat-view-model';
+import { Scene } from "@babylonjs/core/scene";
+import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
+import type { BattleMessagePayload, ChatViewModel } from "./widgets/chat/chat-view-model";
 
 /**
  * Manages the in-game UI layer (name labels, health bars, etc.)
@@ -11,7 +11,7 @@ export class GameUI {
   private chatViewModel?: ChatViewModel;
 
   constructor(scene: Scene) {
-    this.texture = AdvancedDynamicTexture.CreateFullscreenUI('gameUI', true, scene);
+    this.texture = AdvancedDynamicTexture.CreateFullscreenUI("gameUI", true, scene);
   }
 
   attachChatViewModel(viewModel: ChatViewModel): void {

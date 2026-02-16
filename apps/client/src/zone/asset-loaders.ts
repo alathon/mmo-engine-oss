@@ -1,6 +1,6 @@
-import { ZoneDefinition } from '@mmo/shared';
-import startingPlainsNavcatUrl from '@mmo/shared/assets/zones/startingPlains.navcat.json?url';
-import startingPlainsZoneDefinition from '@mmo/shared/assets/zones/startingPlains.zone.json';
+import { ZoneDefinition } from "@mmo/shared";
+import startingPlainsNavcatUrl from "@mmo/assets/zones/startingPlains.navcat.json?url";
+import startingPlainsZoneDefinition from "@mmo/assets/zones/startingPlains.glb.zone.json";
 
 const NAVCAT_ASSETS: Record<string, string> = {
   startingPlains: startingPlainsNavcatUrl,

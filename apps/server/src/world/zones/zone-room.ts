@@ -41,6 +41,7 @@ export class ZoneRoom extends Room<{ state: ZoneState }> {
 
     this.connectionManager = new ZoneConnectionManager(
       serverZone.zoneData.getSpawnPosition.bind(serverZone.zoneData),
+      serverZone.zoneData.resolvePlayerSpawnPosition.bind(serverZone.zoneData),
     );
 
     let elapsedTimeMs = 0;
@@ -125,12 +126,9 @@ export class ZoneRoom extends Room<{ state: ZoneState }> {
       });
     });
 
-    this.onMessage(
-      "event_stream_resync_request",
-      (client, data: EventStreamResyncRequest) => {
-        this.handleEventStreamResync(client, data);
-      },
-    );
+    this.onMessage("event_stream_resync_request", (client, data: EventStreamResyncRequest) => {
+      this.handleEventStreamResync(client, data);
+    });
 
     logger.info({ zoneId: this.zone.zoneData.zoneId }, "ZoneRoom created");
   }
@@ -151,11 +149,7 @@ export class ZoneRoom extends Room<{ state: ZoneState }> {
   }
 
   async onJoin(client: Client, options: { fromZone?: string }) {
-    const serverPlayer = this.connectionManager.getExistingOrNewPlayer(
-      client,
-      options,
-      this,
-    );
+    const serverPlayer = this.connectionManager.getExistingOrNewPlayer(client, options, this);
     if (serverPlayer) {
       this.zone.players.set(serverPlayer.synced.id, serverPlayer);
       this.state.players.set(serverPlayer.synced.id, serverPlayer.synced);
@@ -278,13 +272,9 @@ export class ZoneRoom extends Room<{ state: ZoneState }> {
     }
   }
 
-  private handleEventStreamResync(
-    client: Client,
-    data: EventStreamResyncRequest,
-  ): void {
+  private handleEventStreamResync(client: Client, data: EventStreamResyncRequest): void {
     const buffer = this.zone.eventLog.getBuffer();
-    const range =
-      buffer.getSince(data.sinceEventId) ?? this.getFallbackResyncRange(buffer);
+    const range = buffer.getSince(data.sinceEventId) ?? this.getFallbackResyncRange(buffer);
 
     if (!range) {
       return;

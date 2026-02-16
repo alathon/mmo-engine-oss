@@ -1,4 +1,4 @@
-import type { UiAnchor, UiViewport, UiWidgetLayout } from './ui-layout-types';
+import type { UiAnchor, UiViewport, UiWidgetLayout } from "./ui-layout-types";
 
 /**
  * Size information for a UI widget used for clamping.
@@ -18,7 +18,7 @@ export const UI_LAYOUT_CLAMP_MARGIN_PX = 8;
  */
 export const scaleWidgetOffsets = (
   layout: UiWidgetLayout,
-  viewport: UiViewport
+  viewport: UiViewport,
 ): { offsetX: number; offsetY: number } => {
   const lastViewport = layout.lastViewport;
   if (
@@ -47,7 +47,7 @@ export const clampWidgetOffsets = (
   layout: UiWidgetLayout,
   viewport: UiViewport,
   size: UiWidgetSize,
-  margin: number = UI_LAYOUT_CLAMP_MARGIN_PX
+  margin: number = UI_LAYOUT_CLAMP_MARGIN_PX,
 ): { offsetX: number; offsetY: number } => {
   if (viewport.width <= 0 || viewport.height <= 0) {
     return { offsetX: layout.offsetX, offsetY: layout.offsetY };
@@ -61,7 +61,7 @@ export const clampWidgetOffsets = (
     layout.offsetX,
     layout.offsetY,
     viewport,
-    size
+    size,
   );
 
   const minLeft = margin;
@@ -83,25 +83,25 @@ export const resolveTopLeft = (
   offsetX: number,
   offsetY: number,
   viewport: UiViewport,
-  size: UiWidgetSize
+  size: UiWidgetSize,
 ): { left: number; top: number } => {
   switch (anchor) {
-    case 'top-left': {
+    case "top-left": {
       return { left: offsetX, top: offsetY };
     }
-    case 'top-right': {
+    case "top-right": {
       return { left: viewport.width - size.width - offsetX, top: offsetY };
     }
-    case 'bottom-left': {
+    case "bottom-left": {
       return { left: offsetX, top: viewport.height - size.height - offsetY };
     }
-    case 'bottom-right': {
+    case "bottom-right": {
       return {
         left: viewport.width - size.width - offsetX,
         top: viewport.height - size.height - offsetY,
       };
     }
-    case 'center': {
+    case "center": {
       return {
         left: viewport.width / 2 + offsetX - size.width / 2,
         top: viewport.height / 2 + offsetY - size.height / 2,
@@ -118,31 +118,31 @@ export const resolveOffsetsFromTopLeft = (
   left: number,
   top: number,
   viewport: UiViewport,
-  size: UiWidgetSize
+  size: UiWidgetSize,
 ): { offsetX: number; offsetY: number } => {
   switch (anchor) {
-    case 'top-left': {
+    case "top-left": {
       return { offsetX: left, offsetY: top };
     }
-    case 'top-right': {
+    case "top-right": {
       return {
         offsetX: viewport.width - (left + size.width),
         offsetY: top,
       };
     }
-    case 'bottom-left': {
+    case "bottom-left": {
       return {
         offsetX: left,
         offsetY: viewport.height - (top + size.height),
       };
     }
-    case 'bottom-right': {
+    case "bottom-right": {
       return {
         offsetX: viewport.width - (left + size.width),
         offsetY: viewport.height - (top + size.height),
       };
     }
-    case 'center': {
+    case "center": {
       return {
         offsetX: left + size.width / 2 - viewport.width / 2,
         offsetY: top + size.height / 2 - viewport.height / 2,

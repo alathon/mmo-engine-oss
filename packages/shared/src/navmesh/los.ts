@@ -11,7 +11,7 @@ import {
   type Vec3,
 } from "navcat";
 import { NAVMESH_RECOVERY_DISTANCE } from "../constants";
-import type { NavcatQuery } from "./navcatQuery";
+import type { NavcatQuery } from "./navcat-query";
 
 export interface NavmeshPoint {
   x: number;
@@ -27,9 +27,7 @@ interface RaycastResult {
 }
 
 const hasFiniteVec3 = (value: Vec3): boolean =>
-  Number.isFinite(value[0]) &&
-  Number.isFinite(value[1]) &&
-  Number.isFinite(value[2]);
+  Number.isFinite(value[0]) && Number.isFinite(value[1]) && Number.isFinite(value[2]);
 
 /**
  * Navcat raycast wrapper that supports nodeRef 0.
@@ -62,7 +60,7 @@ const raycastAllowZero = (
     }
     const { tile, poly } = tileAndPoly;
     const nv = poly.vertices.length;
-    const vertices: number[] = new Array(nv * 3);
+    const vertices: number[] = Array.from({ length: nv * 3 });
     for (let i = 0; i < nv; i += 1) {
       const start = poly.vertices[i] * 3;
       vertices[i * 3] = tile.vertices[start];
@@ -70,13 +68,7 @@ const raycastAllowZero = (
       vertices[i * 3 + 2] = tile.vertices[start + 2];
     }
 
-    geometry.intersectSegmentPoly2D(
-      intersectResult,
-      startPosition,
-      endPosition,
-      nv,
-      vertices,
-    );
+    geometry.intersectSegmentPoly2D(intersectResult, startPosition, endPosition, nv, vertices);
     if (!intersectResult.intersects) {
       return result;
     }
@@ -139,9 +131,7 @@ const raycastAllowZero = (
         if (lmin > lmax) {
           [lmin, lmax] = [lmax, lmin];
         }
-        const z =
-          startPosition[2] +
-          (endPosition[2] - startPosition[2]) * intersectResult.tmax;
+        const z = startPosition[2] + (endPosition[2] - startPosition[2]) * intersectResult.tmax;
         if (z >= lmin && z <= lmax) {
           nextRef = link.toNodeRef;
           break;
@@ -153,9 +143,7 @@ const raycastAllowZero = (
         if (lmin > lmax) {
           [lmin, lmax] = [lmax, lmin];
         }
-        const x =
-          startPosition[0] +
-          (endPosition[0] - startPosition[0]) * intersectResult.tmax;
+        const x = startPosition[0] + (endPosition[0] - startPosition[0]) * intersectResult.tmax;
         if (x >= lmin && x <= lmax) {
           nextRef = link.toNodeRef;
           break;
@@ -193,11 +181,6 @@ export function hasLineOfSight(
 
   const startPos: Vec3 = [start.x, start.y, start.z];
   const endPos: Vec3 = [end.x, end.y, end.z];
-  const result = raycastAllowZero(
-    navmesh.getNavmesh(),
-    start.nodeRef,
-    startPos,
-    endPos,
-  );
+  const result = raycastAllowZero(navmesh.getNavmesh(), start.nodeRef, startPos, endPos);
   return result.t >= RAYCAST_CLEAR_THRESHOLD;
 }

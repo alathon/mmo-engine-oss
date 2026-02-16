@@ -1,4 +1,4 @@
-import type { TargetSpec } from "../combat/targetingTypes";
+import type { TargetSpec } from "../combat/targeting-types";
 
 // Client -> Server
 export interface AbilityUseRequest {
@@ -76,14 +76,7 @@ export interface AbilityResult {
 
 export interface TargetResult {
   targetId: string;
-  outcome:
-    | "hit"
-    | "miss"
-    | "crit"
-    | "blocked"
-    | "immune"
-    | "dodged"
-    | "no_effect";
+  outcome: "hit" | "miss" | "crit" | "blocked" | "immune" | "dodged" | "no_effect";
   damage?: number;
   blockedAmount?: number;
   healing?: number;

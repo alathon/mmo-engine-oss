@@ -1,11 +1,7 @@
-import type {
-  AbilityAoeShape,
-  DirectionMode,
-  TargetType,
-} from "./targetingTypes";
+import type { AbilityAoeShape, DirectionMode, TargetType } from "./targeting-types";
 import type { ResourceCost } from "./resources";
 import type { AbilityTag } from "./status";
-import type { AbilityUseCheck } from "../types/combatMessages";
+import type { AbilityUseCheck } from "../types/combat-messages";
 
 export interface DamageEffect {
   type: "damage";
@@ -45,9 +41,7 @@ export interface AbilityDefinition {
   rollUseCheck?: () => AbilityUseCheck;
 }
 
-export const rollAbilityUseCheck = (
-  ability: AbilityDefinition,
-): AbilityUseCheck => {
+export const rollAbilityUseCheck = (ability: AbilityDefinition): AbilityUseCheck => {
   if (ability.rollUseCheck) {
     return ability.rollUseCheck();
   }

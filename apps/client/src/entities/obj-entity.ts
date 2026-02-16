@@ -1,14 +1,14 @@
-import { Scene } from '@babylonjs/core/scene';
-import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
-import { Color3 } from '@babylonjs/core/Maths/math.color';
-import { Mesh } from '@babylonjs/core/Meshes/mesh';
-import { TextBlock } from '@babylonjs/gui/2D/controls/textBlock';
-import { Control } from '@babylonjs/gui/2D/controls/control';
-import { NavmeshObstacle } from '@mmo/shared';
-import { Entity } from './entity';
-import type { UiLayer } from '../ui/ui-layer';
+import { Scene } from "@babylonjs/core/scene";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
+import { Control } from "@babylonjs/gui/2D/controls/control";
+import { NavmeshObstacle } from "@mmo/shared";
+import { Entity } from "./entity";
+import type { UiLayer } from "../ui/ui-layer";
 
-export type ObjShape = 'box' | 'sphere' | 'cylinder';
+export type ObjShape = "box" | "sphere" | "cylinder";
 
 /**
  * Options for creating an ObjEntity.
@@ -45,21 +45,33 @@ export interface ObjEntityOptions {
  * Creates a mesh based on the specified shape.
  */
 function createShapeMesh(id: string, shape: ObjShape, size: number, scene: Scene): Mesh {
+  let mesh: Mesh;
   switch (shape) {
-    case 'sphere': {
-      return MeshBuilder.CreateSphere(`${id}_body`, { diameter: size, segments: 16 }, scene);
+    case "sphere": {
+      mesh = MeshBuilder.CreateSphere(`${id}_body`, { diameter: size, segments: 16 }, scene);
+      break;
     }
-    case 'cylinder': {
-      return MeshBuilder.CreateCylinder(
+    case "cylinder": {
+      mesh = MeshBuilder.CreateCylinder(
         `${id}_body`,
         { diameter: size, height: size, tessellation: 16 },
-        scene
+        scene,
       );
+      break;
     }
     default: {
-      return MeshBuilder.CreateBox(`${id}_body`, { size }, scene);
+      mesh = MeshBuilder.CreateBox(`${id}_body`, { size }, scene);
+      break;
     }
   }
+
+  mesh.metadata = {
+    ...mesh.metadata,
+    navmeshShape: shape,
+    navmeshSize: size,
+  };
+
+  return mesh;
 }
 
 /**
@@ -89,7 +101,7 @@ export class ObjEntity extends Entity {
       y = 0,
       color,
       emissiveColor,
-      shape = 'box',
+      shape = "box",
       size = 1,
       isPickable = false,
       isCollidable = true,
@@ -110,6 +122,7 @@ export class ObjEntity extends Entity {
       modelMesh,
       modelMeshOffsetY: size / 2, // Center the mesh at half its height
       hasCollision: isCollidable,
+      collisionChecksEnabled: isCollidable,
     });
 
     this.isPickable = isPickable;
@@ -126,16 +139,16 @@ export class ObjEntity extends Entity {
   private createNameLabel(id: string, text: string): TextBlock {
     const label = new TextBlock(`nameLabel_${id}`);
     label.text = text;
-    label.color = 'white';
+    label.color = "white";
     label.fontSize = 12;
-    label.fontFamily = 'Segoe UI, system-ui, sans-serif';
-    label.fontWeight = '500';
+    label.fontFamily = "Segoe UI, system-ui, sans-serif";
+    label.fontWeight = "500";
     label.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
     label.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
 
     // Add outline for readability
     label.outlineWidth = 2;
-    label.outlineColor = 'black';
+    label.outlineColor = "black";
 
     // Add to game UI
     this.uiLayer.addControl(label);

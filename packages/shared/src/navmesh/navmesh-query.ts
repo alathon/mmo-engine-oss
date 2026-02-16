@@ -96,7 +96,7 @@ export class NavmeshQuery {
   findNearestPoint(
     x: number,
     z: number,
-    maxDistance: number
+    maxDistance: number,
   ): { x: number; y: number; z: number; nodeRef: number } | null {
     // First check if already on navmesh
     const polyId = this.findPolygon(x, z);
@@ -179,7 +179,7 @@ export class NavmeshQuery {
     currentZ: number,
     deltaX: number,
     deltaZ: number,
-    _startNodeRef?: number
+    _startNodeRef?: number,
   ): NavMovementResult {
     const targetX = currentX + deltaX;
     const targetZ = currentZ + deltaZ;
@@ -248,12 +248,7 @@ export class NavmeshQuery {
    * @param endZ - ray target Z.
    * @returns hit result or null if path is clear (both points on navmesh).
    */
-  raycast(
-    startX: number,
-    startZ: number,
-    endX: number,
-    endZ: number
-  ): NavRaycastResult | null {
+  raycast(startX: number, startZ: number, endX: number, endZ: number): NavRaycastResult | null {
     // If start is not on navmesh, can't raycast
     const startPolyId = this.findPolygon(startX, startZ);
     if (startPolyId < 0) {
@@ -379,7 +374,7 @@ export class NavmeshQuery {
     pz: number,
     v0: NavVertex,
     v1: NavVertex,
-    v2: NavVertex
+    v2: NavVertex,
   ): { u: number; v: number; w: number } {
     const d00 = (v1.x - v0.x) * (v1.x - v0.x) + (v1.z - v0.z) * (v1.z - v0.z);
     const d01 = (v1.x - v0.x) * (v2.x - v0.x) + (v1.z - v0.z) * (v2.z - v0.z);

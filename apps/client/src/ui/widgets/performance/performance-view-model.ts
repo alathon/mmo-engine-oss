@@ -1,5 +1,5 @@
-import type { Scene } from '@babylonjs/core/scene';
-import type { ZoneConnectionManager } from '../../../network/zone-connection-manager';
+import type { Scene } from "@babylonjs/core/scene";
+import type { ZoneConnectionManager } from "../../../network/zone-connection-manager";
 
 type Listener = () => void;
 
@@ -23,7 +23,7 @@ export class PerformanceViewModel {
 
   constructor(
     private scene: Scene,
-    private connection: ZoneConnectionManager
+    private connection: ZoneConnectionManager,
   ) {}
 
   subscribe(listener: Listener): () => void {

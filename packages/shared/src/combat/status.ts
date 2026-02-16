@@ -1,11 +1,6 @@
 export type StatusCategory = "buff" | "debuff";
 export type StatusStacking = "refresh" | "stack" | "replace" | "independent";
-export type StatusState =
-  | "stunned"
-  | "immobilized"
-  | "silenced"
-  | "rooted"
-  | "disarmed";
+export type StatusState = "stunned" | "immobilized" | "silenced" | "rooted" | "disarmed";
 
 export type AbilityTag = "spell" | "melee" | "ranged" | "movement" | "utility";
 

@@ -77,11 +77,9 @@ export class AbilityEngine {
   private nextCastId = 1;
 
   constructor(private readonly zone: ServerZone) {
-    this.zone.movementController.onMobMovement(
-      (event, serverTick, serverTimeMs) => {
-        this.handleMobMovement(event, serverTick, serverTimeMs);
-      },
-    );
+    this.zone.movementController.onMobMovement((event, serverTick, serverTimeMs) => {
+      this.handleMobMovement(event, serverTick, serverTimeMs);
+    });
   }
 
   private handleMobMovement(
@@ -145,27 +143,14 @@ export class AbilityEngine {
   handleAbilityUse(context: AbilityUseContext): AbilityAck | undefined {
     const { actor, request, serverTimeMs, serverTick, sendAck } = context;
     if (request.actorId !== actor.id) {
-      const ack = this.buildRejectAck(
-        request,
-        serverTimeMs,
-        serverTick,
-        "illegal",
-      );
+      const ack = this.buildRejectAck(request, serverTimeMs, serverTick, "illegal");
       sendAck(ack);
       return ack;
     }
 
-    const ability =
-      ABILITY_DEFINITIONS[
-        request.abilityId as keyof typeof ABILITY_DEFINITIONS
-      ];
+    const ability = ABILITY_DEFINITIONS[request.abilityId as keyof typeof ABILITY_DEFINITIONS];
     if (!ability) {
-      const ack = this.buildRejectAck(
-        request,
-        serverTimeMs,
-        serverTick,
-        "illegal",
-      );
+      const ack = this.buildRejectAck(request, serverTimeMs, serverTick, "illegal");
       sendAck(ack);
       return ack;
     }
@@ -174,23 +159,13 @@ export class AbilityEngine {
 
     if (actor.activeCast) {
       if (!ability.isOnGcd) {
-        const ack = this.buildRejectAck(
-          request,
-          serverTimeMs,
-          serverTick,
-          "illegal",
-        );
+        const ack = this.buildRejectAck(request, serverTimeMs, serverTick, "illegal");
         sendAck(ack);
         return ack;
       }
 
       if (actor.bufferedRequest) {
-        const ack = this.buildRejectAck(
-          request,
-          serverTimeMs,
-          serverTick,
-          "buffer_full",
-        );
+        const ack = this.buildRejectAck(request, serverTimeMs, serverTick, "buffer_full");
         sendAck(ack);
         return ack;
       }
@@ -199,28 +174,20 @@ export class AbilityEngine {
         serverTimeMs,
         actor.activeCast.castStartTimeMs,
         actor.activeCast.castEndTimeMs,
+        abilityState.gcdEndTimeMs,
       );
       if (!canBuffer) {
-        const ack = this.buildRejectAck(
-          request,
-          serverTimeMs,
-          serverTick,
-          "buffer_window_closed",
-        );
+        const ack = this.buildRejectAck(request, serverTimeMs, serverTick, "buffer_window_closed");
         sendAck(ack);
         return ack;
       }
 
       const validation = this.validateAbilityUse(actor, request, serverTimeMs, {
         ignoreGcd: true,
+        ignoreInternalCooldown: true,
       });
       if (!validation.accepted) {
-        const ack = this.buildRejectAck(
-          request,
-          serverTimeMs,
-          serverTick,
-          validation.rejectReason,
-        );
+        const ack = this.buildRejectAck(request, serverTimeMs, serverTick, validation.rejectReason);
         sendAck(ack);
         return ack;
       }
@@ -240,26 +207,30 @@ export class AbilityEngine {
       !abilityState.isGcdReady(serverTimeMs)
     ) {
       if (actor.bufferedRequest) {
-        const ack = this.buildRejectAck(
-          request,
-          serverTimeMs,
-          serverTick,
-          "buffer_full",
-        );
+        const ack = this.buildRejectAck(request, serverTimeMs, serverTick, "buffer_full");
+        sendAck(ack);
+        return ack;
+      }
+
+      const gcdStartTimeMs = Math.max(0, abilityState.gcdEndTimeMs - GCD_MS);
+      const canBuffer = canBufferAbility(
+        serverTimeMs,
+        gcdStartTimeMs,
+        gcdStartTimeMs,
+        abilityState.gcdEndTimeMs,
+      );
+      if (!canBuffer) {
+        const ack = this.buildRejectAck(request, serverTimeMs, serverTick, "buffer_window_closed");
         sendAck(ack);
         return ack;
       }
 
       const validation = this.validateAbilityUse(actor, request, serverTimeMs, {
         ignoreGcd: true,
+        ignoreInternalCooldown: true,
       });
       if (!validation.accepted) {
-        const ack = this.buildRejectAck(
-          request,
-          serverTimeMs,
-          serverTick,
-          validation.rejectReason,
-        );
+        const ack = this.buildRejectAck(request, serverTimeMs, serverTick, validation.rejectReason);
         sendAck(ack);
         return ack;
       }
@@ -275,23 +246,12 @@ export class AbilityEngine {
 
     const validation = this.validateAbilityUse(actor, request, serverTimeMs);
     if (!validation.accepted) {
-      const ack = this.buildRejectAck(
-        request,
-        serverTimeMs,
-        serverTick,
-        validation.rejectReason,
-      );
+      const ack = this.buildRejectAck(request, serverTimeMs, serverTick, validation.rejectReason);
       sendAck(ack);
       return ack;
     }
 
-    const ack = this.acceptIntoCastQueue(
-      actor,
-      request,
-      validation,
-      serverTimeMs,
-      serverTick,
-    );
+    const ack = this.acceptIntoCastQueue(actor, request, validation, serverTimeMs, serverTick);
     sendAck(ack);
     return ack;
   }
@@ -364,52 +324,28 @@ export class AbilityEngine {
         abilityState.castAbilityId = "";
         abilityState.castId = 0;
         const ability =
-          ABILITY_DEFINITIONS[
-            activeCast.abilityId as keyof typeof ABILITY_DEFINITIONS
-          ];
+          ABILITY_DEFINITIONS[activeCast.abilityId as keyof typeof ABILITY_DEFINITIONS];
         if (ability) {
-          combatant.cooldowns.set(
-            ability.id,
-            activeCast.castEndTimeMs + ability.cooldownMs,
-          );
+          combatant.cooldowns.set(ability.id, activeCast.castEndTimeMs + ability.cooldownMs);
         }
 
         if (combatant.bufferedRequest) {
           const buffered = combatant.bufferedRequest;
           const bufferedAbility =
-            ABILITY_DEFINITIONS[
-              buffered.request.abilityId as keyof typeof ABILITY_DEFINITIONS
-            ];
+            ABILITY_DEFINITIONS[buffered.request.abilityId as keyof typeof ABILITY_DEFINITIONS];
           if (!bufferedAbility) {
             combatant.bufferedRequest = undefined;
-            const ack = this.buildRejectAck(
-              buffered.request,
-              serverTimeMs,
-              serverTick,
-              "illegal",
-            );
+            const ack = this.buildRejectAck(buffered.request, serverTimeMs, serverTick, "illegal");
             buffered.sendAck(ack);
           } else if (!bufferedAbility.isOnGcd) {
             combatant.bufferedRequest = undefined;
-            const ack = this.buildRejectAck(
-              buffered.request,
-              serverTimeMs,
-              serverTick,
-              "illegal",
-            );
+            const ack = this.buildRejectAck(buffered.request, serverTimeMs, serverTick, "illegal");
             buffered.sendAck(ack);
-          } else if (
-            bufferedAbility.isOnGcd &&
-            !abilityState.isGcdReady(serverTimeMs)
-          ) {
+          } else if (bufferedAbility.isOnGcd && !abilityState.isGcdReady(serverTimeMs)) {
             continue;
           } else {
             combatant.bufferedRequest = undefined;
-            const validation = this.validateAbilityUse(
-              combatant,
-              buffered.request,
-              serverTimeMs,
-            );
+            const validation = this.validateAbilityUse(combatant, buffered.request, serverTimeMs);
             if (validation.accepted) {
               const ack = this.acceptIntoCastQueue(
                 combatant,
@@ -433,17 +369,10 @@ export class AbilityEngine {
         continue;
       }
 
-      if (
-        combatant.bufferedRequest &&
-        combatant.synced.abilityState.isGcdReady(serverTimeMs)
-      ) {
+      if (combatant.bufferedRequest && combatant.synced.abilityState.isGcdReady(serverTimeMs)) {
         const buffered = combatant.bufferedRequest;
         combatant.bufferedRequest = undefined;
-        const validation = this.validateAbilityUse(
-          combatant,
-          buffered.request,
-          serverTimeMs,
-        );
+        const validation = this.validateAbilityUse(combatant, buffered.request, serverTimeMs);
         if (validation.accepted) {
           const ack = this.acceptIntoCastQueue(
             combatant,
@@ -486,8 +415,7 @@ export class AbilityEngine {
 
   /** Apply an ability result to entities and emit the resolved event. */
   applyResult(cast: ActiveCast, serverTick: number): void {
-    const ability =
-      ABILITY_DEFINITIONS[cast.abilityId as keyof typeof ABILITY_DEFINITIONS];
+    const ability = ABILITY_DEFINITIONS[cast.abilityId as keyof typeof ABILITY_DEFINITIONS];
     if (!ability) {
       return;
     }
@@ -588,9 +516,7 @@ export class AbilityEngine {
         }
 
         const appliedDefinition =
-          durationMs === definition.durationMs
-            ? definition
-            : { ...definition, durationMs };
+          durationMs === definition.durationMs ? definition : { ...definition, durationMs };
 
         statusController.applyStatus(appliedDefinition, actor.synced, nowMs);
       }
@@ -633,9 +559,7 @@ export class AbilityEngine {
     return this.zone.npcs.get(id);
   }
 
-  private mapEffectOutcome(
-    outcome: TargetResult["outcome"],
-  ): AbilityEffectAppliedEvent["outcome"] {
+  private mapEffectOutcome(outcome: TargetResult["outcome"]): AbilityEffectAppliedEvent["outcome"] {
     if (outcome === "hit") {
       return "hit";
     }
@@ -695,10 +619,7 @@ export class AbilityEngine {
     const castId = this.nextCastId;
     this.nextCastId += 1;
 
-    const gcdDurationMs = Math.max(GCD_MS, ability.castTimeMs);
-    const gcdEndTimeMs =
-      computeGcdEndTimeMs(ability.isOnGcd, castStartTimeMs, gcdDurationMs) ??
-      undefined;
+    const gcdEndTimeMs = computeGcdEndTimeMs(ability.isOnGcd, castStartTimeMs, GCD_MS) ?? undefined;
 
     const abilityState = actor.synced.abilityState;
     abilityState.castStartTimeMs = castStartTimeMs;
@@ -710,20 +631,12 @@ export class AbilityEngine {
       abilityState.gcdEndTimeMs = gcdEndTimeMs;
     }
     if (ability.castTimeMs < INTERNAL_COOLDOWN_MS) {
-      abilityState.internalCooldownEndTimeMs =
-        castStartTimeMs + INTERNAL_COOLDOWN_MS;
+      abilityState.internalCooldownEndTimeMs = castStartTimeMs + INTERNAL_COOLDOWN_MS;
     }
 
     const targets = this.resolveTargetStates(validation.possibleTargetIds);
-    const rngSeed = hashStringToUint32(
-      `${request.requestId}:${request.actorId}:${serverTick}`,
-    );
-    const result = resolveAbilityOutcome(
-      ability,
-      actor.synced,
-      targets,
-      rngSeed,
-    );
+    const rngSeed = hashStringToUint32(`${request.requestId}:${request.actorId}:${serverTick}`);
+    const result = resolveAbilityOutcome(ability, actor.synced, targets, rngSeed);
 
     actor.activeCast = {
       castId,
@@ -783,12 +696,10 @@ export class AbilityEngine {
     serverTimeMs: number,
     options?: {
       ignoreGcd?: boolean;
+      ignoreInternalCooldown?: boolean;
     },
   ): ValidationResult {
-    const ability =
-      ABILITY_DEFINITIONS[
-        request.abilityId as keyof typeof ABILITY_DEFINITIONS
-      ];
+    const ability = ABILITY_DEFINITIONS[request.abilityId as keyof typeof ABILITY_DEFINITIONS];
     if (!ability) {
       return { accepted: false, rejectReason: "illegal" };
     }
@@ -799,15 +710,11 @@ export class AbilityEngine {
     }
 
     const abilityState = actor.synced.abilityState;
-    if (
-      ability.isOnGcd &&
-      !options?.ignoreGcd &&
-      !abilityState.isGcdReady(serverTimeMs)
-    ) {
+    if (ability.isOnGcd && !options?.ignoreGcd && !abilityState.isGcdReady(serverTimeMs)) {
       return { accepted: false, rejectReason: "cooldown" };
     }
 
-    if (abilityState.isInternalCooldownActive(serverTimeMs)) {
+    if (!options?.ignoreInternalCooldown && abilityState.isInternalCooldownActive(serverTimeMs)) {
       return { accepted: false, rejectReason: "cooldown" };
     }
 
@@ -826,11 +733,7 @@ export class AbilityEngine {
     }
 
     if (targeting.targetPosition) {
-      const inRange = this.isInRange(
-        actor,
-        targeting.targetPosition,
-        ability.range,
-      );
+      const inRange = this.isInRange(actor, targeting.targetPosition, ability.range);
       if (!inRange) {
         return { accepted: false, rejectReason: "out_of_range" };
       }
@@ -929,9 +832,7 @@ export class AbilityEngine {
   }
 
   /** Gather target candidates for targeting resolution. */
-  private collectTargetCandidates(
-    actor: ServerMob<MobState>,
-  ): TargetCandidate[] {
+  private collectTargetCandidates(actor: ServerMob<MobState>): TargetCandidate[] {
     const candidates: TargetCandidate[] = [
       {
         id: actor.id,

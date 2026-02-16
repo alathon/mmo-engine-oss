@@ -2,9 +2,9 @@
  * Client-side application state identifiers.
  */
 export const ClientGameState = {
-  Login: 'login',
-  CharacterSelect: 'characterSelect',
-  Ingame: 'ingame',
+  Login: "login",
+  CharacterSelect: "characterSelect",
+  Ingame: "ingame",
 } as const;
 
 /**

@@ -4,25 +4,27 @@ import { ZoneData } from "../src/world/zones/zone";
 import type { ZoneDefinition } from "@mmo/shared";
 import { createAuthToken } from "@mmo/shared-servers";
 import { createTestNavmeshQuery } from "./test-navmesh";
+import { createTestCollisionWorld } from "./test-collision-world";
 
 const AUTH_SECRET = "zone-room-test-secret";
 const TEST_PORT = 27_000 + (process.pid % 1000);
 
 const createTestZoneData = (zoneId: string): ZoneData => {
-  const zoneData = new ZoneData(zoneId, createTestNavmeshQuery());
-  zoneData.definition = {
+  const definition = {
     id: zoneId,
     name: "Test Zone",
     sceneData: {
-      width: 1,
-      height: 1,
-      ground: {
-        color: { r: 0, g: 0, b: 0 },
-      },
+      glbFilePath: "test.glb",
       terrainObjects: [],
       navmeshFilePath: "test.navmesh",
     },
   } as ZoneDefinition;
+  const zoneData = new ZoneData(
+    zoneId,
+    createTestNavmeshQuery(),
+    definition,
+    createTestCollisionWorld(zoneId),
+  );
   zoneData.entryPoints = [];
   zoneData.mobSpawnPoints = [];
   zoneData.objSpawnPoints = [];
@@ -104,9 +106,7 @@ describe("ZoneRoom", () => {
     const room = await colyseus.createRoom("zone", {
       zoneData: createTestZoneData("test-zone"),
     });
-    await expect(colyseus.connectTo(room, {})).rejects.toThrow(
-      /missing auth token/i,
-    );
+    await expect(colyseus.connectTo(room, {})).rejects.toThrow(/missing auth token/i);
   });
 
   it("marks a player disconnected on leave", async () => {

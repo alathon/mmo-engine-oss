@@ -52,13 +52,7 @@ export interface NavmeshGeneratorConfig {
  * @returns generated navmesh data.
  */
 export function generateNavmesh(config: NavmeshGeneratorConfig): Navmesh {
-  const {
-    bounds,
-    obstacles,
-    cellSize = 1,
-    obstacleMargin = 0.2,
-    groundHeight = 0,
-  } = config;
+  const { bounds, obstacles, cellSize = 1, obstacleMargin = 0.2, groundHeight = 0 } = config;
 
   const worldWidth = bounds.maxX - bounds.minX;
   const worldHeight = bounds.maxZ - bounds.minZ;
@@ -140,13 +134,9 @@ export function generateNavmesh(config: NavmeshGeneratorConfig): Navmesh {
       // Edge 0: v0 -> v1 (bottom edge, neighbor is cell at cz-1)
       neighbors.push(cz > 0 && !blockedCells.has(`${cx},${cz - 1}`) ? -2 : -1);
       // Edge 1: v1 -> v2 (right edge, neighbor is cell at cx+1)
-      neighbors.push(
-        cx < gridWidth - 1 && !blockedCells.has(`${cx + 1},${cz}`) ? -2 : -1,
-      );
+      neighbors.push(cx < gridWidth - 1 && !blockedCells.has(`${cx + 1},${cz}`) ? -2 : -1);
       // Edge 2: v2 -> v3 (top edge, neighbor is cell at cz+1)
-      neighbors.push(
-        cz < gridHeight - 1 && !blockedCells.has(`${cx},${cz + 1}`) ? -2 : -1,
-      );
+      neighbors.push(cz < gridHeight - 1 && !blockedCells.has(`${cx},${cz + 1}`) ? -2 : -1);
       // Edge 3: v3 -> v0 (left edge, neighbor is cell at cx-1)
       neighbors.push(cx > 0 && !blockedCells.has(`${cx - 1},${cz}`) ? -2 : -1);
 
@@ -161,7 +151,11 @@ export function generateNavmesh(config: NavmeshGeneratorConfig): Navmesh {
 
       // Add to spatial grid
       const cellIndex = cz * gridWidth + cx;
-      grid[cellIndex].push(polygonId);
+      if (grid[cellIndex]) {
+        grid[cellIndex].push(polygonId);
+      } else {
+        grid[cellIndex] = [polygonId];
+      }
 
       polygonId++;
     }
@@ -170,15 +164,21 @@ export function generateNavmesh(config: NavmeshGeneratorConfig): Navmesh {
   // Second pass: fix neighbor IDs (replace -2 placeholder with actual polygon IDs)
   const cellToPolygonId = new Map<string, number>();
   for (const poly of polygons) {
+    const p0 = poly.vertexIndices[0];
+    if (!p0) continue;
     // Find which cell this polygon is in
-    const v0 = vertices[poly.vertexIndices[0]];
+    const v0 = vertices[p0];
+    if (!v0) continue;
     const cx = Math.floor((v0.x - originX) / cellSize);
     const cz = Math.floor((v0.z - originZ) / cellSize);
     cellToPolygonId.set(`${cx},${cz}`, poly.id);
   }
 
   for (const poly of polygons) {
-    const v0 = vertices[poly.vertexIndices[0]];
+    const p0 = poly.vertexIndices[0];
+    if (!p0) continue;
+    const v0 = vertices[p0];
+    if (!v0) continue;
     const cx = Math.floor((v0.x - originX) / cellSize);
     const cz = Math.floor((v0.z - originZ) / cellSize);
 

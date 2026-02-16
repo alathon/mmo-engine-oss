@@ -1,6 +1,6 @@
-import { createElement, Fragment } from 'react';
-import { createRoot, type Root } from 'react-dom/client';
-import { IngameUiRoot, type IngameUiRootProps } from './ingame-ui-root';
+import { createElement, Fragment } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { IngameUiRoot, type IngameUiRootProps } from "./ingame-ui-root";
 
 export class ReactUiRoot {
   private root: Root;
@@ -23,9 +23,9 @@ export class ReactUiRoot {
 }
 
 export const createReactUiRoot = (): ReactUiRoot => {
-  const container = document.querySelector<HTMLElement>('#ui');
+  const container = document.querySelector<HTMLElement>("#ui");
   if (!container) {
-    throw new Error('React UI root element (#ui) not found');
+    throw new Error("React UI root element (#ui) not found");
   }
 
   return new ReactUiRoot(container);

@@ -98,11 +98,7 @@ export class StatusController {
     this.onChange = onChange;
   }
 
-  applyStatus(
-    effect: StatusEffectDefinition,
-    source: MobState,
-    nowMs: number,
-  ): boolean {
+  applyStatus(effect: StatusEffectDefinition, source: MobState, nowMs: number): boolean {
     const stacking = effect.stacking as StatusStacking;
     const existing = this.statuses.filter((status) => status.id === effect.id);
     const durationMs = effect.durationMs;
@@ -121,10 +117,7 @@ export class StatusController {
 
     if (stacking === "stack" && existing.length > 0) {
       const status = existing[0];
-      status.stacks = Math.min(
-        effect.maxStacks ?? Number.MAX_SAFE_INTEGER,
-        status.stacks + 1,
-      );
+      status.stacks = Math.min(effect.maxStacks ?? Number.MAX_SAFE_INTEGER, status.stacks + 1);
       status.expiresAtMs = expiresAtMs;
       this.markDirty();
       return true;
@@ -141,9 +134,7 @@ export class StatusController {
       appliedAtMs: nowMs,
       expiresAtMs,
       stacks: 1,
-      nextTickAtMs: effect.tickIntervalMs
-        ? nowMs + effect.tickIntervalMs
-        : undefined,
+      nextTickAtMs: effect.tickIntervalMs ? nowMs + effect.tickIntervalMs : undefined,
       snapshot,
     });
 

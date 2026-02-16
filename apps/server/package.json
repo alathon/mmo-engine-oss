@@ -10,13 +10,14 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "start": "tsx watch src/index.ts",
-    "start:prod": "tsx src/index.ts",
-    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.mjs",
+    "dev": "tsdown --watch --onSuccess \"node dist/index.mjs\"",
+    "build": "tsdown",
+    "generate:heightmap": "tsx scripts/generate-heightmap.ts",
     "generate:navcat": "tsx scripts/generate-navcat.ts",
+    "generate:navcat:glb": "tsx scripts/generate-navcat-glb.ts",
     "loadtest": "tsx loadtest/example.ts --room my_room --numClients 2",
     "test": "vitest run --config vitest.config.ts",
-    "build": "pnpm run clean && tsc",
     "clean": "rimraf dist",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
@@ -28,14 +29,17 @@
     "@types/express": "catalog:",
     "@types/jsonwebtoken": "catalog:",
     "eslint": "catalog:",
+    "jimp": "catalog:",
     "pino-pretty": "catalog:",
     "rimraf": "catalog:",
+    "tsdown": "^0.20.3",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
   "dependencies": {
     "@babylonjs/core": "catalog:",
+    "@babylonjs/loaders": "catalog:",
     "@colyseus/core": "catalog:",
     "@colyseus/monitor": "catalog:",
     "@colyseus/playground": "catalog:",

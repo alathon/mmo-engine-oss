@@ -1,17 +1,17 @@
-import { AdvancedDynamicTexture } from '@babylonjs/gui/2D/advancedDynamicTexture';
-import { TextBlock } from '@babylonjs/gui/2D/controls/textBlock';
-import { Control } from '@babylonjs/gui/2D/controls/control';
-import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
-import { Mesh } from '@babylonjs/core/Meshes/mesh';
-import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
-import { Color3 } from '@babylonjs/core/Maths/math.color';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
-import { TransformNode } from '@babylonjs/core/Meshes/transformNode';
-import type { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera';
-import type { Scene } from '@babylonjs/core/scene';
-import type { ClientState } from './types';
-import type { FullscreenUiController } from '../ui/fullscreen-ui-controller';
+import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
+import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
+import { Control } from "@babylonjs/gui/2D/controls/control";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
+import type { ArcRotateCamera } from "@babylonjs/core/Cameras/arcRotateCamera";
+import type { Scene } from "@babylonjs/core/scene";
+import type { ClientState } from "./types";
+import type { FullscreenUiController } from "../ui/fullscreen-ui-controller";
 
 /**
  * Minimal placeholder character select screen.
@@ -40,24 +40,24 @@ export class CharacterSelectState implements ClientState {
   };
   private characters = [
     {
-      id: 'char_riven',
-      name: 'Riven',
-      detail: 'Level 8 Wanderer',
-      accent: '#f0c27a',
+      id: "char_riven",
+      name: "Riven",
+      detail: "Level 8 Wanderer",
+      accent: "#f0c27a",
       color: new Color3(0.85, 0.62, 0.32),
     },
     {
-      id: 'char_nyra',
-      name: 'Nyra',
-      detail: 'Level 5 Mystic',
-      accent: '#c79af3',
+      id: "char_nyra",
+      name: "Nyra",
+      detail: "Level 5 Mystic",
+      accent: "#c79af3",
       color: new Color3(0.72, 0.55, 0.9),
     },
     {
-      id: 'char_kato',
-      name: 'Kato',
-      detail: 'Level 3 Vanguard',
-      accent: '#7fbfe0',
+      id: "char_kato",
+      name: "Kato",
+      detail: "Level 3 Vanguard",
+      accent: "#7fbfe0",
       color: new Color3(0.45, 0.72, 0.86),
     },
   ];
@@ -74,7 +74,7 @@ export class CharacterSelectState implements ClientState {
     private uiController: FullscreenUiController,
     private scene: Scene,
     private camera: ArcRotateCamera,
-    private onEnterWorld: (characterId: string, characterName: string) => void
+    private onEnterWorld: (characterId: string, characterName: string) => void,
   ) {}
 
   /**
@@ -104,9 +104,9 @@ export class CharacterSelectState implements ClientState {
   }
 
   private mountUi(): void {
-    const uiRoot = document.querySelector<HTMLElement>('#ui');
+    const uiRoot = document.querySelector<HTMLElement>("#ui");
     if (!uiRoot) {
-      console.error('UI root not found');
+      console.error("UI root not found");
       return;
     }
 
@@ -114,42 +114,42 @@ export class CharacterSelectState implements ClientState {
     this.ensureStylesheet();
     this.clearRoot();
 
-    const container = document.createElement('div');
-    container.className = 'character-select-screen';
+    const container = document.createElement("div");
+    container.className = "character-select-screen";
 
-    const vignette = document.createElement('div');
-    vignette.className = 'character-select-vignette';
+    const vignette = document.createElement("div");
+    vignette.className = "character-select-vignette";
 
-    const panel = document.createElement('div');
-    panel.className = 'character-select-panel';
+    const panel = document.createElement("div");
+    panel.className = "character-select-panel";
 
-    const crest = document.createElement('div');
-    crest.className = 'character-select-crest';
-    crest.setAttribute('aria-hidden', 'true');
+    const crest = document.createElement("div");
+    crest.className = "character-select-crest";
+    crest.setAttribute("aria-hidden", "true");
 
-    const title = document.createElement('h1');
-    title.className = 'character-select-title';
-    title.textContent = 'Choose Your Champion';
+    const title = document.createElement("h1");
+    title.className = "character-select-title";
+    title.textContent = "Choose Your Champion";
 
-    const subtitle = document.createElement('p');
-    subtitle.className = 'character-select-subtitle';
-    subtitle.textContent = 'Each soul bears a story. Select the one who answers.';
+    const subtitle = document.createElement("p");
+    subtitle.className = "character-select-subtitle";
+    subtitle.textContent = "Each soul bears a story. Select the one who answers.";
 
-    const list = document.createElement('div');
-    list.className = 'character-select-list';
+    const list = document.createElement("div");
+    list.className = "character-select-list";
 
     for (const [index, character] of this.characters.entries()) {
-      const entry = document.createElement('button');
-      entry.className = 'character-select-entry';
-      entry.type = 'button';
-      entry.style.setProperty('--accent', character.accent);
+      const entry = document.createElement("button");
+      entry.className = "character-select-entry";
+      entry.type = "button";
+      entry.style.setProperty("--accent", character.accent);
 
-      const name = document.createElement('span');
-      name.className = 'character-select-name';
+      const name = document.createElement("span");
+      name.className = "character-select-name";
       name.textContent = character.name;
 
-      const detail = document.createElement('span');
-      detail.className = 'character-select-detail';
+      const detail = document.createElement("span");
+      detail.className = "character-select-detail";
       detail.textContent = character.detail;
 
       entry.append(name);
@@ -158,32 +158,32 @@ export class CharacterSelectState implements ClientState {
       const handler = () => {
         this.handleSelection(index);
       };
-      entry.addEventListener('click', handler);
+      entry.addEventListener("click", handler);
 
       this.entryButtons.push(entry);
       this.entryHandlers.push(handler);
       list.append(entry);
     }
 
-    const hint = document.createElement('p');
-    hint.className = 'character-select-hint';
-    hint.textContent = 'Appearance preview appears to the right.';
+    const hint = document.createElement("p");
+    hint.className = "character-select-hint";
+    hint.textContent = "Appearance preview appears to the right.";
 
-    const actions = document.createElement('div');
-    actions.className = 'character-select-actions';
+    const actions = document.createElement("div");
+    actions.className = "character-select-actions";
 
-    const enterButton = document.createElement('button');
-    enterButton.className = 'character-select-enter';
-    enterButton.type = 'button';
+    const enterButton = document.createElement("button");
+    enterButton.className = "character-select-enter";
+    enterButton.type = "button";
     enterButton.disabled = true;
-    enterButton.textContent = 'Enter World';
+    enterButton.textContent = "Enter World";
 
     this.enterClickHandler = () => {
       if (this.isActive) {
         this.handleEnterWorld();
       }
     };
-    enterButton.addEventListener('click', this.enterClickHandler);
+    enterButton.addEventListener("click", this.enterClickHandler);
 
     actions.append(enterButton);
 
@@ -205,13 +205,13 @@ export class CharacterSelectState implements ClientState {
 
   private unmountUi(): void {
     if (this.enterButton && this.enterClickHandler) {
-      this.enterButton.removeEventListener('click', this.enterClickHandler);
+      this.enterButton.removeEventListener("click", this.enterClickHandler);
     }
 
     for (const [index, button] of this.entryButtons.entries()) {
       const handler = this.entryHandlers[index];
       if (handler) {
-        button.removeEventListener('click', handler);
+        button.removeEventListener("click", handler);
       }
     }
 
@@ -230,17 +230,17 @@ export class CharacterSelectState implements ClientState {
 
   private ensureStylesheet(): void {
     const existing = document.querySelector<HTMLLinkElement>(
-      "link[data-ui-style='character-select']"
+      "link[data-ui-style='character-select']",
     );
     if (existing) {
       this.stylesheet = existing;
       return;
     }
 
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = new URL('../ui/characterSelect.css', import.meta.url).toString();
-    link.dataset.uiStyle = 'character-select';
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = new URL("../ui/characterSelect.css", import.meta.url).toString();
+    link.dataset.uiStyle = "character-select";
     document.head.append(link);
     this.stylesheet = link;
   }
@@ -259,49 +259,49 @@ export class CharacterSelectState implements ClientState {
       return;
     }
 
-    this.previewRoot = new TransformNode('character_select_preview_root', this.scene);
+    this.previewRoot = new TransformNode("character_select_preview_root", this.scene);
     this.previewMesh = MeshBuilder.CreateCapsule(
-      'character_select_preview_mesh',
+      "character_select_preview_mesh",
       {
         radius: 0.65,
         height: 2.2,
         tessellation: 24,
         subdivisions: 1,
       },
-      this.scene
+      this.scene,
     );
     this.previewMesh.parent = this.previewRoot;
     this.previewMesh.position = new Vector3(6.5, 1.1, 0);
     this.previewMesh.rotation = new Vector3(0, Math.PI * 0.25, 0);
 
-    this.previewMaterial = new StandardMaterial('character_select_preview_material', this.scene);
+    this.previewMaterial = new StandardMaterial("character_select_preview_material", this.scene);
     this.previewMaterial.diffuseColor = new Color3(0.6, 0.5, 0.4);
     this.previewMaterial.emissiveColor = new Color3(0.15, 0.1, 0.08);
     this.previewMaterial.specularColor = new Color3(0.2, 0.18, 0.16);
     this.previewMesh.material = this.previewMaterial;
 
     this.previewLight = new HemisphericLight(
-      'character_select_preview_light',
+      "character_select_preview_light",
       new Vector3(0.4, 1, 0.2),
-      this.scene
+      this.scene,
     );
     this.previewLight.intensity = 0.9;
     this.previewLight.diffuse = new Color3(1, 0.95, 0.85);
     this.previewLight.groundColor = new Color3(0.2, 0.17, 0.15);
 
     this.previewTexture = AdvancedDynamicTexture.CreateFullscreenUI(
-      'character_select_preview_ui',
+      "character_select_preview_ui",
       true,
-      this.scene
+      this.scene,
     );
 
-    const label = new TextBlock('character_select_preview_label', '');
-    label.color = '#f4e9d8';
+    const label = new TextBlock("character_select_preview_label", "");
+    label.color = "#f4e9d8";
     label.fontSize = 24;
     label.fontFamily = '"Fraunces", "Georgia", serif';
-    label.outlineColor = '#2c2117';
+    label.outlineColor = "#2c2117";
     label.outlineWidth = 4;
-    label.shadowColor = 'rgba(10, 8, 6, 0.7)';
+    label.shadowColor = "rgba(10, 8, 6, 0.7)";
     label.shadowBlur = 6;
     label.shadowOffsetX = 2;
     label.shadowOffsetY = 2;
@@ -383,7 +383,7 @@ export class CharacterSelectState implements ClientState {
     }
 
     for (const [buttonIndex, button] of this.entryButtons.entries()) {
-      button.classList.toggle('is-selected', buttonIndex === index);
+      button.classList.toggle("is-selected", buttonIndex === index);
     }
 
     if (this.previewMaterial) {

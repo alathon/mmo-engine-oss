@@ -1,4 +1,4 @@
-import type { NavMesh } from 'navcat';
+import type { NavMesh } from "navcat";
 
 /**
  * Loads a navmesh JSON file and parses it into a Navmesh object.

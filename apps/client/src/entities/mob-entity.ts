@@ -1,20 +1,20 @@
-import { Scene } from '@babylonjs/core/scene';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
-import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
-import { Color3 } from '@babylonjs/core/Maths/math.color';
-import { Mesh } from '@babylonjs/core/Meshes/mesh';
-import { TextBlock } from '@babylonjs/gui/2D/controls/textBlock';
-import { Control } from '@babylonjs/gui/2D/controls/control';
-import { MobState, REMOTE_INTERPOLATION_DELAY_MS, REMOTE_SAMPLE_RETENTION_MS } from '@mmo/shared';
-import { Entity } from './entity';
-import { HealthBar } from '../ui/entity/health-bar';
-import { SpeechBubble } from '../ui/entity/speech-bubble';
-import { CastBar } from '../ui/entity/cast-bar';
-import { applyMovementSmoothing } from '../movement/smoothing';
-import { RemoteInterpolationController } from '../movement/remote-interpolation';
-import type { MovementState, NavmeshMoveDebug } from '../movement/movement-types';
-import type { UiLayer } from '../ui/ui-layer';
+import { Scene } from "@babylonjs/core/scene";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
+import { Control } from "@babylonjs/gui/2D/controls/control";
+import { MobState, REMOTE_INTERPOLATION_DELAY_MS, REMOTE_SAMPLE_RETENTION_MS } from "@mmo/shared";
+import { Entity } from "./entity";
+import { HealthBar } from "../ui/entity/health-bar";
+import { SpeechBubble } from "../ui/entity/speech-bubble";
+import { CastBar } from "../ui/entity/cast-bar";
+import { applyMovementSmoothing } from "../movement/smoothing";
+import { RemoteInterpolationController } from "../movement/remote-interpolation";
+import type { MovementState, NavmeshMoveDebug } from "../movement/movement-types";
+import type { UiLayer } from "../ui/ui-layer";
 
 export interface MobEntityOptions {
   /** Unique identifier for this entity. */
@@ -47,7 +47,7 @@ function createCapsuleMesh(id: string, scene: Scene): Mesh {
       tessellation: 16,
       subdivisions: 1,
     },
-    scene
+    scene,
   );
 }
 
@@ -101,6 +101,7 @@ export class MobEntity extends Entity {
       modelMesh,
       modelMeshOffsetY: MobEntity.MODEL_MESH_OFFSET_Y,
       hasCollision: true,
+      collisionChecksEnabled: false,
     });
 
     this.sync = sync;
@@ -108,13 +109,14 @@ export class MobEntity extends Entity {
     // Initialize position tracking
     this.movementState = {
       targetPosition: new Vector3(sync.x, sync.y, sync.z),
+      previousTargetPosition: new Vector3(sync.x, sync.y, sync.z),
       serverPosition: new Vector3(sync.x, sync.y, sync.z),
       facingYaw: sync.facingYaw,
       movementYaw: sync.facingYaw,
     };
     this.remoteInterpolation = new RemoteInterpolationController(
       REMOTE_INTERPOLATION_DELAY_MS,
-      REMOTE_SAMPLE_RETENTION_MS
+      REMOTE_SAMPLE_RETENTION_MS,
     );
 
     // Add a directional indicator so facing is visible
@@ -126,7 +128,7 @@ export class MobEntity extends Entity {
         height: 0.45,
         tessellation: 8,
       },
-      scene
+      scene,
     );
     this.directionIndicator.parent = this;
     this.directionIndicator.position = new Vector3(0, MobEntity.MODEL_MESH_OFFSET_Y + 0.6, 0.75);
@@ -138,7 +140,7 @@ export class MobEntity extends Entity {
     this.directionIndicator.material = this.directionMaterial;
 
     if (!MobEntity.serverPositionMaterial) {
-      const material = new StandardMaterial('server_position_mat', scene);
+      const material = new StandardMaterial("server_position_mat", scene);
       material.diffuseColor = new Color3(0.95, 0.1, 0.1);
       material.emissiveColor = new Color3(0.6, 0.05, 0.05);
       MobEntity.serverPositionMaterial = material;
@@ -150,7 +152,7 @@ export class MobEntity extends Entity {
         diameter: 0.25,
         segments: 8,
       },
-      scene
+      scene,
     );
     this.serverPositionVisual.isPickable = false;
     this.serverPositionVisual.material = MobEntity.serverPositionMaterial;
@@ -169,7 +171,7 @@ export class MobEntity extends Entity {
         id: sync.id,
         linkOffsetY: -40,
       },
-      this.uiLayer
+      this.uiLayer,
     );
 
     // Create cast bar (hidden until casting)
@@ -178,7 +180,7 @@ export class MobEntity extends Entity {
       {
         id: sync.id,
       },
-      this.uiLayer
+      this.uiLayer,
     );
 
     // Create speech bubble (hidden by default)
@@ -188,7 +190,7 @@ export class MobEntity extends Entity {
         id: sync.id,
         linkOffsetY: -90,
       },
-      this.uiLayer
+      this.uiLayer,
     );
   }
 
@@ -201,16 +203,16 @@ export class MobEntity extends Entity {
   protected createNameLabel(name: string): TextBlock {
     const label = new TextBlock(`nameLabel_${this.sync.id}`);
     label.text = name;
-    label.color = 'white';
+    label.color = "white";
     label.fontSize = 14;
-    label.fontFamily = 'Segoe UI, system-ui, sans-serif';
-    label.fontWeight = '600';
+    label.fontFamily = "Segoe UI, system-ui, sans-serif";
+    label.fontWeight = "600";
     label.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
     label.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
 
     // Add outline for readability
     label.outlineWidth = 3;
-    label.outlineColor = 'black';
+    label.outlineColor = "black";
 
     // Add to game UI
     this.uiLayer.addControl(label);
@@ -280,6 +282,10 @@ export class MobEntity extends Entity {
       if (Math.abs(deltaX) > 0.0001 || Math.abs(deltaZ) > 0.0001) {
         this.movementState.movementYaw = Math.atan2(deltaX, deltaZ);
       }
+
+      this.movementState.previousTargetPosition.copyFrom(this.movementState.targetPosition);
+    } else {
+      this.movementState.previousTargetPosition.set(x, y, z);
     }
 
     this.movementState.targetPosition.x = x;
@@ -294,6 +300,10 @@ export class MobEntity extends Entity {
    */
   getTargetPosition(): Vector3 {
     return this.movementState.targetPosition;
+  }
+
+  getPreviousTargetPosition(): Vector3 {
+    return this.movementState.previousTargetPosition;
   }
 
   setFacingYaw(value: number): void {
@@ -364,6 +374,10 @@ export class MobEntity extends Entity {
     return this.movementState.movementYaw;
   }
 
+  setMovementYaw(value: number): void {
+    this.movementState.movementYaw = value;
+  }
+
   getLastNavmeshMoveDebug(): NavmeshMoveDebug | undefined {
     return this.lastNavmeshMoveDebug;
   }
@@ -374,9 +388,9 @@ export class MobEntity extends Entity {
    *
    * @param deltaTimeMs - elapsed time since last update, in milliseconds.
    */
-  override update(deltaTimeMs: number): void {
+  override update(deltaTimeMs: number, fixedTickAlpha = 1): void {
     // Interpolate towards targetPosition
-    applyMovementSmoothing(this, deltaTimeMs);
+    applyMovementSmoothing(this, deltaTimeMs, fixedTickAlpha);
 
     const abilityState = this.sync.abilityState;
     const castStart = abilityState.castStartTimeMs;

@@ -1,7 +1,7 @@
 /**
  * Anchor point used to resolve widget offsets into actual screen positions.
  */
-export type UiAnchor = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center';
+export type UiAnchor = "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center";
 
 /**
  * Viewport dimensions captured alongside layout data.

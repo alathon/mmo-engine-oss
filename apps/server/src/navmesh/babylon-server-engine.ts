@@ -1,4 +1,4 @@
-import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
+import { NullEngine } from "@babylonjs/core/Engines/nullEngine.js";
 import { logger } from "@mmo/shared-servers";
 
 let engine: NullEngine | undefined;
@@ -23,9 +23,7 @@ export function initializeServerEngine(): void {
  */
 export function getServerEngine(): NullEngine {
   if (!engine) {
-    throw new Error(
-      "Server engine not initialized. Call initializeServerEngine() first.",
-    );
+    throw new Error("Server engine not initialized. Call initializeServerEngine() first.");
   }
   return engine;
 }
