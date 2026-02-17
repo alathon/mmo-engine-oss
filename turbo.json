@@ -12,6 +12,28 @@
     },
     "assets": {
       "inputs": ["$TURBO_ROOT$/packages/assets/package.json"],
+      "env": [
+        "GITHUB_TOKEN",
+        "MMO_ASSETS_LOCAL_DIR",
+        "MMO_ASSETS_REPO",
+        "MMO_ASSETS_TAG",
+        "MMO_ASSETS_TARBALL_NAME",
+        "MMO_ASSETS_URL",
+        "MMO_ASSETS_WATCH_INTERVAL_SECONDS"
+      ],
+      "outputs": []
+    },
+    "assets:watch": {
+      "inputs": ["$TURBO_ROOT$/packages/assets/package.json"],
+      "env": [
+        "GITHUB_TOKEN",
+        "MMO_ASSETS_LOCAL_DIR",
+        "MMO_ASSETS_REPO",
+        "MMO_ASSETS_TAG",
+        "MMO_ASSETS_TARBALL_NAME",
+        "MMO_ASSETS_URL",
+        "MMO_ASSETS_WATCH_INTERVAL_SECONDS"
+      ],
       "outputs": []
     },
     "check-types": {
@@ -20,10 +42,12 @@
     "lint": {},
     "lint:fix": {},
     "dev": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "^assets:watch"],
       "env": [
         "AUTH_TOKEN_SECRET",
         "LOG_LEVEL",
+        "MMO_ASSETS_LOCAL_DIR",
+        "MMO_ASSETS_WATCH_INTERVAL_SECONDS",
         "MMO_SERVER_COLLISION_DEBUG",
         "MMO_SERVER_COLLISION_TRACE_STEPS",
         "MMO_SERVER_SNAP_DEBUG",

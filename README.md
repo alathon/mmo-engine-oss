@@ -13,6 +13,35 @@ A work-in-progress MMO engine built as a pnpm + Turborepo monorepo. It uses Coly
 2. Start all apps: `turbo dev`
 3. Open the client at `http://localhost:5173`
 
+## Assets workflow (`mmo-assets`)
+Assets are consumed from the `@mmo/assets` workspace package (`packages/assets`) and are intentionally gitignored there.
+The `@mmo/assets` scripts use `dotenv-cli` and load env files in this order (later files override earlier ones): root `.env`, root `.env.local`, root `.env.$NODE_ENV`, root `.env.$NODE_ENV.local`, `packages/assets/.env`, `packages/assets/.env.local`, `packages/assets/.env.$NODE_ENV`, `packages/assets/.env.$NODE_ENV.local`.
+
+### Dev lane (fast local iteration)
+Use this when actively editing assets in your local `mmo-assets` clone.
+
+1. Set the local assets path:
+   - `export MMO_ASSETS_LOCAL_DIR=../mmo-assets`
+2. Run a one-time sync into `packages/assets`:
+   - `pnpm --filter @mmo/assets assets`
+3. For continuous sync while editing assets:
+   - `pnpm --filter @mmo/assets assets:watch`
+4. When running all apps with `turbo dev`, the assets watcher also starts automatically in `@mmo/assets` if `MMO_ASSETS_LOCAL_DIR` is set.
+
+Optional:
+- Set watch interval seconds with `MMO_ASSETS_WATCH_INTERVAL_SECONDS` (default: `2`).
+
+### Release lane (pinned, reproducible)
+Use this for CI and shared reproducible versions.
+
+1. Make sure `MMO_ASSETS_LOCAL_DIR` is unset:
+   - `unset MMO_ASSETS_LOCAL_DIR`
+2. Fetch assets from a GitHub release tarball:
+   - `pnpm --filter @mmo/assets assets`
+
+By default this resolves the release tag from `packages/assets/package.json` version (`v<version>`).  
+To override, set `MMO_ASSETS_TAG` (for example `MMO_ASSETS_TAG=v0.0.5`).
+
 ## Core architecture
 The following pieces make up the core architecture:
 - The [web client](./apps/client) which is the players entry-point.

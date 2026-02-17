@@ -41,6 +41,8 @@ const LOS_RAY: Ray = new BabylonRay(LOS_ORIGIN, LOS_DIRECTION, 0);
 
 /**
  * Performs a Babylon raycast to determine line-of-sight between two points.
+ * WARNING: This method is not re-entrancy safe, it uses global variables. This
+ * is typically not an issue, but it might be if you use it during e.g., a mesh predicate.
  */
 export function hasLineOfSight(
   scene: Scene,
@@ -72,6 +74,50 @@ export function hasLineOfSight(
 
   const hit = scene.pickWithRay(
     LOS_RAY,
+    resolvedOptions.meshPredicate ?? DEFAULT_MESH_PREDICATE,
+    resolvedOptions.fastCheck ?? DEFAULT_FAST_CHECK,
+  );
+  if (!hit?.hit) {
+    return true;
+  }
+
+  return hit.distance >= distance - LOS_DISTANCE_EPSILON;
+}
+
+/**
+ * Re-entrancy-safe variant of hasLineOfSight().
+ * Uses per-call ray/vector instances instead of shared module-level scratch state.
+ */
+export function hasLineOfSightReentrantSafe(
+  scene: Scene,
+  from: LineOfSightPoint,
+  to: LineOfSightPoint,
+  options?: Readonly<LineOfSightOptions>,
+): boolean {
+  if (scene.isDisposed) {
+    return false;
+  }
+
+  const resolvedOptions = options ?? DEFAULT_LINE_OF_SIGHT_OPTIONS;
+  const verticalOffset = resolvedOptions.verticalOffset ?? DEFAULT_VERTICAL_OFFSET;
+  const fromY = from.y + verticalOffset;
+  const toY = to.y + verticalOffset;
+  const dx = to.x - from.x;
+  const dy = toY - fromY;
+  const dz = to.z - from.z;
+  const distanceSq = dx * dx + dy * dy + dz * dz;
+  if (distanceSq <= LOS_POINT_EPSILON) {
+    return true;
+  }
+
+  const distance = Math.sqrt(distanceSq);
+  const invDistance = 1 / distance;
+  const origin = new Vector3(from.x, fromY, from.z);
+  const direction = new Vector3(dx * invDistance, dy * invDistance, dz * invDistance);
+  const ray: Ray = new BabylonRay(origin, direction, distance);
+
+  const hit = scene.pickWithRay(
+    ray,
     resolvedOptions.meshPredicate ?? DEFAULT_MESH_PREDICATE,
     resolvedOptions.fastCheck ?? DEFAULT_FAST_CHECK,
   );

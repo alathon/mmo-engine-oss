@@ -11,7 +11,8 @@
   ],
   "license": "UNLICENSED",
   "scripts": {
-    "assets": "./scripts/fetch-assets.sh",
+    "assets": "dotenv -c -- ./scripts/fetch-assets.sh",
+    "assets:watch": "dotenv -c -- ./scripts/watch-assets.sh",
     "build": "echo \"@mmo/assets: no build\"",
     "check-types": "echo \"@mmo/assets: no types\""
   }
