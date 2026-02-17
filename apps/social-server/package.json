@@ -39,7 +39,7 @@
     "@colyseus/schema": "catalog:",
     "@colyseus/tools": "catalog:",
     "@colyseus/ws-transport": "catalog:",
-    "@mmo/shared": "workspace:*",
+    "@mmo/shared-protocol": "workspace:*",
     "@mmo/shared-servers": "workspace:*",
     "colyseus": "catalog:",
     "express": "catalog:",

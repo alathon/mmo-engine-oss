@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { ColyseusTestServer, boot } from "@colyseus/testing";
 import { Server } from "colyseus";
 import jwt from "jsonwebtoken";
-import type { ChatBroadcast } from "@mmo/shared";
+import type { ChatBroadcast } from "@mmo/shared-protocol";
 import { createAuthToken } from "@mmo/shared-servers";
 import appConfig from "../src/app-config";
 

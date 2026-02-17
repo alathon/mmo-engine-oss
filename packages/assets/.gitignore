@@ -1,7 +1,0 @@
-*
-!.gitignore
-!package.json
-!scripts/
-!scripts/**
-!README.md
-!.github/workflows

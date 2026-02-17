@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { NPCState, PlayerState, ZoneState } from "@mmo/shared";
-import type { NavcatQuery } from "@mmo/shared";
+import { NPCState, PlayerState, ZoneState } from "@mmo/shared-sim";
+import type { NavcatQuery } from "@mmo/shared-sim";
 import { AiDecisionSystem } from "../src/ai/systems/ai-decision-system";
 import { AiSteeringSystem } from "../src/ai/systems/ai-steering-system";
 import { AbilityIntentSystem } from "../src/ai/systems/ability-intent-system";

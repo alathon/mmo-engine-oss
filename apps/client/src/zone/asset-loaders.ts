@@ -1,4 +1,4 @@
-import { ZoneDefinition } from "@mmo/shared";
+import { ZoneDefinition } from "@mmo/shared-sim";
 import startingPlainsNavcatUrl from "@mmo/assets/zones/startingPlains.navcat.json?url";
 import startingPlainsZoneDefinition from "@mmo/assets/zones/startingPlains.glb.zone.json";
 

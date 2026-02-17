@@ -1,0 +1,36 @@
+{
+  "name": "@mmo/shared-sim",
+  "author": "Martin Grünbaum <martin@itsolveonline.net>",
+  "private": true,
+  "version": "0.0.2",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "devDependencies": {
+    "@codecompose/typescript-config": "^2.3.0",
+    "eslint": "catalog:",
+    "tsdown": "^0.20.3",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "@babylonjs/core": "catalog:",
+    "navcat": "catalog:"
+  },
+  "dependencies": {
+    "@mmo/eslint-config": "workspace:*",
+    "@mmo/shared-protocol": "workspace:*"
+  }
+}

@@ -1,7 +1,7 @@
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { NavMesh } from "navcat";
 import { generateSoloNavMesh, type SoloNavMeshOptions } from "navcat/blocks";
-import type { NavmeshGenerationSettings } from "@mmo/shared";
+import type { NavmeshGenerationSettings } from "@mmo/shared-sim";
 import { getPositionsAndIndices } from "./navcat-babylon";
 
 export const DEFAULT_NAVMESH_GENERATION_SETTINGS: NavmeshGenerationSettings = {

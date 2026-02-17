@@ -1,4 +1,4 @@
-import type { PlayerState } from "@mmo/shared";
+import type { PlayerState } from "@mmo/shared-sim";
 import { ServerMob } from "./server-mob";
 
 export interface QueuedMoveInput {

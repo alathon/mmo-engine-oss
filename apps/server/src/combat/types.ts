@@ -1,4 +1,4 @@
-import type { AbilityAck, AbilityResult, AbilityUseRequest } from "@mmo/shared";
+import type { AbilityAck, AbilityResult, AbilityUseRequest } from "@mmo/shared-sim";
 
 export interface ActiveCast {
   castId: number;

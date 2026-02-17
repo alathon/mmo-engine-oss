@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { AuthContext, Client } from "colyseus";
-import { AuthTokenPayload, PlayerState, toFiniteNumber } from "@mmo/shared";
+import { AuthTokenPayload, PlayerState, toFiniteNumber } from "@mmo/shared-sim";
 import { ServerPlayer } from "../entities/player";
 import { ZoneRoom } from "./zone-room";
 import { logger } from "@mmo/shared-servers";

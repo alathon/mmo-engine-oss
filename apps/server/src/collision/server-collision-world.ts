@@ -2,7 +2,7 @@ import "@babylonjs/loaders/glTF/index.js";
 import { LoadAssetContainerAsync } from "@babylonjs/core/Loading/sceneLoader.js";
 import { Mesh } from "@babylonjs/core/Meshes/mesh.js";
 import { Scene } from "@babylonjs/core/scene.js";
-import { postLoadProcessScene } from "@mmo/shared";
+import { postLoadProcessScene, type LineOfSightOptions } from "@mmo/shared-sim";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { getServerEngine, initializeServerEngine } from "../navmesh/babylon-server-engine";
@@ -16,12 +16,20 @@ const COLLISION_DEBUG_ENABLED = (() => {
  * Holds a zone's server-side Babylon scene and collision mesh references.
  */
 export class ServerCollisionWorld {
+  public readonly lineOfSightOptions: Readonly<LineOfSightOptions>;
+
   constructor(
     public readonly zoneId: string,
     public readonly scene: Scene,
     public readonly sourceMeshes: readonly Mesh[],
     public readonly collisionMeshes: readonly Mesh[],
-  ) {}
+  ) {
+    const collisionMeshIds = new Set(this.collisionMeshes.map((mesh) => mesh.uniqueId));
+    this.lineOfSightOptions = {
+      meshPredicate: (mesh) =>
+        mesh.isEnabled() && mesh.checkCollisions && collisionMeshIds.has(mesh.uniqueId),
+    };
+  }
 
   dispose(): void {
     if (this.scene.isDisposed) {

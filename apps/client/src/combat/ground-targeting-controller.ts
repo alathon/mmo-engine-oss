@@ -8,7 +8,7 @@ import { Ray } from "@babylonjs/core/Culling/ray";
 import { VertexBuffer } from "@babylonjs/core/Buffers/buffer";
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 import { Control } from "@babylonjs/gui/2D/controls/control";
-import { ABILITY_DEFINITIONS, type AbilityDefinition } from "@mmo/shared";
+import { ABILITY_DEFINITIONS, type AbilityDefinition } from "@mmo/shared-sim";
 import type { InputHandler } from "../input/input-handler";
 import type { InputManager, PointerClick } from "../input/input-manager";
 import type { CombatController } from "./combat-controller";

@@ -15,7 +15,7 @@
       "outputs": []
     },
     "check-types": {
-      "dependsOn": ["^build", "^check-types"]
+      "dependsOn": ["//#check:shared-deps", "^build", "^check-types"]
     },
     "lint": {},
     "lint:fix": {},
@@ -36,8 +36,11 @@
       "persistent": true
     },
     "test": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["//#check:shared-deps", "^build"],
       "env": ["AUTH_TOKEN_SECRET", "NODE_ENV"]
+    },
+    "//#check:shared-deps": {
+      "outputs": []
     },
     "clean": {
       "cache": false

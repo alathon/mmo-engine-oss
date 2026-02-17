@@ -1,4 +1,4 @@
-import type { EventLogEntry } from "@mmo/shared";
+import type { EventLogEntry } from "@mmo/shared-sim";
 import { EVENT_LOG_BUFFER_SIZE } from "./constants";
 import { EventLogBuffer } from "./event-log-buffer";
 

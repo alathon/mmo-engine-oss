@@ -1,4 +1,4 @@
-import type { MobState, ResourceCost } from "@mmo/shared";
+import type { MobState, ResourceCost } from "@mmo/shared-sim";
 
 const clamp = (value: number, min: number, max: number): number => {
   return Math.min(max, Math.max(min, value));

@@ -1,4 +1,4 @@
-import type { NavcatQuery } from "@mmo/shared";
+import type { NavcatQuery } from "@mmo/shared-sim";
 import type { ServerNPC } from "../../world/entities/npc";
 import type { ServerZone } from "../../world/zones/zone";
 import type { SmoothPathPoint } from "../components/npc-brain-state";

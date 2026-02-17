@@ -1,4 +1,4 @@
-import type { NavmeshGenerationSettings } from "@mmo/shared";
+import type { NavmeshGenerationSettings } from "@mmo/shared-sim";
 import { DEFAULT_NAVMESH_GENERATION_SETTINGS } from "../../../zone/navmesh-generation";
 
 type Listener = () => void;

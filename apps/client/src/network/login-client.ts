@@ -1,4 +1,4 @@
-import { LoginResponse } from "@mmo/shared";
+import { LoginResponse } from "@mmo/shared-sim";
 
 const DEFAULT_LOGIN_URL = "http://localhost:3000";
 

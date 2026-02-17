@@ -1,6 +1,6 @@
 import { Scene } from "@babylonjs/core/scene";
 import { Color3 } from "@babylonjs/core/Maths/math.color";
-import { ObjState } from "@mmo/shared";
+import { ObjState } from "@mmo/shared-sim";
 import { ObjEntity } from "../entities/obj-entity";
 import type { ZoneConnectionManager } from "../network/zone-connection-manager";
 import type { UiLayer } from "../ui/ui-layer";

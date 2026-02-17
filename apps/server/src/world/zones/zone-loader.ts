@@ -1,4 +1,4 @@
-import { type NavcatQuery, type ZoneDefinition } from "@mmo/shared";
+import { type NavcatQuery, type ZoneDefinition } from "@mmo/shared-sim";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import * as database from "../../db/db";

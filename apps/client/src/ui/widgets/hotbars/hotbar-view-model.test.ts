@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ABILITY_DEFINITIONS } from "@mmo/shared";
+import { ABILITY_DEFINITIONS } from "@mmo/shared-sim";
 import type { HotbarSlot } from "./hotbar-controller";
 import { HotbarViewModel } from "./hotbar-view-model";
 

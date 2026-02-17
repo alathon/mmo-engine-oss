@@ -1,4 +1,4 @@
-import type { MobState } from "@mmo/shared";
+import type { MobState } from "@mmo/shared-sim";
 import type { ServerMob } from "../../world/entities/server-mob";
 import type { ServerZone } from "../../world/zones/zone";
 

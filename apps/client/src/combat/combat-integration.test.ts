@@ -7,7 +7,7 @@ import {
   AbilityState,
   NPCState,
   PlayerState,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 import { CombatController } from "./combat-controller";
 import { ZoneConnectionManager } from "../network/zone-connection-manager";
 import { AbilityEngine } from "../../../server/src/combat/ability-engine";

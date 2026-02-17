@@ -1,4 +1,4 @@
-import type { NPCState } from "@mmo/shared";
+import type { NPCState } from "@mmo/shared-sim";
 import { AggroTable } from "../../combat/aggro-table";
 import type { AbilityIntent } from "../../ai/components/ability-intent";
 import type { BehaviorIntent } from "../../ai/components/behavior-intent";

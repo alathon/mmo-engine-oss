@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import type { AuthTokenPayload } from "@mmo/shared";
+import type { AuthTokenPayload } from "@mmo/shared-protocol";
 
 export const createAuthToken = (
   overrides: Partial<AuthTokenPayload> = {},

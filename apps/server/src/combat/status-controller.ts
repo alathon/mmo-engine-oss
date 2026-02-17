@@ -6,7 +6,7 @@ import type {
   StatusStacking,
   StatusState,
   StatModifier,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 
 export interface StatusSnapshot {
   sourceStats: Partial<CombatStats>;

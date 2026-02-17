@@ -1,4 +1,4 @@
-import { NavcatQuery, ZoneDefinition } from "@mmo/shared";
+import { NavcatQuery, ZoneDefinition } from "@mmo/shared-sim";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { NavMesh } from "navcat";

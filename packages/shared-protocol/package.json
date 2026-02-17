@@ -1,0 +1,34 @@
+{
+  "name": "@mmo/shared-protocol",
+  "author": "Martin Grünbaum <martin@itsolveonline.net>",
+  "private": true,
+  "version": "0.0.2",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "devDependencies": {
+    "@codecompose/typescript-config": "^2.3.0",
+    "eslint": "catalog:",
+    "tsdown": "^0.20.3",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@colyseus/schema": "catalog:",
+    "@mmo/eslint-config": "workspace:*"
+  }
+}

@@ -4,7 +4,7 @@ import {
   ZoneState,
   ZoneDefinition,
   NavcatQuery,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 import { ServerPlayer } from "../entities/player";
 import { ServerNPC } from "../entities/npc";
 import { ZoneEntryPoint, ZoneSpawnPoint } from "./types";

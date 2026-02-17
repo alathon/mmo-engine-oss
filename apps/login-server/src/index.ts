@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import { randomUUID } from "node:crypto";
-import { LoginResponse } from "@mmo/shared";
+import { LoginResponse } from "@mmo/shared-protocol";
 import { logger } from "@mmo/shared-servers";
 import cors from "cors";
 

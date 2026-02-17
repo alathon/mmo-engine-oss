@@ -1,4 +1,4 @@
-import { ABILITY_DEFINITIONS, type AbilityDefinition, type ResourceCost } from "@mmo/shared";
+import { ABILITY_DEFINITIONS, type AbilityDefinition, type ResourceCost } from "@mmo/shared-sim";
 import type { HotbarSlot } from "./hotbar-controller";
 
 type Listener = () => void;

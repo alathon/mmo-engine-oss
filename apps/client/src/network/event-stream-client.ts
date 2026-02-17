@@ -3,7 +3,7 @@ import type {
   EventStreamBatch,
   EventStreamResyncRequest,
   EventStreamResyncResponse,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 
 export interface EventStreamTransport {
   sendResyncRequest(request: EventStreamResyncRequest): void;

@@ -1,4 +1,4 @@
-import type { AbilityDefinition, AbilityResult, MobState } from "@mmo/shared";
+import type { AbilityDefinition, AbilityResult, MobState } from "@mmo/shared-sim";
 import type { ServerMob } from "../world/entities/server-mob";
 
 /** Emitted after an ability's results have been applied. */

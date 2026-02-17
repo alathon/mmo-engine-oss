@@ -6,7 +6,7 @@ import {
   type MobExitCombatEvent,
   type MobState,
   type TargetResult,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 import type { ServerMob } from "../world/entities/server-mob";
 import type { ServerZone } from "../world/zones/zone";
 import type { AbilityEvent, AbilityEventListener } from "./ability-events";

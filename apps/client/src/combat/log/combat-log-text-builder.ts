@@ -12,15 +12,15 @@
 import {
   ABILITY_DEFINITIONS,
   CombatEventType,
-  EventCategory,
   type AbilityCastFinishEvent,
   type AbilityCastInterruptEvent,
   type AbilityCastStartEvent,
   type AbilityEffectAppliedEvent,
-  type EventLogEntry,
   type MobEnterCombatEvent,
   type MobExitCombatEvent,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
+
+import { type EventLogEntry, EventCategory } from "@mmo/shared-sim";
 
 export interface CombatLogTextContext {
   resolveEntityName(entityId: string): string;

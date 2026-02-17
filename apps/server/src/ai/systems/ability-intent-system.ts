@@ -1,4 +1,4 @@
-import type { AbilityUseRequest } from "@mmo/shared";
+import type { AbilityUseRequest } from "@mmo/shared-sim";
 import type { ServerZone } from "../../world/zones/zone";
 
 export class AbilityIntentSystem {

@@ -201,9 +201,9 @@ importers:
       '@mmo/assets':
         specifier: workspace:*
         version: link:../../packages/assets
-      '@mmo/shared':
+      '@mmo/shared-sim':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../../packages/shared-sim
       navcat:
         specifier: 'catalog:'
         version: 0.1.6(three@0.180.0)
@@ -244,9 +244,9 @@ importers:
 
   apps/login-server:
     dependencies:
-      '@mmo/shared':
+      '@mmo/shared-protocol':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../../packages/shared-protocol
       '@mmo/shared-servers':
         specifier: workspace:*
         version: link:../../packages/shared-servers
@@ -311,12 +311,12 @@ importers:
       '@colyseus/ws-transport':
         specifier: 'catalog:'
         version: 0.17.9(@colyseus/core@0.17.33)(express@4.22.1)
-      '@mmo/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
       '@mmo/shared-servers':
         specifier: workspace:*
         version: link:../../packages/shared-servers
+      '@mmo/shared-sim':
+        specifier: workspace:*
+        version: link:../../packages/shared-sim
       colyseus:
         specifier: 'catalog:'
         version: 0.17.8(@colyseus/auth@0.17.6(@colyseus/core@0.17.33)(express@4.22.1))(@colyseus/better-call@1.2.1(zod@4.3.6))(@colyseus/core@0.17.33)(@colyseus/redis-driver@0.17.6(@colyseus/better-call@1.2.1(zod@4.3.6))(@colyseus/schema@4.0.11(typescript@5.9.3))(@colyseus/ws-transport@0.17.9)(@pm2/io@6.1.0)(express@4.22.1)(zod@4.3.6))(@colyseus/redis-presence@0.17.6(@colyseus/better-call@1.2.1(zod@4.3.6))(@colyseus/schema@4.0.11(typescript@5.9.3))(@colyseus/ws-transport@0.17.9)(@pm2/io@6.1.0)(express@4.22.1)(zod@4.3.6))(@colyseus/schema@4.0.11(typescript@5.9.3))(@colyseus/uwebsockets-transport@0.17.14(@colyseus/core@0.17.33))(@colyseus/ws-transport@0.17.9)(@pm2/io@6.1.0)(express@4.22.1)(zod@4.3.6)
@@ -396,9 +396,9 @@ importers:
       '@colyseus/ws-transport':
         specifier: 'catalog:'
         version: 0.17.9(@colyseus/core@0.17.33)(express@4.22.1)
-      '@mmo/shared':
+      '@mmo/shared-protocol':
         specifier: workspace:*
-        version: link:../../packages/shared
+        version: link:../../packages/shared-protocol
       '@mmo/shared-servers':
         specifier: workspace:*
         version: link:../../packages/shared-servers
@@ -500,20 +500,14 @@ importers:
         specifier: ^8.54.0
         version: 8.54.0(eslint@9.39.2)(typescript@5.9.3)
 
-  packages/shared:
+  packages/shared-protocol:
     dependencies:
-      '@babylonjs/core':
-        specifier: 'catalog:'
-        version: 7.54.3
       '@colyseus/schema':
         specifier: 'catalog:'
         version: 4.0.11(typescript@5.9.3)
       '@mmo/eslint-config':
         specifier: workspace:*
         version: link:../eslint
-      navcat:
-        specifier: 'catalog:'
-        version: 0.1.6(three@0.180.0)
     devDependencies:
       '@codecompose/typescript-config':
         specifier: ^2.3.0
@@ -536,9 +530,9 @@ importers:
       '@colyseus/core':
         specifier: 'catalog:'
         version: 0.17.33(@colyseus/better-call@1.2.1(zod@4.3.6))(@colyseus/schema@4.0.11(typescript@5.9.3))(@colyseus/ws-transport@0.17.9)(@pm2/io@6.1.0)(express@4.22.1)(zod@4.3.6)
-      '@mmo/shared':
+      '@mmo/shared-protocol':
         specifier: workspace:*
-        version: link:../shared
+        version: link:../shared-protocol
       jsonwebtoken:
         specifier: 'catalog:'
         version: 9.0.3
@@ -564,6 +558,37 @@ importers:
       tsdown:
         specifier: ^0.20.3
         version: 0.20.3(synckit@0.11.12)(typescript@5.9.3)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/shared-sim:
+    dependencies:
+      '@babylonjs/core':
+        specifier: 'catalog:'
+        version: 7.54.3
+      '@mmo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint
+      '@mmo/shared-protocol':
+        specifier: workspace:*
+        version: link:../shared-protocol
+      navcat:
+        specifier: 'catalog:'
+        version: 0.1.6(three@0.180.0)
+    devDependencies:
+      '@codecompose/typescript-config':
+        specifier: ^2.3.0
+        version: 2.3.0
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.2
+      tsdown:
+        specifier: ^0.20.3
+        version: 0.20.3(synckit@0.11.12)(typescript@5.9.3)
+      tsx:
+        specifier: 'catalog:'
+        version: 4.21.0
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

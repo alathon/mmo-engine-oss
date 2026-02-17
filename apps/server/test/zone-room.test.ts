@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { ColyseusTestServer, boot } from "@colyseus/testing";
 import { ZoneData } from "../src/world/zones/zone";
-import type { ZoneDefinition } from "@mmo/shared";
+import type { ZoneDefinition } from "@mmo/shared-sim";
 import { createAuthToken } from "@mmo/shared-servers";
 import { createTestNavmeshQuery } from "./test-navmesh";
 import { createTestCollisionWorld } from "./test-collision-world";

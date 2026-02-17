@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CombatState } from "@mmo/shared";
+import { CombatState } from "@mmo/shared-sim";
 import { AggroTable } from "../src/combat/aggro-table";
 
 const createTable = (): { state: CombatState; table: AggroTable } => {

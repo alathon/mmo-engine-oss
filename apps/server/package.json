@@ -46,7 +46,7 @@
     "@colyseus/schema": "catalog:",
     "@colyseus/tools": "catalog:",
     "@colyseus/ws-transport": "catalog:",
-    "@mmo/shared": "workspace:*",
+    "@mmo/shared-sim": "workspace:*",
     "@mmo/shared-servers": "workspace:*",
     "colyseus": "catalog:",
     "express": "catalog:",

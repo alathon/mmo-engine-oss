@@ -1,4 +1,4 @@
-import type { AbilityDefinition, AbilityUseRejectionReason, MobState } from "@mmo/shared";
+import type { AbilityDefinition, AbilityUseRejectionReason, MobState } from "@mmo/shared-sim";
 import { StatsController } from "../../combat/stats-controller";
 import { StatusController } from "../../combat/status-controller";
 import { STATUS_DEFINITIONS } from "../../combat/status-definitions";

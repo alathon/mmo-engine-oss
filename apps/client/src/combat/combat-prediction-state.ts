@@ -1,9 +1,9 @@
 import {
+  type AbilityDefinition,
   GCD_SECONDS,
   INTERNAL_COOLDOWN_MS,
   type AbilityAck,
-  type AbilityDefinition,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 
 const GCD_MS = GCD_SECONDS * 1000;
 const MAX_TRACKED_REQUEST_PREDICTIONS = 64;

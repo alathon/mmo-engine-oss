@@ -1,4 +1,4 @@
-import type { EventLogEntry } from "@mmo/shared";
+import type { EventLogEntry } from "@mmo/shared-sim";
 
 export interface EventLogRange<T extends EventLogEntry> {
   fromSeq: number;

@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@colyseus/core": "catalog:",
-    "@mmo/shared": "workspace:*",
+    "@mmo/shared-protocol": "workspace:*",
     "jsonwebtoken": "catalog:",
     "pino": "catalog:"
   }

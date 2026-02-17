@@ -20,6 +20,16 @@ The following pieces make up the core architecture:
 - The [social server](./apps/social-server) which handles the social interactions (chat, friends list, guilds, etc).
 - The [login server](./apps/login-server) which handles the authentication and authorization of players/accounts.
 
+The applications make use of one or several of the shared libraries that can be found in the `packages/` folder:
+- The [eslint-config](./packages/eslint) package which provides linting defaults.
+- The [shared-servers](./packages/shared-servers) package which provides utilities for backend services.
+- The [shared-protocol](./packages/shared-protocol) package which provides types and schemas for frontend/backend communication.
+- The [shared-sim](./packages/shared-sim) package which builds on top of shared-protocol to provide concrete shared methods and
+logic between the game-server and client.
+
+*Important note*: a given app should only import shared-sim *or* shared-protocol, not both -- shared-sim re-exports shared-protocol. This is checked by the task check:shared-deps e.g., `pnpm check:shared-deps`.
+
+## Connecting
 The basic flow for a client connecting to the game is:
 - The client connects to the login server to authenticate and authorize the player.
 - The login server verifies the player's credentials and issues a JWT token.

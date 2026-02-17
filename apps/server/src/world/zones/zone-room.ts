@@ -12,7 +12,7 @@ import {
   type EventStreamBatch,
   type EventStreamResyncRequest,
   type EventStreamResyncResponse,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 import { Room, Client, CloseCode, AuthContext } from "colyseus";
 import * as CommandHandler from "../../commands/commands";
 import { ServerZone, ZoneData } from "./zone";

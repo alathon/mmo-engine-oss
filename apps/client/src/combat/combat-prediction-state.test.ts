@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ABILITY_DEFINITIONS } from "@mmo/shared";
+import { ABILITY_DEFINITIONS } from "@mmo/shared-sim";
 import { CombatPredictionState } from "./combat-prediction-state";
 
 describe("CombatPredictionState", () => {

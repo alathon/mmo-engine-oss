@@ -30,7 +30,7 @@
     "typescript": "catalog:"
   },
   "dependencies": {
-    "@mmo/shared": "workspace:*",
+    "@mmo/shared-protocol": "workspace:*",
     "@mmo/shared-servers": "workspace:*",
     "cors": "catalog:",
     "express": "catalog:",

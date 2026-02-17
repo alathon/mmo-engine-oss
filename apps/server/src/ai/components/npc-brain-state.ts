@@ -1,4 +1,4 @@
-import type { NavcatQuery } from "@mmo/shared";
+import type { NavcatQuery } from "@mmo/shared-sim";
 
 export type SmoothPathPoint = ReturnType<NavcatQuery["findSmoothPath"]>["path"][number];
 

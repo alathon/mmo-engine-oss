@@ -13,7 +13,7 @@ import {
   NPCState,
   PlayerState,
   ZoneState,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 import { AbilityEngine } from "../src/combat/ability-engine";
 import { STATUS_DEFINITIONS } from "../src/combat/status-definitions";
 import { ServerPlayer } from "../src/world/entities/player";

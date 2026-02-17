@@ -4,7 +4,7 @@ import {
   AbilityUseRequest,
   MoveMessage,
   TargetChangeMessage,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 import { ServerPlayer } from "../world/entities/player";
 import { ServerZone } from "../world/zones/zone";
 import { MAX_PENDING_INPUTS, SERVER_SNAP_ACCEPT_DISTANCE } from "../world/constants/movement";

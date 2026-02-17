@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EventCategory, type EventLogEntry, type EventStreamResyncRequest } from "@mmo/shared";
+import { EventCategory, type EventLogEntry, type EventStreamResyncRequest } from "@mmo/shared-sim";
 import { EventStreamClient, type EventStreamTransport } from "./event-stream-client";
 
 const createEntry = (eventId: number): EventLogEntry => ({

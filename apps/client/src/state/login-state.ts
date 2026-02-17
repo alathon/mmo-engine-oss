@@ -1,4 +1,4 @@
-import type { LoginResponse } from "@mmo/shared";
+import type { LoginResponse } from "@mmo/shared-sim";
 import type { ClientState } from "./types";
 import type { FullscreenUiController } from "../ui/fullscreen-ui-controller";
 import * as loginClient from "../network/login-client";

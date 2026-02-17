@@ -1,5 +1,5 @@
 import { Scene } from "@babylonjs/core/scene";
-import { NPCState } from "@mmo/shared";
+import { NPCState } from "@mmo/shared-sim";
 import { MobEntity } from "./mob-entity";
 import type { UiLayer } from "../ui/ui-layer";
 

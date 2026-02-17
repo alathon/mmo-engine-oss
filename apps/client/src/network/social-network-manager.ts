@@ -1,5 +1,5 @@
 import { Client, Room } from "@colyseus/sdk";
-import { ChatBroadcast, ChatChannel, ChatMessage, toFiniteNumber } from "@mmo/shared";
+import { ChatBroadcast, ChatChannel, ChatMessage, toFiniteNumber } from "@mmo/shared-sim";
 import { ChatEventSource } from "../ui/widgets/chat/chat-event-source";
 
 const SIMULATED_LATENCY_MS = toFiniteNumber(import.meta.env.VITE_SIMULATED_LATENCY_MS, 0);

@@ -5,7 +5,7 @@ import {
   PLAYER_COLLISION_EPSILON,
   PlayerCollisionSimulator as SharedPlayerCollisionSimulator,
   type SimulatePlayerCollisionStepParams as SharedSimulateStepParams,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 import type { ServerCollisionWorld } from "../collision/server-collision-world";
 
 const COLLISION_DEBUG_ENABLED = (() => {

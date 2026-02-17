@@ -3,7 +3,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 import { Control } from "@babylonjs/gui/2D/controls/control";
 import { MobEntity } from "./mob-entity";
-import { PlayerState } from "@mmo/shared";
+import { PlayerState } from "@mmo/shared-sim";
 import type { UiLayer } from "../ui/ui-layer";
 import type { NavmeshMoveDebug } from "../movement/movement-types";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";

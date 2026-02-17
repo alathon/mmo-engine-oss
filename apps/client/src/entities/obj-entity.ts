@@ -4,7 +4,7 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 import { Control } from "@babylonjs/gui/2D/controls/control";
-import { NavmeshObstacle } from "@mmo/shared";
+import { NavmeshObstacle } from "@mmo/shared-sim";
 import { Entity } from "./entity";
 import type { UiLayer } from "../ui/ui-layer";
 

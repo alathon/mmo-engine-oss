@@ -5,17 +5,20 @@ import {
   CLIENT_IDLE_SNAP_MS,
   CLIENT_MOVE_BUFFER_SIZE,
   CLIENT_RECONCILE_DISTANCE_EPSILON,
+  PLAYER_SPEED,
+  PLAYER_SPRINT_MULTIPLIER,
+} from "@mmo/shared-sim";
+
+import { PlayerState, TICK_MS, toFiniteNumber } from "@mmo/shared-sim";
+
+import {
+  PLAYER_COLLISION_EPSILON,
   DEFAULT_PLAYER_GRAVITY,
   DEFAULT_PLAYER_JUMP_VELOCITY,
   DEFAULT_PLAYER_MAX_FALL_SPEED,
-  PLAYER_SPEED,
-  PLAYER_SPRINT_MULTIPLIER,
-  PLAYER_COLLISION_EPSILON,
   PlayerCollisionSimulator as SharedPlayerCollisionSimulator,
-  PlayerState,
-  TICK_MS,
-  toFiniteNumber,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
+
 import type { PlayerEntity } from "../entities/player-entity";
 import type { InputManager } from "../input/input-manager";
 import type { ZoneConnectionManager } from "../network/zone-connection-manager";

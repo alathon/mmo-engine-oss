@@ -1,14 +1,15 @@
 import {
-  ABILITY_DEFINITIONS,
   BUFFER_OPEN_MS,
   GCD_SECONDS,
   INTERNAL_COOLDOWN_MS,
+  ABILITY_DEFINITIONS,
   type AbilityAck,
   type AbilityCancelRequest,
   type AbilityCastInterruptEvent,
   type AbilityUseRequest,
   type TargetSpec,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
+
 import type { ZoneConnectionManager } from "../network/zone-connection-manager";
 import { CombatPredictionState } from "./combat-prediction-state";
 import type { MobEntity } from "../entities/mob-entity";

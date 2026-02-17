@@ -4,7 +4,7 @@ import {
   AbilityState,
   type AbilityAck,
   type AbilityUseRequest,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { ZoneConnectionManager } from "../network/zone-connection-manager";
 import { CombatController } from "./combat-controller";

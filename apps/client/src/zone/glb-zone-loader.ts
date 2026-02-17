@@ -1,7 +1,7 @@
 import "@babylonjs/loaders";
 import { LoadAssetContainerAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { Scene } from "@babylonjs/core/scene";
-import { postLoadProcessScene, ZoneDefinition } from "@mmo/shared";
+import { postLoadProcessScene, ZoneDefinition } from "@mmo/shared-sim";
 import testZoneGlbUrl from "@mmo/assets/zones/startingPlains.glb?url";
 
 /** Hot damn the below is confusing. Sad

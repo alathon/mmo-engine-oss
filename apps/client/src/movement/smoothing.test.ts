@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { Scene } from "@babylonjs/core/scene";
-import { MobState } from "@mmo/shared";
+import { MobState } from "@mmo/shared-sim";
 import { MobEntity } from "../entities/mob-entity";
 import { applyMovementSmoothing } from "./smoothing";
 import type { UiLayer } from "../ui/ui-layer";

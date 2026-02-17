@@ -1,4 +1,4 @@
-import { NPCState } from "@mmo/shared";
+import { NPCState } from "@mmo/shared-sim";
 import { ServerNPC } from "../entities/npc";
 import { ZoneData, ServerZone } from "./zone";
 import { ZoneSpawnPoint } from "./types";

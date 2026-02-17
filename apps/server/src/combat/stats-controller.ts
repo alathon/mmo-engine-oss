@@ -1,4 +1,4 @@
-import type { CombatStats, MobState, StatModifier } from "@mmo/shared";
+import type { CombatStats, MobState, StatModifier } from "@mmo/shared-sim";
 
 export interface StatModifierSource {
   getStatModifiers(): readonly StatModifier[];

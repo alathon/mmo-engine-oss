@@ -1,6 +1,4 @@
 import { Callbacks, ColyseusSDK, Room } from "@colyseus/sdk";
-//import type { server } from "../../../server/src/appConfig.ts";
-//import type { ZoneRoom } from "../../../server/src/world/zones/zoneRoom.ts";
 
 import {
   ClientMessage,
@@ -17,7 +15,7 @@ import {
   type EventStreamBatch,
   type EventStreamResyncRequest,
   type EventStreamResyncResponse,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 import type { ConnectionEventEmitter, ConnectionStatus } from "./connection-event-emitter";
 import { EventStreamClient } from "./event-stream-client";
 

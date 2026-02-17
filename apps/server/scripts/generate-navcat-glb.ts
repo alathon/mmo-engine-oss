@@ -6,7 +6,7 @@ import { LoadAssetContainerAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { Axis, Mesh, Scene, Space } from "@babylonjs/core";
 import { NullEngine } from "@babylonjs/core/Engines/nullEngine";
 import { generateSoloNavMesh, type SoloNavMeshInput, type SoloNavMeshOptions } from "navcat/blocks";
-import { NavmeshGenerationSettings } from "@mmo/shared";
+import { NavmeshGenerationSettings } from "@mmo/shared-sim";
 import { getPositionsAndIndices } from "../src/navmesh/navcat-babylon";
 
 interface GlbZoneDefinition {

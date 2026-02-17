@@ -1,4 +1,5 @@
-import { ABILITY_DEFINITIONS, hasLineOfSight, type NavcatQuery } from "@mmo/shared";
+import { ABILITY_DEFINITIONS, hasLineOfSight } from "@mmo/shared-sim";
+import type { ServerCollisionWorld } from "../../collision/server-collision-world";
 import type { ServerNPC } from "../entities/npc";
 import type { ServerPlayer } from "../entities/player";
 import type { ServerZone } from "./zone";
@@ -37,7 +38,10 @@ export class LineOfSightTracker {
 
     const candidates = this.collectCandidates(zone);
     const grid = this.buildSpatialGrid(candidates);
-    const navmesh = zone.zoneData.navmeshQuery;
+    const collisionWorld = zone.zoneData.collisionWorld;
+    if (!collisionWorld) {
+      return;
+    }
     const strideOffset = serverTick % this.updateStride;
     let index = 0;
 
@@ -47,7 +51,7 @@ export class LineOfSightTracker {
         continue;
       }
 
-      this.updatePlayer(player, navmesh, grid, serverTick);
+      this.updatePlayer(player, collisionWorld, grid, serverTick);
       index += 1;
     }
 
@@ -56,7 +60,7 @@ export class LineOfSightTracker {
 
   private updatePlayer(
     player: ServerPlayer,
-    navmesh: NavcatQuery,
+    collisionWorld: ServerCollisionWorld,
     grid: Map<string, TargetCandidate[]>,
     serverTick: number,
   ): void {
@@ -94,9 +98,10 @@ export class LineOfSightTracker {
 
       if (
         !hasLineOfSight(
-          navmesh,
+          collisionWorld.scene,
           { x: player.synced.x, y: player.synced.y, z: player.synced.z },
           { x: candidate.x, y: candidate.y, z: candidate.z },
+          collisionWorld.lineOfSightOptions,
         )
       ) {
         continue;

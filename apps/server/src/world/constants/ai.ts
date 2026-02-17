@@ -1,7 +1,7 @@
 /**
  * Server AI tuning constants.
  */
-import { PLAYER_SPEED } from "@mmo/shared";
+import { PLAYER_SPEED } from "@mmo/shared-sim";
 
 export interface NpcAiConfig {
   minIdleMs: number;

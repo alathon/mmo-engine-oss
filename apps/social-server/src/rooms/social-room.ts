@@ -1,6 +1,6 @@
 import { Room, Client, CloseCode } from "colyseus";
 import jwt from "jsonwebtoken";
-import { ChatBroadcast, ChatChannel, ChatMessage, AuthTokenPayload } from "@mmo/shared";
+import { ChatBroadcast, ChatChannel, ChatMessage, AuthTokenPayload } from "@mmo/shared-protocol";
 import { SocialState } from "./schema/social-state";
 import { logger } from "@mmo/shared-servers";
 import { AuthContext } from "@colyseus/core";

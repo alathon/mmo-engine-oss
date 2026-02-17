@@ -4,7 +4,7 @@ import {
   PLAYER_SPRINT_MULTIPLIER,
   type MobState,
   type NavcatQuery,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 import type { ServerCollisionWorld } from "../collision/server-collision-world";
 import { PlayerCollisionSimulator } from "./player-collision-simulator";
 import type { ServerPlayer } from "../world/entities/player";

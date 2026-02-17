@@ -6,25 +6,23 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
-import type {
+import {
+  NavmeshGenerationSettings,
+  ZoneDefinition,
+  AbilityCastInterruptEvent,
+  AbilityEffectAppliedEvent,
+  ABILITY_DEFINITIONS,
+  CombatEventType,
+  NavcatQuery,
+  type AbilityDefinition,
   LoginResponse,
   NPCState,
   PlayerState,
-  NavmeshGenerationSettings,
-  ZoneDefinition,
   SnapMessage,
   EventLogEntry,
-  AbilityCastInterruptEvent,
-  AbilityEffectAppliedEvent,
-} from "@mmo/shared";
-import {
-  ABILITY_DEFINITIONS,
-  CombatEventType,
   EventCategory,
-  NavcatQuery,
   TICK_MS,
-  type AbilityDefinition,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 
 import * as GlbZoneLoader from "../zone/glb-zone-loader";
 

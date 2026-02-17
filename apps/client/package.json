@@ -33,7 +33,7 @@
     "@babylonjs/loaders": "catalog:",
     "@colyseus/sdk": "catalog:",
     "@mmo/assets": "workspace:*",
-    "@mmo/shared": "workspace:*",
+    "@mmo/shared-sim": "workspace:*",
     "navcat": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",

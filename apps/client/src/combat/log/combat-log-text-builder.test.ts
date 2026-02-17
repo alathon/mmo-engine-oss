@@ -9,7 +9,7 @@ import {
   type EventLogEntry,
   type MobEnterCombatEvent,
   type MobExitCombatEvent,
-} from "@mmo/shared";
+} from "@mmo/shared-sim";
 import { buildCombatLogText, createCombatLogTextContext } from "./combat-log-text-builder";
 
 const context = createCombatLogTextContext(

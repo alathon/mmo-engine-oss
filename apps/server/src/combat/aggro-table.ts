@@ -1,4 +1,4 @@
-import { AggroEntry, CombatState } from "@mmo/shared";
+import { AggroEntry, CombatState } from "@mmo/shared-sim";
 
 const MAX_PERCENT = 100;
 

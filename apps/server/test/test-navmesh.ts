@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { NavcatQuery } from "@mmo/shared";
+import { NavcatQuery } from "@mmo/shared-sim";
 import type { NavMesh } from "navcat";
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));

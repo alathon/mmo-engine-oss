@@ -6,7 +6,6 @@ import {
   AbilityUseRequest,
   AbilityUseRejectionReason,
   CombatEventType,
-  EventCategory,
   INTERNAL_COOLDOWN_MS,
   GCD_SECONDS,
   canPayResourceCost,
@@ -14,17 +13,20 @@ import {
   canBufferAbility,
   hasLineOfSight,
   resolveTargetsForAbility,
+  EventCategory,
   type AbilityCastFinishEvent,
   type AbilityCastInterruptEvent,
   type AbilityCastStartEvent,
   type AbilityEffectAppliedEvent,
-  type MobState,
   type AbilityDefinition,
   type TargetSpec,
   type TargetCandidate,
   type TargetResult,
-} from "@mmo/shared";
-import { hashStringToUint32, resolveAbilityOutcome } from "@mmo/shared-servers";
+  type MobState,
+} from "@mmo/shared-sim";
+
+import { hashStringToUint32 } from "./prng";
+import { resolveAbilityOutcome } from "./resolve-ability-outcome";
 import type { MobMovementEvent } from "../movement/movement-controller";
 import type { ServerZone } from "../world/zones/zone";
 import type { ActiveCast } from "./types";
@@ -823,11 +825,15 @@ export class AbilityEngine {
     actor: ServerMob<MobState>,
     targetPosition: { x: number; y: number; z: number },
   ): boolean {
-    const navmesh = this.zone.zoneData.navmeshQuery;
+    const collisionWorld = this.zone.zoneData.collisionWorld;
+    if (!collisionWorld) {
+      return true;
+    }
     return hasLineOfSight(
-      navmesh,
+      collisionWorld.scene,
       { x: actor.synced.x, y: actor.synced.y, z: actor.synced.z },
       targetPosition,
+      collisionWorld.lineOfSightOptions,
     );
   }
 
